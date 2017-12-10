@@ -11,14 +11,15 @@ router = routers.DefaultRouter()
 router.register(r'users', hello.api.UserViewSet)
 router.register(r'groups', hello.api.GroupViewSet)
 router.register(r'players', hello.api.PlayerViewSet)
-router.register(r'teams', hello.api.TeamMembershipViewSet)
+router.register(r'teams', hello.api.TeamViewSet)
 router.register(r'teammemberships', hello.api.TeamMembershipViewSet)
 router.register(r'gameresults', hello.api.GameResultViewSet)
+router.register(r'events', hello.api.EventViewSet)
+router.register(r'eventteams', hello.api.EventTeamViewSet)
 
 urlpatterns = [
-    url(r'^$', hello.views.index, name='index'),
-    url(r'^db', hello.views.db, name='db'),
     url(r'^admin/', admin.site.urls),
-    url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
+
+urlpatterns += router.urls

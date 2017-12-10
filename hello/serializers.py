@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User, Group
 
 from rest_framework import serializers
-from .models import (Player, Team, TeamMembership, GameResult)
+from .models import *
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -31,4 +31,14 @@ class TeamMembershipSerializer(serializers.HyperlinkedModelSerializer):
 class GameResultSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = GameResult
+        fields = '__all__'
+
+class EventSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Event
+        fields = '__all__'
+
+class EventTeamSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = EventTeam
         fields = '__all__'

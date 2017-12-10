@@ -1,19 +1,8 @@
 from rest_framework import viewsets
 from django.contrib.auth.models import (User, Group)
 
-from .models import (Player,
-                     Team,
-                     TeamMembership,
-                     GameResult,
-                     )
-
-from .serializers import (UserSerializer,
-                          GroupSerializer,
-                          PlayerSerializer,
-                          TeamSerializer,
-                          TeamMembershipSerializer,
-                          GameResultSerializer,
-                          )
+from .models import *
+from .serializers import *
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -44,3 +33,11 @@ class TeamMembershipViewSet(viewsets.ModelViewSet):
 class GameResultViewSet(viewsets.ModelViewSet):
     queryset = GameResult.objects.all()
     serializer_class = GameResultSerializer
+
+class EventViewSet(viewsets.ModelViewSet):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+
+class EventTeamViewSet(viewsets.ModelViewSet):
+    queryset = EventTeam.objects.all()
+    serializer_class = EventTeamSerializer
