@@ -2,6 +2,7 @@ from django.contrib.auth.models import User, Group
 
 from django.db import models
 import trueskill
+from .trueskill_environment import skill_env
 
 class Player(models.Model):
     name = models.CharField('name', max_length=255)
@@ -10,14 +11,14 @@ class Player(models.Model):
     trueskill_rating_sigma = models.FloatField('TrueSkill.Rating sigma parameter')
     trueskill_rating_exposure = models.FloatField('TrueSkill.Rating exposure.  Use this for sorting')
 
-    def update_rating(self, rating: trueskill.Rating):
+    def update_rating(self, rating: trueskill.Rating) -> None:
         self.trueskill_rating_mu = rating.mu
         self.trueskill_rating_sigma = rating.sigma
         self.trueskill_rating_exposure = trueskill.expose(rating)
         self.save()
 
-    def get_rating(self):
-        return trueskill.Rating(self.trueskill_rating_mu, self.trueskill_rating_sigma)
+    def get_rating(self) -> trueskill.Rating:
+        return skill_env.Rating(self.trueskill_rating_mu, self.trueskill_rating_sigma)
 
 
 class Event(models.Model):
