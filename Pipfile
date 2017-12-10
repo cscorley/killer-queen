@@ -12,6 +12,7 @@ gunicorn = "*"
 "psycopg2" = "*"
 whitenoise = "*"
 requests = "*"
+trueskill = "*"
 
 
 [requires]

@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from .models import Greeting
 
 import requests
+import os
 
 # Create your views here.
 # def index(request):
@@ -11,9 +12,12 @@ import requests
 #     return render(request, 'index.html')
 
 def index(request):
-    r = requests.get('http://httpbin.org/status/418')
-    print(r.text)
-    return HttpResponse('<pre>' + r.text + '</pre>')
+    times = int(os.environ.get('TIMES',3))
+    return HttpResponse('Hello! ' * times)
+
+    # r = requests.get('http://httpbin.org/status/418')
+    # print(r.text)
+    # return HttpResponse('<pre>' + r.text + '</pre>')
 
 def db(request):
 
