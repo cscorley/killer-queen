@@ -13,7 +13,7 @@ gunicorn = "*"
 whitenoise = "*"
 requests = "*"
 trueskill = "*"
-django-tastypie = "*"
+djangorestframework = "*"
 
 
 [requires]

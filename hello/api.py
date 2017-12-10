@@ -1,24 +1,46 @@
-from tastypie.resources import ModelResource
-from tastypie.api import Api
-from .models import (Player, Team, TeamMembership, GameResult)
+from rest_framework import viewsets
+from django.contrib.auth.models import (User, Group)
 
-v1 = Api(api_name='v1')
-class PlayerResource(ModelResource):
-    class Meta:
-        queryset = Player.objects.all()
-v1.register(PlayerResource())
+from .models import (Player,
+                     Team,
+                     TeamMembership,
+                     GameResult,
+                     )
 
-class TeamResource(ModelResource):
-    class Meta:
-        queryset = Team.objects.all()
-v1.register(TeamResource())
+from .serializers import (UserSerializer,
+                          GroupSerializer,
+                          PlayerSerializer,
+                          TeamSerializer,
+                          TeamMembershipSerializer,
+                          GameResultSerializer,
+                          )
 
-class TeamMembershipResource(ModelResource):
-    class Meta:
-        queryset = TeamMembership.objects.all()
-v1.register(TeamMembershipResource())
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
 
-class GameResultResource(ModelResource):
-    class Meta:
-        queryset = GameResult.objects.all()
-v1.register(GameResultResource())
+class GroupViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows groups to be viewed or edited.
+    """
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+
+class PlayerViewSet(viewsets.ModelViewSet):
+    queryset = Player.objects.all()
+    serializer_class = PlayerSerializer
+
+class TeamViewSet(viewsets.ModelViewSet):
+    queryset = Team.objects.all()
+    serializer_class = TeamSerializer
+
+class TeamMembershipViewSet(viewsets.ModelViewSet):
+    queryset = TeamMembership.objects.all()
+    serializer_class = TeamMembershipSerializer
+
+class GameResultViewSet(viewsets.ModelViewSet):
+    queryset = GameResult.objects.all()
+    serializer_class = GameResultSerializer
