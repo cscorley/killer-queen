@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from .models import Greeting
+from .models import Player
 
 import requests
 import os
@@ -20,11 +20,11 @@ def index(request):
     # return HttpResponse('<pre>' + r.text + '</pre>')
 
 def db(request):
+    player = Player()
+    player.name = 'test player'
+    player.save()
 
-    greeting = Greeting()
-    greeting.save()
+    players = Player.objects.all()
 
-    greetings = Greeting.objects.all()
-
-    return render(request, 'db.html', {'greetings': greetings})
+    return render(request, 'db.html', {'players': players})
 
