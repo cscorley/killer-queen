@@ -11,6 +11,9 @@ router = routers.DefaultRouter()
 router.register(r'users', hello.api.UserViewSet)
 router.register(r'groups', hello.api.GroupViewSet)
 router.register(r'players', hello.api.PlayerViewSet)
+router.register(r'teams', hello.api.TeamMembershipViewSet)
+router.register(r'teammemberships', hello.api.TeamMembershipViewSet)
+router.register(r'gameresults', hello.api.GameResultViewSet)
 
 urlpatterns = [
     url(r'^$', hello.views.index, name='index'),
