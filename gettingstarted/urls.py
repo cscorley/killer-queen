@@ -4,13 +4,11 @@ from django.contrib import admin
 admin.autodiscover()
 
 import hello.views
-
-# Examples:
-# url(r'^$', 'gettingstarted.views.home', name='home'),
-# url(r'^blog/', include('blog.urls')),
+import hello.api
 
 urlpatterns = [
     url(r'^$', hello.views.index, name='index'),
     url(r'^db', hello.views.db, name='db'),
     url(r'^admin/', admin.site.urls),
+    url(r'^api/', include(hello.api.v1.urls)), # http://localhost:5000/api/v1/?format=json
 ]
