@@ -1,5 +1,9 @@
-from rest_framework import viewsets
 from django.contrib.auth.models import (User, Group)
+from django.shortcuts import render
+from django.http import HttpResponse
+from rest_framework import viewsets
+
+import trueskill
 
 from .models import *
 from .serializers import *
@@ -41,3 +45,34 @@ class EventViewSet(viewsets.ModelViewSet):
 class EventTeamViewSet(viewsets.ModelViewSet):
     queryset = EventTeam.objects.all()
     serializer_class = EventTeamSerializer
+
+
+def refresh_ratings(request):
+    """
+    Reset and re-rank all players based on all game results
+    """
+
+    # reset all players back to default rating
+    for player in Player.objects.all(): # type: Player
+        player.update_rating(trueskill.Rating())
+
+    for result in GameResult.objects.all(): # type: GameResult
+        blue = list(result.blue.members.all()) # type: List[Player]
+        gold = list(result.gold.members.all()) # type: List[Player]
+
+        blue_ratings = [x.get_rating() for x in blue] # type: List[trueskill.Rating]
+        gold_ratings = [x.get_rating() for x in gold] # type: List[trueskill.Rating]
+
+        for _ in range(0, result.blue_win_count):
+            blue_ratings, gold_ratings = trueskill.rate([blue_ratings, gold_ratings], ranks=[0, 1])
+
+        for _ in range(0, result.gold_win_count):
+            blue_ratings, gold_ratings = trueskill.rate([blue_ratings, gold_ratings], ranks=[1, 0])
+
+        for player, rating in zip(blue, blue_ratings):
+            player.update_rating(rating)
+
+        for player, rating in zip(gold, gold_ratings):
+            player.update_rating(rating)
+
+    return HttpResponse('OK')

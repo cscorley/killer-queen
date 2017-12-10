@@ -12,12 +12,18 @@ class Event(models.Model):
 class Player(models.Model):
     name = models.CharField('name', max_length=255)
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    trueskill_rating_mu = models.DecimalField('TrueSkill.Rating mu parameter',
-                                              max_digits=10,
-                                              decimal_places=4)
-    trueskill_rating_sigma = models.DecimalField('TrueSkill.Rating sigma parameter',
-                                                 max_digits=10,
-                                                 decimal_places=4)
+    trueskill_rating_mu = models.FloatField('TrueSkill.Rating mu parameter')
+    trueskill_rating_sigma = models.FloatField('TrueSkill.Rating sigma parameter')
+    trueskill_rating_exposure = models.FloatField('TrueSkill.Rating exposure.  Use this for sorting')
+
+    def update_rating(self, rating: trueskill.Rating):
+        self.trueskill_rating_mu = rating.mu
+        self.trueskill_rating_sigma = rating.sigma
+        self.trueskill_rating_exposure = trueskill.expose(rating)
+        self.save()
+
+    def get_rating(self):
+        return trueskill.Rating(self.trueskill_rating_mu, self.trueskill_rating_sigma)
 
 
 class Team(models.Model):

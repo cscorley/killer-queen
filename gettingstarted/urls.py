@@ -1,5 +1,4 @@
 from django.conf.urls import include, url
-
 from django.contrib import admin
 admin.autodiscover()
 
@@ -19,6 +18,7 @@ router.register(r'eventteams', hello.api.EventTeamViewSet)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^api/refresh_ratings$', hello.api.refresh_ratings, name='refresh_ratings'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 
