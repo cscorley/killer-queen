@@ -15,10 +15,12 @@ router.register(r'teammemberships', hello.api.TeamMembershipViewSet)
 router.register(r'gameresults', hello.api.GameResultViewSet)
 router.register(r'events', hello.api.EventViewSet)
 router.register(r'eventteams', hello.api.EventTeamViewSet)
+router.register(r'eventplayers', hello.api.EventPlayerViewSet)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/refresh_ratings$', hello.api.refresh_ratings, name='refresh_ratings'),
+    url(r'^api/team_suggestions$', hello.api.team_suggestions, name='team_suggestions'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 

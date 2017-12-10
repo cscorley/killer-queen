@@ -42,3 +42,8 @@ class EventTeamSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = EventTeam
         fields = '__all__'
+
+class EventPlayerSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = EventPlayer
+        fields = '__all__'

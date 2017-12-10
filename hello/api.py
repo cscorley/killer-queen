@@ -46,6 +46,9 @@ class EventTeamViewSet(viewsets.ModelViewSet):
     queryset = EventTeam.objects.all()
     serializer_class = EventTeamSerializer
 
+class EventPlayerViewSet(viewsets.ModelViewSet):
+    queryset = EventPlayer.objects.all()
+    serializer_class = EventPlayerSerializer
 
 def refresh_ratings(request):
     """
@@ -76,3 +79,6 @@ def refresh_ratings(request):
             player.update_rating(rating)
 
     return HttpResponse('OK')
+
+def team_suggestions(request):
+    pass

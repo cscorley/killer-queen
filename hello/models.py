@@ -3,12 +3,6 @@ from django.contrib.auth.models import User, Group
 from django.db import models
 import trueskill
 
-class Event(models.Model):
-    name = models.CharField('name', max_length=255)
-    created = models.DateTimeField('date created', auto_now_add=True)
-    when = models.DateTimeField('event start time', auto_now_add=False)
-
-
 class Player(models.Model):
     name = models.CharField('name', max_length=255)
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
@@ -24,6 +18,16 @@ class Player(models.Model):
 
     def get_rating(self):
         return trueskill.Rating(self.trueskill_rating_mu, self.trueskill_rating_sigma)
+
+
+class Event(models.Model):
+    name = models.CharField('name', max_length=255)
+    created = models.DateTimeField('date created', auto_now_add=True)
+    when = models.DateTimeField('event start time', auto_now_add=False)
+    players = models.ManyToManyField(Player,
+                                     through='EventPlayer',
+                                     through_fields=('event', 'player'),
+                                     )
 
 
 class Team(models.Model):
@@ -46,6 +50,11 @@ class TeamMembership(models.Model):
 
 class EventTeam(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+
+
+class EventPlayer(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
 
 
