@@ -5,6 +5,7 @@ from .models import Player
 
 import requests
 import os
+import trueskill
 
 # Create your views here.
 # def index(request):
@@ -20,8 +21,11 @@ def index(request):
     # return HttpResponse('<pre>' + r.text + '</pre>')
 
 def db(request):
+    rating = trueskill.Rating()
     player = Player()
     player.name = 'test player'
+    player.trueskill_rating_mu = rating.mu
+    player.trueskill_rating_sigma = rating.sigma
     player.save()
 
     players = Player.objects.all()
