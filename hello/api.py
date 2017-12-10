@@ -88,7 +88,15 @@ def refresh_ratings(request):
 
 def team_suggestions(request):
     """
-    Generates a set of suggested players for gameplay
+    Generates a set of suggested players for gameplay.abs
+
+    It will distribute top players across teams evenly.  If there are to be 4 teams,
+    with 12 players ranked 1..16:
+
+    [(1, 8, 9, 16),
+     (2, 7, 10, 15),
+     (3, 6, 11, 14),
+     (4, 5, 12, 13)]
     """
 
     event_id = int(request.GET['event_id'])
@@ -110,15 +118,29 @@ def team_suggestions(request):
 
     logger.info("Teams: %d", team_count)
 
-    teams: List[List[Player]] = [list() for _ in range(0, team_count)]
-    current_team = 0
-    for player in players:
-        logger.info("Assigning player %d to team %d", player.pk, current_team)
-        teams[current_team].append(player)
+    # https://stackoverflow.com/a/10364399
+    # group the players into a 2D matrix:
+    # [(1, 2, 3, 4),
+    #  (5, 6, 7, 8),
+    #  (9, 10, 11, 12),
+    #  (13, 14, 15, 16)]
+    groups = list(zip(*[iter(players)]*team_count))
 
-        if current_team < team_count - 1:
-            current_team += 1
-        else:
-            current_team = 0
+    # reverse the even groups so they are ranked high to low
+    # [(1, 2, 3, 4),
+    #  (8, 7, 6, 5),
+    #  (9, 10, 11, 12),
+    #  (16, 15, 14, 13)]
+    for num, group in enumerate(groups):
+        if (num % 2 == 1):
+            groups[num] = list(reversed(group))
+
+    # https://stackoverflow.com/a/4937526
+    # create teams by transposing the matrix
+    # [(1, 8, 9, 16),
+    #  (2, 7, 10, 15),
+    #  (3, 6, 11, 14),
+    #  (4, 5, 12, 13)]
+    teams = zip(*groups)
 
     return JsonResponse({num: [player.pk for player in team] for num, team in enumerate(teams)})
