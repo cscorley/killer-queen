@@ -42,7 +42,7 @@ INSTALLED_APPS = (
     'hello'
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     # Simplified static file serving.
     # https://warehouse.python.org/project/whitenoise/
     'whitenoise.middleware.WhiteNoiseMiddleware',
