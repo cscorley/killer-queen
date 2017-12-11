@@ -1,34 +1,24 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, authenticate
+from django.shortcuts import render, redirect
 
-from .models import Player
+from .forms import SignUpForm
+from .trueskill_environment import skill_env
 
-import requests
-import os
-import trueskill
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user.refresh_from_db()  # load the profile instance created by the signal
+            user.save()
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=user.username, password=raw_password)
+            login(request, user)
+            return redirect('/')
+    else:
+        form = SignUpForm()
 
-# Create your views here.
-# def index(request):
-#     # return HttpResponse('Hello from Python!')
-#     return render(request, 'index.html')
-
-def index(request):
-    times = int(os.environ.get('TIMES',3))
-    return HttpResponse('Hello! ' * times)
-
-    # r = requests.get('http://httpbin.org/status/418')
-    # print(r.text)
-    # return HttpResponse('<pre>' + r.text + '</pre>')
-
-def db(request):
-    rating = trueskill.Rating()
-    player = Player()
-    player.name = 'test player'
-    player.trueskill_rating_mu = rating.mu
-    player.trueskill_rating_sigma = rating.sigma
-    player.save()
-
-    players = Player.objects.all()
-
-    return render(request, 'db.html', {'players': players})
-
+    return render(request, 'registration/signup.html', {'form': form})

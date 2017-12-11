@@ -1,15 +1,19 @@
 from django.contrib.auth.models import User, Group
-
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 import trueskill
-from .trueskill_environment import skill_env
+from .trueskill_environment import skill_env, default_mu, default_sigma, default_exposure
 
 class Player(models.Model):
-    name = models.CharField('name', max_length=255)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    trueskill_rating_mu = models.FloatField('TrueSkill.Rating mu parameter')
-    trueskill_rating_sigma = models.FloatField('TrueSkill.Rating sigma parameter')
-    trueskill_rating_exposure = models.FloatField('TrueSkill.Rating exposure.  Use this for sorting')
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    trueskill_rating_mu = models.FloatField('TrueSkill.Rating mu parameter',
+                                            default=default_mu)
+    trueskill_rating_sigma = models.FloatField('TrueSkill.Rating sigma parameter',
+                                               default=default_sigma)
+    trueskill_rating_exposure = models.FloatField('TrueSkill.Rating exposure.  Use this for sorting',
+                                                  default=default_exposure)
 
     def update_rating(self, rating: trueskill.Rating) -> None:
         self.trueskill_rating_mu = rating.mu
@@ -20,6 +24,12 @@ class Player(models.Model):
     def get_rating(self) -> trueskill.Rating:
         return skill_env.Rating(self.trueskill_rating_mu, self.trueskill_rating_sigma)
 
+@receiver(post_save, sender=User)
+def update_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Player.objects.create(user=instance)
+
+    instance.player.save()
 
 class Event(models.Model):
     name = models.CharField('name', max_length=255)

@@ -88,10 +88,10 @@ def refresh_ratings(request):
 
 def team_suggestions(request):
     """
-    Generates a set of suggested players for gameplay.abs
+    Generates a set of suggested players for gameplay
 
     It will distribute top players across teams evenly.  If there are to be 4 teams,
-    with 12 players ranked 1..16:
+    with players ranked 1..16:
 
     [(1, 8, 9, 16),
      (2, 7, 10, 15),
