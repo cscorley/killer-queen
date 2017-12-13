@@ -4,14 +4,14 @@
 
 <div class="container">
     <div class="col-md-4">
-        <h3>Current teams (suggested)</h3>
+        <h2>Current teams (suggested)</h2>
         <br />
         {% if teams %}
             <ol>
             {% for team in teams %}
                 <li><ul>
                 {% for player in team %}
-                    <li> {{ player.user.first_name }} ({{ player.user.username }}) </li>
+                    <li> {{ player.user.get_full_name }} ({{ player.user.username }}) </li>
                 {% endfor %}
                 </ul></li>
             {% endfor %}
