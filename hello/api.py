@@ -109,14 +109,21 @@ def team_suggestions(request):
     if 'min_teams' in request.GET:
         min_teams = int(request.GET['min_teams'])
 
+    teams = team_suggestions_internal(event_id, max_players_per_team, min_teams)
+
+    return JsonResponse({num: [{'id': player.pk, 'name': player.user.username} for player in team] for num, team in enumerate(teams)})
+
+def team_suggestions_internal(event_id: int, max_players_per_team: int, min_teams: int):
     event: Event = Event.objects.get(pk=event_id)
     player: Player
     players: List[Player] = sorted(event.players.all(),
                                    key=lambda player: player.trueskill_rating_exposure)
 
+
     team_count: int = max(min_teams, int(len(players) / max_players_per_team))
 
     logger.info("Teams: %d", team_count)
+    logger.info("Players: %d", len(players))
 
     # https://stackoverflow.com/a/10364399
     # group the players into a 2D matrix:
@@ -125,6 +132,8 @@ def team_suggestions(request):
     #  (9, 10, 11, 12),
     #  (13, 14, 15, 16)]
     groups = list(zip(*[iter(players)]*team_count))
+
+    logger.info("Groups: %d", len(groups))
 
     # reverse the even groups so they are ranked high to low
     # [(1, 2, 3, 4),
@@ -141,6 +150,4 @@ def team_suggestions(request):
     #  (2, 7, 10, 15),
     #  (3, 6, 11, 14),
     #  (4, 5, 12, 13)]
-    teams = zip(*groups)
-
-    return JsonResponse({num: [player.pk for player in team] for num, team in enumerate(teams)})
+    return list(zip(*groups))

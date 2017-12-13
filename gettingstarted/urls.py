@@ -20,6 +20,7 @@ router.register(r'eventplayers', hello.api.EventPlayerViewSet)
 urlpatterns = [
     url(r'^account/', include('django.contrib.auth.urls')),
     url(r'^signup/$', hello.views.signup, name='signup'),
+    url(r'^events/(?P<event_id>\d+)/join$', hello.views.event_join, name='event_join'),
     url(r'^admin/', admin.site.urls),
     url(r'^api/refresh_ratings$', hello.api.refresh_ratings, name='refresh_ratings'),
     url(r'^api/team_suggestions$', hello.api.team_suggestions, name='team_suggestions'),

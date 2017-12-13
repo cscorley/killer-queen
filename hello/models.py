@@ -58,15 +58,24 @@ class TeamMembership(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('team', 'player')
+
 
 class EventTeam(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('team', 'event')
+
 
 class EventPlayer(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('player', 'event')
 
 
 class GameResult(models.Model):

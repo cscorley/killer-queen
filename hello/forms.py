@@ -15,3 +15,6 @@ class SignUpForm(UserCreationForm):
                  'email',
                  'password1',
                  'password2', )
+
+class EventRegistrationForm(forms.Form):
+    username = forms.CharField(max_length=150, required=True, help_text='Required.  If you forgot your name, please ask for help! :-)')

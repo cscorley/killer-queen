@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="left-container">
+        <h2>Current teams (suggested)</h2>
+        {% if teams %}
+            <ol>
+            {% for team in teams %}
+                <li><ul>
+                {% for player in team %}
+                    <li> {{ player.user.first_name }} ({{ player.user.username }}) </li>
+                {% endfor %}
+                </ul></li>
+            {% endfor %}
+            </ol>
+        {% else %}
+            Whoops, not enough players registered!  Join us?
+        {% endif %}
+    </div>
+
+    <div class="right-container">
+        <h2>Register as a player</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in registerForm %}
+            <p>
+                {{ field.label_tag }}
+                <br> {{ field }}
+                {% if field.help_text %}
+                    <small style="color: grey">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
+            </p>
+            {% endfor %}
+            <button type="submit">Register</button>
+        </form>
+        <br />
+        <h3>Sign up</h3>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in signUpForm %}
+            <p>
+                {{ field.label_tag }}
+                <br> {{ field }}
+                {% if field.help_text %}
+                    <small style="color: grey">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
+            </p>
+            {% endfor %}
+            <button type="submit">Sign up and register</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
