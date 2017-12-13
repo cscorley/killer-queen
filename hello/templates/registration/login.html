@@ -3,15 +3,17 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<h2>Login</h2>
-<form method="post">
-    {% csrf_token %} {{ form.as_p }}
-    <button type="submit">Login</button>
-</form>
+<div class="container">
+    <h2>Login</h2>
+    <form method="post">
+        {% csrf_token %} {{ form.as_p }}
+        <button type="submit">Login</button>
+    </form>
 
-<br>Forgot your password? <a href="mailto:cscorley@gmail.com?subject=Forgot%20my%20password&body=I%20forgot%20my%20password.%20%20Can%20you%20reset%20it%3F%20You%20da%20best">Email me!</a>
-<small style="color: grey">(Ok so sending emails costs money and this is the easiest compromise for now ❤️)</small>
-<br>
-<br>
-<br>No account? Let's make one: <a href="/signup">sign up!</a>
+    <br>Forgot your password? <a href="mailto:cscorley@gmail.com?subject=Forgot%20my%20password&body=I%20forgot%20my%20password.%20%20Can%20you%20reset%20it%3F%20You%20da%20best">Email me!</a>
+    <small style="color: grey">(Ok so sending emails costs money and this is the easiest compromise for now ❤️)</small>
+    <br>
+    <br>
+    <br>No account? Let's make one: <a href="/signup">sign up!</a>
+</div>
 {% endblock %}

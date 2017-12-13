@@ -14,6 +14,8 @@ import logging
 
 logger = logging.getLogger('hello')
 
+def index(request):
+    return render(request, 'index.html')
 
 def signup(request):
     if request.method == 'POST':
@@ -30,6 +32,10 @@ def signup(request):
         form = SignUpForm()
 
     return render(request, 'registration/signup.html', {'form': form})
+
+def event_current(request):
+    current_events = Event.objects.filter(is_current=True).order_by('pk')
+    return redirect('/events/%d/join' % current_events[0].id)
 
 def event_join(request, event_id):
     event_id = int(event_id)

@@ -39,6 +39,7 @@ class Event(models.Model):
                                      through='EventPlayer',
                                      through_fields=('event', 'player'),
                                      )
+    is_current = models.BooleanField('Determines whether this is a current event', default=False)
 
 
 class Team(models.Model):

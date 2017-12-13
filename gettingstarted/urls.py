@@ -2,6 +2,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 admin.autodiscover()
 
+import gettingstarted.settings as settings
 import hello.views
 import hello.api
 
@@ -19,12 +20,17 @@ router.register(r'eventplayers', hello.api.EventPlayerViewSet)
 
 urlpatterns = [
     url(r'^account/', include('django.contrib.auth.urls')),
-    url(r'^signup/$', hello.views.signup, name='signup'),
+    url(r'^account/signup/$', hello.views.signup, name='signup'),
     url(r'^events/(?P<event_id>\d+)/join$', hello.views.event_join, name='event_join'),
+    url(r'^events/current/$', hello.views.event_current, name='event_current'),
     url(r'^admin/', admin.site.urls),
     url(r'^api/refresh_ratings$', hello.api.refresh_ratings, name='refresh_ratings'),
     url(r'^api/team_suggestions$', hello.api.team_suggestions, name='team_suggestions'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 
-urlpatterns += router.urls
+if (settings.DEBUG):
+    urlpatterns += router.urls
+    urlpatterns += [url(r'^index/$', hello.views.index, name='index')]
+else:
+    urlpatterns += [url(r'^$', hello.views.index, name='index')]

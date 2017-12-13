@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="container">
-    <div class="left-container">
+    <div class="col-md-4">
         <h2>Current teams (suggested)</h2>
         {% if teams %}
             <ol>
@@ -20,7 +20,7 @@
         {% endif %}
     </div>
 
-    <div class="right-container">
+    <div class="col-md-8">
         <h2>Register as a player</h2>
         <form method="post">
             {% csrf_token %}
