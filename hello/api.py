@@ -119,6 +119,10 @@ def team_suggestions_internal(event_id: int, max_players_per_team: int, min_team
     players: List[Player] = sorted(event.players.all(),
                                    key=lambda player: player.trueskill_rating_exposure)
 
+    if len(players) == 0:
+        return list()
+    elif len(players) == 1:
+        return [players]
 
     team_count: int = max(min_teams, int(len(players) / max_players_per_team))
 

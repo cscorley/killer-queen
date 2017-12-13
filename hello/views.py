@@ -33,7 +33,7 @@ def signup(request):
 
 def event_join(request, event_id):
     event_id = int(event_id)
-    max_players_per_team = 5
+    max_players_per_team = 5  # TODO
     min_teams = 2
     signUpForm = SignUpForm()
     registerForm = EventRegistrationForm()
@@ -48,11 +48,11 @@ def event_join(request, event_id):
             user.save()
             user = authenticate(username=user.username, password=raw_password)
             register_player(event_id, user.username)
-            registerForm = EventRegistrationForm()
         elif registerForm.is_valid():
             register_player(event_id, registerForm.cleaned_data.get('username'))
-            signUpForm = SignUpForm()
 
+        signUpForm = SignUpForm()
+        registerForm = EventRegistrationForm()
 
     teams = team_suggestions_internal(event_id, max_players_per_team, min_teams)
     logger.info("Got teams: %s", str(teams))
