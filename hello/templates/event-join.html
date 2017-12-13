@@ -4,7 +4,8 @@
 
 <div class="container">
     <div class="col-md-4">
-        <h2>Current teams (suggested)</h2>
+        <h3>Current teams (suggested)</h3>
+        <br />
         {% if teams %}
             <ol>
             {% for team in teams %}
@@ -39,7 +40,7 @@
             <button type="submit">Register</button>
         </form>
         <br />
-        <h3>Sign up</h3>
+        <h4>Sign up</h4>
         <form method="post">
             {% csrf_token %}
             {% for field in signUpForm %}
