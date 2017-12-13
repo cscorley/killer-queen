@@ -53,11 +53,13 @@
     <ul class="nav navbar-nav navbar-right">
       <li class="navbar-right">
         {% if user.is_authenticated %}
-          <li> <a href="/account/logout?next=/"><span class"glyphicon glyphicon-user"></span> Logout {{ user.username }}</a></li>
+          <li> <a href="/account/logout?next=/"><span class="glyphicon glyphicon-remove"></span> Logout {{ user.username }}</a></li>
+          {% if user.is_staff %}
+            <li> <a href="/admin"><span class="glyphicon glyphicon-glass"></span> Admin panel</a> </li>
+          {% endif %}
         {% else %}
-          <li> <a href="/account/login"><span class"glyphicon glyphicon-user"></span> Player Login</a></li>
-          <li> <a href="/account/signup"><span class"glyphicon glyphicon-pencil"></span> Sign up</a></li>
-          <li> <a href="/admin"><span class="glyphicon glyphicon-glass"></span> Admin Login</a> </li>
+          <li> <a href="/account/login"><span class="glyphicon glyphicon-user"></span> Login</a></li>
+          <li> <a href="/account/signup"><span class="glyphicon glyphicon-pencil"></span> Sign up</a></li>
         {% endif %}
       </li>
     </ul>
