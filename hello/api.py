@@ -1,5 +1,6 @@
 import itertools
 import logging
+import random
 
 logger = logging.getLogger('hello')
 
@@ -116,8 +117,13 @@ def team_suggestions(request):
 def team_suggestions_internal(event_id: int, max_players_per_team: int, min_teams: int):
     event: Event = Event.objects.get(pk=event_id)
     player: Player
-    players: List[Player] = sorted(event.players.all(),
-                                   key=lambda player: player.trueskill_rating_exposure)
+    players: List[Player] = list(event.players.all())
+
+    # shuffle players so any equal ratings are out of order
+    random.shuffle(players)
+
+    # now sort by rating
+    players = sorted(players, key=lambda player: player.trueskill_rating_exposure)
 
     if len(players) == 0:
         return list()
