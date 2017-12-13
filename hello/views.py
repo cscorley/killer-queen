@@ -39,6 +39,7 @@ def event_current(request):
 
 def event_join(request, event_id):
     event_id = int(event_id)
+    event = Event.objects.get(pk=event_id)
     max_players_per_team = 5  # TODO
     min_teams = 2
     signUpForm = SignUpForm()
@@ -53,24 +54,25 @@ def event_join(request, event_id):
             user.refresh_from_db()  # load the profile instance created by the signal
             user.save()
             user = authenticate(username=user.username, password=raw_password)
-            register_player(event_id, user.username)
+            register_player(event, user.username)
         elif registerForm.is_valid():
-            register_player(event_id, registerForm.cleaned_data.get('username'))
+            register_player(event, registerForm.cleaned_data.get('username'))
 
         signUpForm = SignUpForm()
         registerForm = EventRegistrationForm()
 
-    teams = team_suggestions_internal(event_id, max_players_per_team, min_teams)
+    teams = team_suggestions_internal(event, max_players_per_team, min_teams)
     logger.info("Got teams: %s", str(teams))
 
     return render(request, 'event-join.html', {'signUpForm': signUpForm,
                                                'registerForm': registerForm,
-                                               'teams': teams})
+                                               'teams': teams,
+                                               'event': event})
 
-def register_player(event_id: int, username: str):
+def register_player(event: Event, username: str):
     user = User.objects.get_by_natural_key(username)
     ep = EventPlayer()
-    ep.event = Event.objects.get(pk=event_id)
+    ep.event = event
     ep.player = user.player
     try:
         ep.validate_unique()

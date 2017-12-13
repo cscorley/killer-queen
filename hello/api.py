@@ -114,8 +114,7 @@ def team_suggestions(request):
 
     return JsonResponse({num: [{'id': player.pk, 'name': player.user.username} for player in team] for num, team in enumerate(teams)})
 
-def team_suggestions_internal(event_id: int, max_players_per_team: int, min_teams: int):
-    event: Event = Event.objects.get(pk=event_id)
+def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams: int):
     player: Player
     players: List[Player] = list(event.players.all())
 
