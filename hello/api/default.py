@@ -122,7 +122,7 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     random.shuffle(players)
 
     # now sort by rating
-    players = sorted(players, key=lambda player: player.trueskill_rating_exposure)
+    players = sorted(players, key=lambda player: player.trueskill_rating_exposure, reverse=True)
 
     if len(players) == 0:
         return list()
@@ -144,7 +144,7 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
 
     logger.info("Groups: %d", len(groups))
 
-    # reverse the even groups so they are ranked high to low
+    # reverse the odd groups so they are ranked high to low
     # [(1, 2, 3, 4),
     #  (8, 7, 6, 5),
     #  (9, 10, 11, 12),
@@ -159,4 +159,20 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     #  (2, 7, 10, 15),
     #  (3, 6, 11, 14),
     #  (4, 5, 12, 13)]
-    return list(zip(*groups))
+    groups = list(list(x) for x in zip(*groups))
+
+    grouped_players = sum(groups, list())
+    logger.info("Grouped players: %d", len(grouped_players))
+
+    current_group = 0
+
+    for player in players:
+        if player not in grouped_players:
+            logger.info("Assigning un-grouped player %s", player)
+            groups[current_group].append(player)
+            current_group += 1
+
+        if current_group >= len(groups):
+            current_group = 0
+
+    return groups
