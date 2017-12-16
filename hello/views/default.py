@@ -11,6 +11,7 @@ from hello.models import Player, EventPlayer, Event
 from hello.trueskill_environment import skill_env
 
 import logging
+import statistics
 
 logger = logging.getLogger('hello')
 
@@ -67,6 +68,9 @@ def event_join(request, event_id):
 
     teams = team_suggestions_internal(event, max_players_per_team, min_teams)
     logger.info("Got teams: %s", str(teams))
+
+    for team_num, team in enumerate(teams):
+        logger.info("Team %d average: %f", team_num, statistics.mean([x.trueskill_rating_exposure if x else 0 for x in team]))
 
     return render(request, 'event-join.html', {'signUpForm': signUpForm,
                                                'registerForm': registerForm,

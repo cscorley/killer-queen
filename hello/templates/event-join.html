@@ -10,11 +10,15 @@
         {% if teams %}
             <ol>
             {% for team in teams %}
-                <li><ul>
+                <li><br /><ol>
                 {% for player in team %}
-                    <li> {{ player.user.get_full_name }} ({{ player.user.username }}) </li>
+                    {% if player %}
+                        <li> {{ player.user.get_full_name }} ({{ player.user.username }}) </li>
+                    {% else %}
+                        <strong><li> </li></strong>
+                    {% endif %}
                 {% endfor %}
-                </ul></li>
+                </ol></li>
             {% endfor %}
             </ol>
         {% else %}

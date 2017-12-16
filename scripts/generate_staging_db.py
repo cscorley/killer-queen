@@ -14,6 +14,7 @@ players = list(Player.objects.all())
 
 for player in players:
     player.trueskill_rating_exposure = player.user.id
+    player.save()
 
 for event in events:
     for player in players[:event.id]:
