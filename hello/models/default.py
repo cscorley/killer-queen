@@ -61,7 +61,7 @@ class Team(models.Model):
                                     )
 
     def __str__(self) -> str:
-        return "%s (%s)" % (self.name, ','.join(self.players))
+        return "%s (%s)" % (self.name, ','.join(self.members))
 
 class TeamMembership(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
@@ -71,7 +71,7 @@ class TeamMembership(models.Model):
         unique_together = ('team', 'player')
 
     def __str__(self) -> str:
-        return "%s (%s)" % (str(self.team), str(self.player))
+        return "%s (%s)" % (self.team.name, self.player.user.username)
 
 
 class EventTeam(models.Model):
@@ -82,7 +82,7 @@ class EventTeam(models.Model):
         unique_together = ('team', 'event')
 
     def __str__(self) -> str:
-        return "%s (%s)" % (str(self.team), str(self.event))
+        return "%s (%s)" % (self.team.name, self.event.name)
 
 
 class EventPlayer(models.Model):
@@ -93,7 +93,7 @@ class EventPlayer(models.Model):
         unique_together = ('player', 'event')
 
     def __str__(self) -> str:
-        return "%s (%s)" % (str(self.player), str(self.event))
+        return "%s (%s)" % (self.player.name, self.event.name)
 
 
 class GameResult(models.Model):
@@ -106,4 +106,4 @@ class GameResult(models.Model):
 
 
     def __str__(self) -> str:
-        return "%s (%d) vs %s (%d) at %s" % (str(self.blue), str(self.gold), self.blue_win_count, self.gold_win_count, str(self.event))
+        return "%s (%d) vs %s (%d) at %s" % (self.blue.name, self.gold.name, self.blue_win_count, self.gold_win_count, self.event.name)
