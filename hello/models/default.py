@@ -61,7 +61,7 @@ class Team(models.Model):
                                     )
 
     def __str__(self) -> str:
-        return "%s (%s)" % (self.name, ','.join([member.user.username for member in self.members]))
+        return self.name
 
 class TeamMembership(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
@@ -103,7 +103,6 @@ class GameResult(models.Model):
     blue_win_count = models.PositiveSmallIntegerField('Number of wins by the Blue team')
     gold_win_count = models.PositiveSmallIntegerField('Number of wins by the Gold team')
     event = models.ForeignKey(Event, on_delete=models.CASCADE, blank=True, null=True)
-
 
     def __str__(self) -> str:
         return "%s (%d) vs %s (%d) at %s" % (self.blue.name, self.gold.name, self.blue_win_count, self.gold_win_count, self.event.name)
