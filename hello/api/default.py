@@ -129,9 +129,12 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     elif len(players) == 1:
         return [players]
 
-    team_count: int = max(min_teams, int(len(players) / max_players_per_team))
+    team_size: int = max(min_teams, int((len(players) / max_players_per_team) + 0.5))
 
-    logger.info("Teams: %d", team_count)
+    walk_on_count = len(players) % team_size
+    if walk_on_count > 0:
+        players += [None] * (team_size - walk_on_count)
+
     logger.info("Players: %d", len(players))
 
     # https://stackoverflow.com/a/10364399
@@ -140,9 +143,14 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     #  (5, 6, 7, 8),
     #  (9, 10, 11, 12),
     #  (13, 14, 15, 16)]
-    groups = list(zip(*[iter(players)]*team_count))
+    groups = list(zip(*[iter(players)]*team_size))
+    while (len(groups) >= max_players_per_team):
+        team_size += 1
+        groups = list(zip(*[iter(players)]*team_size))
 
-    logger.info("Groups: %d", len(groups))
+
+    logger.info("Group size initial: %d", len(groups))
+    logger.debug("Groups: %s", str(groups))
 
     # reverse the odd groups so they are ranked high to low
     # [(1, 2, 3, 4),
@@ -153,6 +161,9 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
         if (num % 2 == 1):
             groups[num] = list(reversed(group))
 
+    logger.info("Group size reverse: %d", len(groups))
+    logger.debug("Groups: %s", str(groups))
+
     # https://stackoverflow.com/a/4937526
     # create teams by transposing the matrix
     # [(1, 8, 9, 16),
@@ -161,18 +172,11 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     #  (4, 5, 12, 13)]
     groups = list(list(x) for x in zip(*groups))
 
+    logger.info("Group size final: %d", len(groups))
+    logger.debug("Groups: %s", str(groups))
+
     grouped_players = sum(groups, list())
     logger.info("Grouped players: %d", len(grouped_players))
 
-    current_group = 0
-
-    for player in players:
-        if player not in grouped_players:
-            logger.info("Assigning un-grouped player %s", player)
-            groups[current_group].append(player)
-            current_group += 1
-
-        if current_group >= len(groups):
-            current_group = 0
 
     return groups

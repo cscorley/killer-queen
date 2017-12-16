@@ -56,6 +56,7 @@ def event_join(request, event_id):
             user = signUpForm.save()
             user.refresh_from_db()  # load the profile instance created by the signal
             user.save()
+            raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=user.username, password=raw_password)
             register_player(event, user.username)
         elif registerForm.is_valid():
@@ -73,12 +74,13 @@ def event_join(request, event_id):
                                                'event': event})
 
 def register_player(event: Event, username: str):
-    user = User.objects.get_by_natural_key(username)
-    ep = EventPlayer()
-    ep.event = event
-    ep.player = user.player
-    try:
-        ep.validate_unique()
-        ep.save()
-    except ValidationError:
-        pass
+    if username:
+        user = User.objects.get_by_natural_key(username)
+        ep = EventPlayer()
+        ep.event = event
+        ep.player = user.player
+        try:
+            ep.validate_unique()
+            ep.save()
+        except ValidationError:
+            pass
