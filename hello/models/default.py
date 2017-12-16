@@ -5,6 +5,8 @@ from django.dispatch import receiver
 
 import trueskill
 from hello.trueskill_environment import skill_env, default_mu, default_sigma, default_exposure
+from .enums import TournamentStyle
+from .fields import EnumField
 
 class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -43,6 +45,9 @@ class Event(models.Model):
                                      through_fields=('event', 'player'),
                                      )
     is_current = models.BooleanField('Determines whether this is a current event', default=False)
+    tournament_style = EnumField(verbose_name='tournament style',
+                                 enum_class=TournamentStyle,
+                                 default=int(TournamentStyle.ROUND_ROBIN))
 
     def __str__(self) -> str:
         return "%s (%s)" % (self.name, str(self.when))
