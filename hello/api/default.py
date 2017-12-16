@@ -140,14 +140,12 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     # https://stackoverflow.com/a/10364399
     # group the players into a 2D matrix:
     # [(1, 2, 3, 4),
-    #  (5, 6, 7, 8),
-    #  (9, 10, 11, 12),
-    #  (13, 14, 15, 16)]
+    #  (5, 6, 7, 8)]
     groups = list(zip(*[iter(players)]*team_size))
-    while (len(groups) >= max_players_per_team):
+
+    while (len(groups) > max_players_per_team):
         team_size += 1
         groups = list(zip(*[iter(players)]*team_size))
-
 
     logger.info("Group size initial: %d", len(groups))
     logger.debug("Groups: %s", str(groups))
@@ -155,8 +153,6 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     # reverse the odd groups so they are ranked high to low
     # [(1, 2, 3, 4),
     #  (8, 7, 6, 5),
-    #  (9, 10, 11, 12),
-    #  (16, 15, 14, 13)]
     for num, group in enumerate(groups):
         if (num % 2 == 1):
             groups[num] = list(reversed(group))
@@ -166,10 +162,10 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
 
     # https://stackoverflow.com/a/4937526
     # create teams by transposing the matrix
-    # [(1, 8, 9, 16),
-    #  (2, 7, 10, 15),
-    #  (3, 6, 11, 14),
-    #  (4, 5, 12, 13)]
+    # [(1, 8,
+    #  (2, 7,
+    #  (3, 6,
+    #  (4, 5,
     groups = list(list(x) for x in zip(*groups))
 
     logger.info("Group size final: %d", len(groups))
