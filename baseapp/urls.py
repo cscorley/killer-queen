@@ -27,10 +27,7 @@ urlpatterns = [
     url(r'^api/refresh_ratings$', hello.api.refresh_ratings, name='refresh_ratings'),
     url(r'^api/team_suggestions$', hello.api.team_suggestions, name='team_suggestions'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^$', hello.views.index, name='index'),
 ]
 
-if (settings.DEBUG):
-    urlpatterns += router.urls
-    urlpatterns += [url(r'^index/$', hello.views.index, name='index')]
-else:
-    urlpatterns += [url(r'^$', hello.views.index, name='index')]
+urlpatterns += [url(r'^api/', include(router.urls))]
