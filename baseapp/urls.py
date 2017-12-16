@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^events/(?P<event_id>\d+)/join$', hello.views.event_join, name='event_join'),
     url(r'^events/(?P<event_id>\d+)/result$', hello.views.event_result, name='event_result'),
     url(r'^events/current/$', hello.views.event_current, name='event_current'),
+    url(r'^events/$', hello.views.EventListView.as_view()),
     url(r'^admin/', admin.site.urls),
     url(r'^api/refresh_ratings$', hello.api.refresh_ratings, name='refresh_ratings'),
     url(r'^api/team_suggestions$', hello.api.team_suggestions, name='team_suggestions'),
