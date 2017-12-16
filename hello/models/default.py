@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 import trueskill
-from .trueskill_environment import skill_env, default_mu, default_sigma, default_exposure
+from hello.trueskill_environment import skill_env, default_mu, default_sigma, default_exposure
 
 class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

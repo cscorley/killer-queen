@@ -5,10 +5,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
-from .api import team_suggestions_internal
-from .forms import SignUpForm, EventRegistrationForm
-from .models import Player, EventPlayer, Event
-from .trueskill_environment import skill_env
+from hello.api import team_suggestions_internal
+from hello.forms import SignUpForm, EventRegistrationForm
+from hello.models import Player, EventPlayer, Event
+from hello.trueskill_environment import skill_env
 
 import logging
 

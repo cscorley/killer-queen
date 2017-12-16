@@ -10,9 +10,9 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework import viewsets
 import trueskill
 
-from .models import *
-from .serializers import *
-from .trueskill_environment import skill_env
+from hello.models import *
+from hello.serializers import *
+from hello.trueskill_environment import skill_env
 
 class UserViewSet(viewsets.ModelViewSet):
     """
