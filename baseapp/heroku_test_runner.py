@@ -3,17 +3,17 @@ import os
 from django.test.runner import DiscoverRunner
 
 """
-WARNING:  WHEN USED INCORRECTLY THIS TEST RUNNER WILL DROP ALL TABLES IN YOUR PRODUCTION 
+WARNING:  WHEN USED INCORRECTLY THIS TEST RUNNER WILL DROP ALL TABLES IN YOUR PRODUCTION
 DATABASE!!!
 
 Heroku does not give users createdb/dropdb permissions, therefore Heroku CI cannot run tests for django.
-In order to fix this, use this test runner instead which attempts to minimally override the 
+In order to fix this, use this test runner instead which attempts to minimally override the
 default test runner by a)  forcing keepdb=True to stop database create/drop, and b) by dropping all
 tables after a test run and resetting the database to its initial blank state.
 
 Usage:
 
-1. In your django test settings file add the following two lines to ensure that the test 
+1. In your django test settings file add the following two lines to ensure that the test
 database name is the same as the Heroku provided database name.
 
 DATABASES['default'] = env.db('DATABASE_URL')  # or whatever you use to load the Heroku database settings

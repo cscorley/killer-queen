@@ -2,7 +2,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 admin.autodiscover()
 
-import gettingstarted.settings as settings
+import baseapp.settings as settings
 import hello.views
 import hello.api
 
