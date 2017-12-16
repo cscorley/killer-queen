@@ -5,4 +5,4 @@ from .models import *
 
 # Register your models here.
 
-admin.site.register((Player, Team, TeamMembership, GameResult, Event, EventTeam))
+admin.site.register((Player, Team, TeamMembership, GameResult, Event, EventTeam, EventPlayer))
