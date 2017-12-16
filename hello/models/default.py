@@ -44,6 +44,9 @@ class Event(models.Model):
                                      )
     is_current = models.BooleanField('Determines whether this is a current event', default=False)
 
+    def __str__(self) -> str:
+        return "%s (%s)" % (self.name, str(self.when))
+
 
 class Team(models.Model):
     name = models.CharField('name', max_length=255)
@@ -57,6 +60,8 @@ class Team(models.Model):
                                     through_fields=('team', 'event'),
                                     )
 
+    def __str__(self) -> str:
+        return "%s (%s)" % (self.name, ','.join(self.players))
 
 class TeamMembership(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
@@ -64,6 +69,9 @@ class TeamMembership(models.Model):
 
     class Meta:
         unique_together = ('team', 'player')
+
+    def __str__(self) -> str:
+        return "%s (%s)" % (str(self.team), str(self.player))
 
 
 class EventTeam(models.Model):
@@ -73,6 +81,9 @@ class EventTeam(models.Model):
     class Meta:
         unique_together = ('team', 'event')
 
+    def __str__(self) -> str:
+        return "%s (%s)" % (str(self.team), str(self.event))
+
 
 class EventPlayer(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
@@ -80,6 +91,9 @@ class EventPlayer(models.Model):
 
     class Meta:
         unique_together = ('player', 'event')
+
+    def __str__(self) -> str:
+        return "%s (%s)" % (str(self.player), str(self.event))
 
 
 class GameResult(models.Model):
@@ -89,3 +103,7 @@ class GameResult(models.Model):
     blue_win_count = models.PositiveSmallIntegerField('Number of wins by the Blue team')
     gold_win_count = models.PositiveSmallIntegerField('Number of wins by the Gold team')
     event = models.ForeignKey(Event, on_delete=models.CASCADE, blank=True, null=True)
+
+
+    def __str__(self) -> str:
+        return "%s (%d) vs %s (%d) at %s" % (str(self.blue), str(self.gold), self.blue_win_count, self.gold_win_count, str(self.event))
