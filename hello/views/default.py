@@ -79,7 +79,7 @@ def event_join(request, event_id):
 
 def register_player(event: Event, username: str):
     if username:
-        user = User.objects.get_by_natural_key(username)
+        user = User.objects.get(username__iexact=username) # retrieves a user by case insensitive username
         ep = EventPlayer()
         ep.event = event
         ep.player = user.player

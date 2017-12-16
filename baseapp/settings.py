@@ -120,6 +120,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'baseapp.auth_backend.CaseInsensitiveModelBackend', # inherits from 'django.contrib.auth.backends.ModelBackend'
+)
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
