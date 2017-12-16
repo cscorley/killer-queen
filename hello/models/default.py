@@ -36,6 +36,17 @@ def update_user_profile(sender, instance, created, **kwargs):
 
     instance.player.save()
 
+class Team(models.Model):
+    name = models.CharField('name', max_length=255)
+    created = models.DateTimeField('date created', auto_now_add=True)
+    members = models.ManyToManyField(Player,
+                                     through='TeamMembership',
+                                     through_fields=('team', 'player'),
+                                     )
+
+    def __str__(self) -> str:
+        return self.name
+
 class Event(models.Model):
     name = models.CharField('name', max_length=255)
     created = models.DateTimeField('date created', auto_now_add=True)
@@ -44,6 +55,11 @@ class Event(models.Model):
                                      through='EventPlayer',
                                      through_fields=('event', 'player'),
                                      )
+    teams = models.ManyToManyField(Team,
+                                   through='EventTeam',
+                                   through_fields=('event', 'team'),
+                                   )
+
     is_current = models.BooleanField('Determines whether this is a current event', default=False)
     tournament_style = EnumField(verbose_name='tournament style',
                                  enum_class=TournamentStyle,
@@ -53,20 +69,6 @@ class Event(models.Model):
         return "%s (%s)" % (self.name, str(self.when))
 
 
-class Team(models.Model):
-    name = models.CharField('name', max_length=255)
-    created = models.DateTimeField('date created', auto_now_add=True)
-    members = models.ManyToManyField(Player,
-                                     through='TeamMembership',
-                                     through_fields=('team', 'player'),
-                                     )
-    events = models.ManyToManyField(Event,
-                                    through='EventTeam',
-                                    through_fields=('team', 'event'),
-                                    )
-
-    def __str__(self) -> str:
-        return self.name
 
 class TeamMembership(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)

@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^account/', include('django.contrib.auth.urls')),
     url(r'^account/signup/$', hello.views.signup, name='signup'),
     url(r'^events/(?P<event_id>\d+)/join$', hello.views.event_join, name='event_join'),
+    url(r'^events/(?P<event_id>\d+)/result$', hello.views.event_result, name='event_result'),
     url(r'^events/current/$', hello.views.event_current, name='event_current'),
     url(r'^admin/', admin.site.urls),
     url(r'^api/refresh_ratings$', hello.api.refresh_ratings, name='refresh_ratings'),

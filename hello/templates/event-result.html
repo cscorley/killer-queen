@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <h1>{{ event.name }}</h1>
+    Tournament style: {{ event.tournament_style }}
+    <div class="col-md-4">
+        <h2>Teams</h2>
+        <br />
+        <ol>
+        {% for team in event.teams.all %}
+            <li> {{ team.name }} <br /><ol>
+            {% for player in team.members.all %}
+                {% if player %}
+                    <li> {{ player.user.get_full_name }} ({{ player.user.username }}) </li>
+                {% else %}
+                    <strong><li> </li></strong>
+                {% endif %}
+            {% endfor %}
+            </ol></li>
+        {% endfor %}
+        </ol>
+    </div>
+
+    <div class="col-md-8">
+        <h2>Game results</h2>
+        <br />
+        <ol>
+        {% for game in games %}
+            <li> {{ game }} </li>
+        {% endfor %}
+        </ol>
+    </div>
+</div>
+
+{% endblock %}
