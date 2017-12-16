@@ -105,4 +105,4 @@ class GameResult(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self) -> str:
-        return "%s (%d) vs %s (%d) at %s" % (self.blue.name, self.gold.name, self.blue_win_count, self.gold_win_count, self.event.name)
+        return "%s (%d) vs %s (%d) at %s" % (self.blue.name, self.blue_win_count, self.gold.name, self.gold_win_count, self.event.name)
