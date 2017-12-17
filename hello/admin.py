@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-import inspect
-from .models import *
+from .models import Player, Team, TeamMembership, GameResult, Event, EventTeam, EventPlayer
 
 # Register your models here.
 

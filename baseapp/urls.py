@@ -4,6 +4,7 @@ admin.autodiscover()
 
 import baseapp.settings as settings
 import hello.views
+import hello.views.events
 import hello.api
 
 from rest_framework import routers
@@ -21,10 +22,10 @@ router.register(r'eventplayers', hello.api.EventPlayerViewSet)
 urlpatterns = [
     url(r'^account/', include('django.contrib.auth.urls')),
     url(r'^account/signup/$', hello.views.signup, name='signup'),
-    url(r'^events/(?P<event_id>\d+)/join$', hello.views.event_join, name='event_join'),
-    url(r'^events/(?P<event_id>\d+)/result$', hello.views.event_result, name='event_result'),
-    url(r'^events/current/$', hello.views.event_current, name='event_current'),
-    url(r'^events/$', hello.views.EventListView.as_view()),
+    url(r'^events/(?P<event_id>\d+)/join$', hello.views.events.join, name='event_join'),
+    url(r'^events/(?P<event_id>\d+)/result$', hello.views.events.result, name='event_result'),
+    url(r'^events/current/$', hello.views.events.current, name='event_current'),
+    url(r'^events/$', hello.views.events.EventListView.as_view()),
     url(r'^admin/', admin.site.urls),
     url(r'^api/refresh_ratings$', hello.api.refresh_ratings, name='refresh_ratings'),
     url(r'^api/team_suggestions$', hello.api.team_suggestions, name='team_suggestions'),
