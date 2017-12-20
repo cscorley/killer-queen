@@ -54,8 +54,12 @@
     <ul class="nav navbar-nav navbar-right">
       <li class="navbar-right">
         {% if user.is_authenticated %}
+          <li> <a href="/account/update/"><span class="glyphicon glyphicon-cog"></span> Edit Profile </a></li>
           <li> <a href="/account/logout?next=/"><span class="glyphicon glyphicon-remove"></span> Logout {{ user.username }}</a></li>
           {% if user.is_staff %}
+            <li> <a href="/api"><span class="glyphicon glyphicon-search"></span> API </a> </li>
+          {% endif %}
+          {% if user.is_superuser %}
             <li> <a href="/admin"><span class="glyphicon glyphicon-glass"></span> Admin panel</a> </li>
           {% endif %}
         {% else %}

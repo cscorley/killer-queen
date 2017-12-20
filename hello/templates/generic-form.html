@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
 
-  <h2>Sign up</h2>
+  <h2>{{ header }}</h2>
   <form method="post">
     {% csrf_token %}
     {% for field in form %}
@@ -18,7 +18,7 @@
         {% endfor %}
       </p>
     {% endfor %}
-    <button type="submit">Sign up</button>
+    <button type="submit">{{ button }}</button>
   </form>
 
 </div>

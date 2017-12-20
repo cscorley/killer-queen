@@ -18,4 +18,7 @@ def signup(request):
     else:
         form = SignUpForm()
 
-    return render(request, 'registration/signup.html', {'form': form})
+    return render(request, 'generic-form.html', {'form': form,
+                                                 'header': 'Update profile',
+                                                 'button': 'Update',
+                                                  })
