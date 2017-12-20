@@ -1,5 +1,6 @@
 from django.db import models
 
+
 from .enums import TournamentStyle
 from .fields import EnumField
 
@@ -20,13 +21,14 @@ class Event(models.Model):
                                    )
 
     is_current = models.BooleanField('Determines whether this is a current event', default=False)
+    is_active = models.BooleanField('Determines whether this is an active event', default=True)
+
     tournament_style = EnumField(verbose_name='tournament style',
                                  enum_class=TournamentStyle,
                                  default=int(TournamentStyle.ROUND_ROBIN))
 
     def __str__(self) -> str:
         return "%s (%s)" % (self.name, str(self.when))
-
 
 
 class EventTeam(models.Model):

@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate
-from django.shortcuts import render
+from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
@@ -15,6 +15,11 @@ logger = logging.getLogger("hello")
 def join(request, event_id):
     event_id = int(event_id)
     event = Event.objects.get(pk=event_id)
+
+    if not event.is_active and not request.user.is_staff:
+        logger.info("redirecting to result page: %d", event.id)
+        return redirect(reverse('event_result', args=[event.id]))
+
     max_players_per_team = 5  # TODO
     min_teams = 2
     signUpForm = SignUpForm()
