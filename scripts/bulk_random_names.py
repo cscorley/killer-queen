@@ -48,9 +48,8 @@ paddlemarks
 twinkleshinies
 dallyrubs
 jabberrings
-spitterfoots
 splutterkisses
-mumblecloudes
+mumbleclouds
 """
 
 random_names = list()
