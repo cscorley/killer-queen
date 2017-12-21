@@ -15,6 +15,7 @@ requests = "*"
 trueskill = "*"
 djangorestframework = "*"
 parameterized = "*"
+pytz = "*"
 
 
 [requires]

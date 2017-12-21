@@ -11,6 +11,7 @@ class Event(models.Model):
     name = models.CharField('name', max_length=255)
     created = models.DateTimeField('date created', auto_now_add=True)
     when = models.DateTimeField('event start time', auto_now_add=False)
+    timezone = models.CharField('timezone', max_length=50, default="America/New_York")
     players = models.ManyToManyField(Player,
                                      through='EventPlayer',
                                      through_fields=('event', 'player'),
