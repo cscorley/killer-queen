@@ -1,5 +1,7 @@
 from django.db import models
 
+import statistics
+
 from .player import Player
 
 class Team(models.Model):
@@ -12,6 +14,13 @@ class Team(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def get_rating_mean(self) -> float:
+        players = list(self.members.all())
+        if players:
+            return statistics.mean([x.trueskill_rating_exposure if x else 0 for x in players])
+        else:
+            return 0.0
 
 
 class TeamMembership(models.Model):

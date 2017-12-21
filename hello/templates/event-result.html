@@ -10,10 +10,14 @@
         <br />
         <ol>
         {% for team in event.teams.all %}
-            <li> {{ team.name }} <br /><ol>
+            <li> {{ team.name }}
+                {% if user.is_staff %} <small style="color: grey">(r={{ team.get_rating_mean |floatformat:1 }})</small> {% endif %}
+                <br /><ol>
             {% for player in team.members.all %}
                 {% if player %}
-                    <li> {{ player.user.get_full_name }} ({{ player.user.username }}) </li>
+                    <li> {{ player.user.get_full_name }}
+                    {% if user.is_staff %} <small style="color: grey">({{ player.user.username }}, r={{ player.trueskill_rating_exposure|floatformat:1 }})</small> {% endif %}
+                    </li>
                 {% else %}
                     <strong><li> </li></strong>
                 {% endif %}
