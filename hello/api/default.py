@@ -156,11 +156,10 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     for num, group in enumerate(groups):
         if (num % 2 == 1):
             groups[num] = list(reversed(group))
-
-    # always flip the last group when there's an odd number of players per team
-    # this ensures the worst players (or walk-ons/empty slots) are paired with the best
-    if max_players_per_team % 2 == 1:
-        groups[-1] = list(reversed(groups[-1]))
+        elif (num == len(groups) - 1):
+            # always flip the last group if it wasn't already flipped
+            # this ensures the worst players (or walk-ons/empty slots) are paired with the best
+            groups[-1] = list(reversed(groups[-1]))
 
     logger.info("Group size reverse: %d", len(groups))
     logger.debug("Groups: %s", str(groups))
