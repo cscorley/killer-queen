@@ -11,10 +11,14 @@
         {% if teams %}
             <ol>
             {% for team in teams %}
-                <li>{{ team.name }} <small style="color: grey">(r={{ team.rating_mean|floatformat:1}})</small> <br /><ol>
+                <li>{{ team.name }}
+                    {% if user.is_staff %} <small style="color: grey">(r={{ team.rating_mean|floatformat:1}})</small> {% endif %}
+                    <br /><ol>
                 {% for player in team.players %}
                     {% if player %}
-                        <li> {{ player.user.get_full_name }} <small style="color: grey">({{ player.user.username }}, r={{ player.trueskill_rating_exposure|floatformat:1 }})</small></li>
+                        <li> {{ player.user.get_full_name }}
+                             {% if user.is_staff %} <small style="color: grey">({{ player.user.username }}, r={{ player.trueskill_rating_exposure|floatformat:1 }})</small> {% endif %}
+                            </li>
                     {% else %}
                         <strong><li> </li></strong>
                     {% endif %}
