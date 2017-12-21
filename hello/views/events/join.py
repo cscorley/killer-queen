@@ -45,13 +45,24 @@ def join(request, event_id):
     teams = team_suggestions_internal(event, max_players_per_team, min_teams)
     logger.info("Got teams: %s", str(teams))
 
-    for team_num, team in enumerate(teams):
-        logger.info("Team %d average: %f", team_num, statistics.mean([x.trueskill_rating_exposure if x else 0 for x in team]))
+    team_items =  [TeamViewItem(('Random Team %d' % (team_num + 1)), team) for team_num, team in enumerate(teams)]
+
+    for team in team_items:
+        logger.info("Team %s mean: %f, median: %f", team.name, team.rating_mean, team.rating_median)
 
     return render(request, 'event-join.html', {'signUpForm': signUpForm,
                                                'registerForm': registerForm,
-                                               'teams': teams,
+                                               'teams': team_items,
                                                'event': event})
+
+class TeamViewItem:
+
+    def __init__(self, name, players):
+        self.name = name
+        self.players = players
+        self.rating_mean = statistics.mean([x.trueskill_rating_exposure if x else 0 for x in players])
+        self.rating_median = statistics.median([x.trueskill_rating_exposure if x else 0 for x in players])
+
 
 def register_player(event: Event, username: str):
     if username:
