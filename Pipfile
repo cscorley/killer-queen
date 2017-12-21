@@ -13,9 +13,9 @@ gunicorn = "*"
 whitenoise = "*"
 requests = "*"
 trueskill = "*"
-djangorestframework = "*"
 parameterized = "*"
 pytz = "*"
+djangorestframework = "==3.7.3"
 
 
 [requires]
