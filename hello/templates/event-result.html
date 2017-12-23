@@ -12,7 +12,7 @@
         <h2>Teams</h2>
         <br />
         <ol>
-        {% for team in event.teams.all %}
+        {% for team in event.teams.all|dictsort:"name" %}
             <li> {{ team.name }}
                 {% if user.is_staff %} <small style="color: grey">(r={{ team.get_rating_mean |floatformat:1 }})</small> {% endif %}
                 <br /><ol>
