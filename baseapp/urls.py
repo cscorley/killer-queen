@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^api/refresh_ratings$', hello.api.refresh_ratings, name='refresh_ratings'),
     url(r'^api/team_suggestions$', hello.api.team_suggestions, name='team_suggestions'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^api/user-autocomplete/$', hello.api.UserAutocomplete.as_view(), name='user-autocomplete'),
     url(r'^$', hello.views.index, name='index'),
 ]
 

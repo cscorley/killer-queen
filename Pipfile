@@ -16,6 +16,7 @@ trueskill = "*"
 parameterized = "*"
 pytz = "*"
 djangorestframework = "==3.7.3"
+django-autocomplete-light = "*"
 
 
 [requires]

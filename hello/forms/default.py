@@ -1,6 +1,9 @@
+from dal import autocomplete
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+
+from hello.models import Player
 
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True, help_text='Required.  So we know what to call you.')
@@ -22,4 +25,7 @@ class SignUpForm(UserCreationForm):
                  'password2', )
 
 class EventRegistrationForm(forms.Form):
-    username = forms.CharField(max_length=150, required=True, help_text='Required.  If you forgot your name, please ask for help! :-)')
+    user = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2(url='user-autocomplete')
+    )

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "4366fa7068e61385ea8437829e144d8a9ccefe49c141472c9d3c7501d2c90a9e"
+            "sha256": "f4bc189cb059ef56e2cd8bdf841f98755fe7ce0fb32e5ac1d047c3955de665ea"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -9,9 +9,9 @@
             "os_name": "posix",
             "platform_machine": "x86_64",
             "platform_python_implementation": "CPython",
-            "platform_release": "4.14.5-1-ARCH",
+            "platform_release": "4.14.7-1-ARCH",
             "platform_system": "Linux",
-            "platform_version": "#1 SMP PREEMPT Sun Dec 10 14:50:30 UTC 2017",
+            "platform_version": "#1 SMP PREEMPT Sun Dec 17 19:13:39 UTC 2017",
             "python_full_version": "3.6.3",
             "python_version": "3.6",
             "sys_platform": "linux"
@@ -55,6 +55,12 @@
                 "sha256:9614851d4a7ff8cbd32b73c6076441f377c45a5bbff7e771798fb02c43c31f47"
             ],
             "version": "==2.0"
+        },
+        "django-autocomplete-light": {
+            "hashes": [
+                "sha256:5ccb1c8c4b75cf72bc5dabd920190ea1ca3a340f56fb6b12d07a62202837fa75"
+            ],
+            "version": "==3.2.10"
         },
         "djangorestframework": {
             "hashes": [

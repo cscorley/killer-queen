@@ -2,6 +2,10 @@
 
 {% load tz %}
 
+{% block header %}
+{{ registerForm.media }}
+{% endblock %}
+
 {% block content %}
 
 <div class="container">
@@ -39,18 +43,7 @@
         <h2>Register as a player</h2>
         <form method="post">
             {% csrf_token %}
-            {% for field in registerForm %}
-            <p>
-                {{ field.label_tag }}
-                <br> {{ field }}
-                {% if field.help_text %}
-                    <small style="color: grey">{{ field.help_text }}</small>
-                {% endif %}
-                {% for error in field.errors %}
-                    <p style="color: red">{{ error }}</p>
-                {% endfor %}
-            </p>
-            {% endfor %}
+            {{ registerForm.as_p }}
             <button type="submit">Register</button>
         </form>
         <br />
