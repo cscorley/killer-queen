@@ -57,7 +57,7 @@ class TeamViewItem:
 
     def __init__(self, name, players):
         self.name = name
-        self.players = players
+        self.players = list(sorted(players, key=lambda player: player.user.id if player else 9999))
         self.rating_mean = statistics.mean([x.trueskill_rating_exposure if x else 0 for x in players])
         self.rating_median = statistics.median([x.trueskill_rating_exposure if x else 0 for x in players])
 
