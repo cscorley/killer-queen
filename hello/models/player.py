@@ -33,3 +33,8 @@ def update_user_profile(sender, instance, created, **kwargs):
         Player.objects.create(user=instance)
 
     instance.player.save()
+
+def user_str(self):
+    return "%s (%s)" % (self.get_full_name(), self.username)
+
+User.add_to_class("__str__", user_str)

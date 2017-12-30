@@ -64,7 +64,7 @@ class TeamViewItem:
 
 def register_player(event: Event, user: User):
     if user:
-        logger.info("Registering user: %s", user.username)
+        logger.info("Registering user: %s", str(user))
         ep = EventPlayer()
         ep.event = event
         ep.player = user.player
