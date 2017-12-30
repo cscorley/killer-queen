@@ -2,8 +2,6 @@ from django.views.generic.edit import UpdateView
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.models import User
 
-from django.views.decorators.debug import sensitive_variables, sensitive_post_parameters
-
 class UserUpdateView(UpdateView):
     model = User
     fields = ('username',
@@ -19,7 +17,6 @@ class UserUpdateView(UpdateView):
     def get_object(self, queryset=None):
         return self.request.user
 
-    @sensitive_variables('new_password')
     def form_valid(self, form):
         clean = form.cleaned_data
 

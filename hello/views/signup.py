@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 
@@ -19,6 +18,6 @@ def signup(request):
         form = SignUpForm()
 
     return render(request, 'generic-form.html', {'form': form,
-                                                 'header': 'Update profile',
-                                                 'button': 'Update',
+                                                 'header': 'Create new user account',
+                                                 'button': 'Sign up',
                                                   })
