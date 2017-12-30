@@ -27,5 +27,6 @@ class SignUpForm(UserCreationForm):
 class EventRegistrationForm(forms.Form):
     user = forms.ModelChoiceField(
         queryset=User.objects.all(),
-        widget=autocomplete.ModelSelect2(url='user-autocomplete')
+        widget=autocomplete.ModelSelect2(url='user-autocomplete'),
+        label="Player Username"
     )
