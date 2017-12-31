@@ -34,6 +34,7 @@ DEBUG = os.environ.get("DJANGO_IS_DEBUG", False)
 # Application definition
 
 INSTALLED_APPS = [
+    'hello',
     'dal',
     'dal_select2',
     'django.contrib.admin',
@@ -46,7 +47,6 @@ INSTALLED_APPS = [
     # http://whitenoise.evans.io/en/stable/django.html#using-whitenoise-in-development
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
-    'hello',
     'rest_framework'
 ]
 

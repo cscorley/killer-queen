@@ -5,14 +5,16 @@
 <div class="container">
     <form action="" method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        <table>
+        {{ form.as_table }}
+        </table>
         <input type="submit" value="Update" />
     </form>
 
     <br />
     <br />
     <p>
-        <a href="/account/update/password">Change your password</a>
+        <a href="/account/password_change">Change your password</a>
     </p>
 </div>
 

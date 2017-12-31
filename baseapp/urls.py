@@ -21,9 +21,8 @@ router.register(r'eventplayers', hello.api.EventPlayerViewSet)
 
 urlpatterns = [
     url(r'^account/', include('django.contrib.auth.urls')),
+    url(r'^account/$', hello.views.UserUpdateView.as_view(), name='account_update'),
     url(r'^account/signup/$', hello.views.signup, name='account_signup'),
-    url(r'^account/update/$', hello.views.UserUpdateView.as_view(), name='account_update'),
-    url(r'^account/update/password/$', hello.views.user_password_change, name='account_update_password'),
     url(r'^events/(?P<event_id>\d+)/join$', hello.views.events.join, name='event_join'),
     url(r'^events/(?P<event_id>\d+)/result$', hello.views.events.result, name='event_result'),
     url(r'^events/current/$', hello.views.events.current, name='event_current'),
