@@ -1,11 +1,15 @@
 from django.db import models
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from .enums import TournamentStyle
 from .fields import EnumField
 
 from .player import Player
 from .team import Team
+
+import trueskill
+from hello.trueskill_environment import skill_env
 
 class Event(models.Model):
     name = models.CharField('name', max_length=255)
@@ -67,3 +71,28 @@ class GameResult(models.Model):
             return "%s (%d) vs %s (%d) at %s" % (self.blue.name, self.blue_win_count, self.gold.name, self.gold_win_count, self.event.name)
         else:
             return "%s (%d) vs %s (%d)" % (self.blue.name, self.blue_win_count, self.gold.name, self.gold_win_count)
+
+    def process(self) -> None:
+        blue: List[Player] = list(self.blue.members.all())
+        gold: List[Player] = list(self.gold.members.all())
+
+        blue_ratings: List[trueskill.Rating] = [x.get_rating() for x in blue]
+        gold_ratings: List[trueskill.Rating] = [x.get_rating() for x in gold]
+
+        # TODO: are blue win/losses being biased by always calculating them first?
+        for _ in range(0, self.blue_win_count):
+            blue_ratings, gold_ratings = skill_env.rate([blue_ratings, gold_ratings], ranks=[0, 1])
+
+        for _ in range(0, self.gold_win_count):
+            blue_ratings, gold_ratings = skill_env.rate([blue_ratings, gold_ratings], ranks=[1, 0])
+
+        for player, rating in zip(blue, blue_ratings):
+            player.update_rating(rating)
+
+        for player, rating in zip(gold, gold_ratings):
+            player.update_rating(rating)
+
+@receiver(post_save, sender=GameResult)
+def process_game_result(sender, instance, created, **kwargs):
+    if created:
+        instance.process()

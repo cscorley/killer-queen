@@ -23,26 +23,10 @@ def refresh_ratings(request):
 
     result: GameResult
     for result in GameResult.objects.order_by('created'):
-        blue: List[Player] = list(result.blue.members.all())
-        gold: List[Player] = list(result.gold.members.all())
-
-        blue_ratings: List[trueskill.Rating] = [x.get_rating() for x in blue]
-        gold_ratings: List[trueskill.Rating] = [x.get_rating() for x in gold]
-
-        # TODO: are blue win/losses being biased by always calculating them first?
-        for _ in range(0, result.blue_win_count):
-            blue_ratings, gold_ratings = skill_env.rate([blue_ratings, gold_ratings], ranks=[0, 1])
-
-        for _ in range(0, result.gold_win_count):
-            blue_ratings, gold_ratings = skill_env.rate([blue_ratings, gold_ratings], ranks=[1, 0])
-
-        for player, rating in zip(blue, blue_ratings):
-            player.update_rating(rating)
-
-        for player, rating in zip(gold, gold_ratings):
-            player.update_rating(rating)
+        result.process()
 
     return HttpResponse('OK')
+
 
 def team_suggestions(request):
     """
