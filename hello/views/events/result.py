@@ -15,8 +15,9 @@ def result(request, event_id):
 
     data = {'event':event}
     resultForm = CreateGameResultForm(data)
-    resultForm.fields['blue'].queryset = event.teams.all()
-    resultForm.fields['gold'].queryset = event.teams.all()
+    resultForm.fields['blue'].queryset = event.teams.all().order_by('name')
+    resultForm.fields['gold'].queryset = event.teams.all().order_by('name')
+
 
     teamForm = CreateTeamForm()
     alert = None
