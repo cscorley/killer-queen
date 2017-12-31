@@ -4,12 +4,12 @@
 {% block content %}
 
 <div class="container">
-    <ol>
+    <ul>
         {% for event in object_list %}
             {% url 'event_result' event.id as the_url %}
-            <li><a href="{{ the_url }}">{{ event.name }} </a> ({{ event.id }})</li>
+            <li><a href="{{ the_url }}">{{ event.name }} </a></li>
         {% endfor %}
-    </ol>
+    </ul>
 </div>
 
 {% endblock %}
