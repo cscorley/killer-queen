@@ -40,6 +40,17 @@
 
     <div class="col-md-8">
         <h2>Register as a player</h2>
+        <hr />
+        <h4>Played with us before?</h4>
+        <small>
+            <p>
+                You should already have an account (even if you didn't make it yourself -- just ask).
+            </p>
+            <p>
+                Try typing your username or first name in the field below and select your user.
+                If you're having trouble, find a staff memeber and we'll get you sorted out.
+            </p>
+        </small>
         <form method="post">
             {% csrf_token %}
             <p>
@@ -49,22 +60,14 @@
             {% endfor %}
             <button type="submit">Register</button>
             </p>
-            <small style="color: grey">
-                <p>
-                    Played with us before?  Great!
-                    You should already have an account (even if you didn't make it yourself).
-                </p>
-                <p>
-                    Try typing your username or first name in field above and select your user.
-                    If you're having trouble, find a staff memeber and we'll get you sorted out.
-                </p>
-            </small>
         </form>
         <hr />
-        <h4>New?</h4>
-        <p>
-        Sign up for an account so we can keep track of your scores for the season!
-        </p>
+        <h4>New to our league?</h4>
+        <small>
+            <p>
+            Sign up for an account so we can keep track of your scores for the season!
+            </p>
+        </small>
         <form method="post">
             {% csrf_token %}
             <table>
