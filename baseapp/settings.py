@@ -34,7 +34,7 @@ DEBUG = os.environ.get("DJANGO_IS_DEBUG", False)
 # Application definition
 
 INSTALLED_APPS = [
-    'hello',
+    'hello', # must come first so our templates override default ones
     'dal',
     'dal_select2',
     'django.contrib.admin',
@@ -192,3 +192,15 @@ LOGGING = {
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_PORT = 465
+EMAIL_SUBJECT_PREFIX = '[Django] '
+EMAIL_TIMEOUT = None
+EMAIL_USE_LOCALTIME = False
+EMAIL_USE_SSL = True
+EMAIL_USE_TLS = False
