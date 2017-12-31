@@ -1,8 +1,6 @@
 from django.views.generic import ListView
 from hello.models import Event
 
-import datetime
-
 class EventListView(ListView):
     model = Event
 
