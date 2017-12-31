@@ -14,8 +14,10 @@ def result(request, event_id):
     games = GameResult.objects.filter(event=event).order_by('created')
 
     data = {'event':event}
-    # TODO: filter team options by those on the event
     resultForm = CreateGameResultForm(data)
+    resultForm.fields['blue'].queryset = event.teams.all()
+    resultForm.fields['gold'].queryset = event.teams.all()
+
     teamForm = CreateTeamForm()
     alert = None
 
