@@ -37,10 +37,12 @@
         {% for game in games %}
             <li>
                 <span style="color: rgb(69, 122, 236)">{{ game.blue }}</span>
-                <span style="color: rgb(69, 122, 236)">{{ game.blue_win_count  }}</span>
+                wins:
+                <strong> <span style="color: rgb(69, 122, 236)">{{ game.blue_win_count }}</span> </strong>
                 <br />
-                <span style="color: rgb(170, 131, 25)">{{ game.gold}}</span>
-                <span style="color: rgb(170, 131, 25)">{{ game.gold_win_count }}</span>
+                <span style="color: rgb(170, 131, 25)">{{ game.gold }}</span>
+                wins:
+                <strong> <span style="color: rgb(170, 131, 25)">{{ game.gold_win_count }}</span> </strong>
             </li>
         {% endfor %}
         </ol>
