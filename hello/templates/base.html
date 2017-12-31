@@ -8,6 +8,23 @@
           integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
           crossorigin="anonymous"></script>
   <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  <script type="text/javascript">
+      function toast(sMessage, mainContainer, level, displayLength) {
+        var mainContainer = $(document.getElementsByClassName(mainContainer))
+        var message = $(document.createElement("div"));
+        message.addClass("alert alert-" + level);
+        message.text(sMessage);
+        message.prependTo(mainContainer);
+
+        message.delay(100).fadeIn("slow", function()
+        {
+            $(this).delay(displayLength).fadeOut("slow", function()
+            {
+                $(this).remove();
+            });
+        });
+    }
+  </script>
   <style type="text/css">
     .jumbotron {
         background: #532f8c;
@@ -70,6 +87,15 @@
 </nav>
 
 {% load staticfiles %}
+{% block alters %}
+<div class="container alerts">
+  {% if alert %}
+      <script type="text/javascript"> $(document).ready(function(){ toast("{{ alert.text|safe }}", "container alerts", "{{ alert.level }}", {{ alert.display_length }}); });</script>
+  {% endif %}
+</div>
+
+{% endblock %}
+
 {% block content %}{% endblock %}
 
 </body>

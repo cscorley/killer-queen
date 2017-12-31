@@ -24,6 +24,7 @@ def join(request, event_id):
     min_teams = 2
     signUpForm = SignUpForm()
     registerForm = EventRegistrationForm()
+    alert = None
 
     if request.method == 'POST':
         signUpForm = SignUpForm(request.POST)
@@ -36,10 +37,10 @@ def join(request, event_id):
             user.save()
             raw_password = signUpForm.cleaned_data.get('password1')
             user = authenticate(username=user.username, password=raw_password)
-            register_player(event, user)
+            alert = register_player(event, user)
         elif registerForm.is_valid():
             user = registerForm.cleaned_data.get('user')
-            register_player(event, user)
+            alert = register_player(event, user)
 
         signUpForm = SignUpForm()
         registerForm = EventRegistrationForm()
@@ -51,7 +52,15 @@ def join(request, event_id):
     return render(request, 'event-join.html', {'signUpForm': signUpForm,
                                                'registerForm': registerForm,
                                                'teams': team_items,
-                                               'event': event})
+                                               'event': event,
+                                               'alert': alert})
+
+
+class Alert:
+    def __init__(self, text, level, display_length):
+        self.text = text
+        self.level = level
+        self.display_length = display_length
 
 class TeamViewItem:
 
@@ -62,7 +71,7 @@ class TeamViewItem:
         self.rating_median = statistics.median([x.trueskill_rating_exposure if x else 0 for x in players])
 
 
-def register_player(event: Event, user: User):
+def register_player(event: Event, user: User) -> Alert:
     if user:
         logger.info("Registering user: %s", str(user))
         ep = EventPlayer()
@@ -71,5 +80,8 @@ def register_player(event: Event, user: User):
         try:
             ep.validate_unique()
             ep.save()
+            return Alert("Registered user %s" % str(user), "success", 5000)
         except ValidationError:
-            pass
+            return Alert("Unable to register user %s.  Is this user already registered?" % str(user), "warning", 15000)
+
+    return Alert("Unable to register user.", "danger", 30000)
