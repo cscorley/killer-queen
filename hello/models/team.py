@@ -5,7 +5,7 @@ import statistics
 from .player import Player
 
 class Team(models.Model):
-    name = models.CharField('name', max_length=255)
+    name = models.CharField('name', max_length=255, unique=True)
     created = models.DateTimeField('date created', auto_now_add=True)
     members = models.ManyToManyField(Player,
                                      through='TeamMembership',

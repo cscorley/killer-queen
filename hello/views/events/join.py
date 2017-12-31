@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from hello.forms import SignUpForm, EventRegistrationForm
 from hello.api import team_suggestions_internal
 from hello.models import EventPlayer, Event
+from hello.views import Alert
 
 import statistics
 import logging
@@ -55,12 +56,6 @@ def join(request, event_id):
                                                'event': event,
                                                'alert': alert})
 
-
-class Alert:
-    def __init__(self, text, level, display_length):
-        self.text = text
-        self.level = level
-        self.display_length = display_length
 
 class TeamViewItem:
 
