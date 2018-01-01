@@ -10,7 +10,7 @@ logger = logging.getLogger("hello")
 
 def top_players(request):
     players = Player.objects.all()
-    players = sorted(players, key=lambda player: int(player.trueskill_rating_exposure), reverse=True)
+    players = sorted(players, key=lambda player: player.trueskill_rating_exposure, reverse=True)
 
     queen = players[0]
     bees = players[1:10]
