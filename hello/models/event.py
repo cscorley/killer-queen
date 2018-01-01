@@ -8,6 +8,7 @@ from .fields import EnumField
 from .player import Player
 from .team import Team
 
+import itertools
 import trueskill
 from hello.trueskill_environment import skill_env
 
@@ -79,12 +80,19 @@ class GameResult(models.Model):
         blue_ratings: List[trueskill.Rating] = [x.get_rating() for x in blue]
         gold_ratings: List[trueskill.Rating] = [x.get_rating() for x in gold]
 
-        # TODO: are blue win/losses being biased by always calculating them first?
-        for _ in range(0, self.blue_win_count):
-            blue_ratings, gold_ratings = skill_env.rate([blue_ratings, gold_ratings], ranks=[0, 1])
+        blue_wins_iter = iter([[0, 1]] * self.blue_win_count)
+        gold_wins_iter = iter([[1, 0]] * self.gold_win_count)
 
-        for _ in range(0, self.gold_win_count):
-            blue_ratings, gold_ratings = skill_env.rate([blue_ratings, gold_ratings], ranks=[1, 0])
+        # cycle between blue and gold wins so scores are updated somewhat fairly since we don't
+        # track literal win order
+        alternating = list(next(i) for i in itertools.cycle([blue_wins_iter, gold_wins_iter]))
+
+        # since one team may have won a bunch more than the other, just put any that weren't able
+        #  to be alternated at the end
+        remainder = list(itertools.chain(blue_wins_iter, gold_wins_iter))
+
+        for win in alternating + remainder:
+            blue_ratings, gold_ratings = skill_env.rate([blue_ratings, gold_ratings], ranks=win)
 
         for player, rating in zip(blue, blue_ratings):
             player.update_rating(rating)
