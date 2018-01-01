@@ -46,7 +46,10 @@ def join(request, event_id):
         signUpForm = SignUpForm()
         registerForm = EventRegistrationForm()
 
-    teams = team_suggestions_internal(event, max_players_per_team, min_teams)
+    teams = team_suggestions_internal(event,
+                                      max_players_per_team,
+                                      min_teams,
+                                      lambda player: int(player.trueskill_rating_exposure))
 
     team_items =  [TeamViewItem(('Random Team %d' % (team_num + 1)), team) for team_num, team in enumerate(teams)]
 

@@ -55,7 +55,7 @@ def team_suggestions(request):
 
     return JsonResponse({num: [{'id': player.pk, 'name': player.user.username} for player in team] for num, team in enumerate(teams)})
 
-def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams: int):
+def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams: int, sorting_key=None):
     player: Player
     players: List[Player] = list(event.players.all())
 
@@ -63,7 +63,8 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     random.shuffle(players)
 
     # now sort by rating
-    players = sorted(players, key=lambda player: player.trueskill_rating_exposure, reverse=True)
+    if sorting_key:
+        players = sorted(players, key=sorting_key, reverse=True)
 
     if len(players) == 0:
         return list()
