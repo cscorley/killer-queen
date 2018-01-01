@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+
+  <h2>Top {{ bees|length|add:1 }} players</h2>
+  <hr />
+
+  <h4>Current Queen: <strong>{{ queen.user.get_full_name }}</strong></h4>
+
+  <hr />
+  <ol start="2">
+    {% for bee in bees %}
+      <li> {{ bee.user.get_full_name }}</li>
+    {% endfor %}
+  </ol>
+
+</div>
+{% endblock %}
