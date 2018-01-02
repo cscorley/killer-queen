@@ -5,11 +5,12 @@ from django.core.exceptions import ValidationError
 
 from hello.forms import SignUpForm, EventRegistrationForm
 from hello.api import team_suggestions_internal
-from hello.models import EventPlayer, Event
+from hello.models import EventPlayer, Event, RandomName
 from hello.views import Alert
 
 import statistics
 import logging
+import random
 
 logger = logging.getLogger("hello")
 
@@ -58,13 +59,15 @@ def join(request, event_id):
                                       min_teams,
                                       lambda player: int(player.trueskill_rating_exposure))
 
-    team_items =  [TeamViewItem(('Random Team %d' % (team_num + 1)), team) for team_num, team in enumerate(teams)]
+    team_names = random.sample([r.name for r in RandomName.objects.all()], len(teams))
+    team_items = [TeamViewItem(team_name, team) for team_name, team in zip(team_names, teams)]
 
     return render(request, 'event-join.html', {'signUpForm': signUpForm,
                                                'registerForm': registerForm,
                                                'teams': team_items,
                                                'event': event,
                                                'alert': alert})
+
 
 
 class TeamViewItem:
