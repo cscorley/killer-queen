@@ -88,13 +88,12 @@
 </nav>
 
 {% load staticfiles %}
-{% block alters %}
+{% block alerts %}
 <div class="container alerts">
   {% if alert %}
       <script type="text/javascript"> $(document).ready(function(){ toast("{{ alert.text|safe }}", "container alerts", "{{ alert.level }}", {{ alert.display_length }}); });</script>
   {% endif %}
 </div>
-
 {% endblock %}
 
 {% block content %}{% endblock %}

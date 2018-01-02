@@ -31,18 +31,6 @@ def result(request, event_id):
             result = resultForm.save()
             result.save()
 
-            try:
-                eventTeam = EventTeam(event=event, team=result.blue)
-                eventTeam.save()
-            except ValidationError:
-                pass
-
-            try:
-                eventTeam = EventTeam(event=event, team=result.gold)
-                eventTeam.save()
-            except ValidationError:
-                pass
-
             alert = Alert("Created new result.", "success", 5000)
         elif teamForm.is_valid():
             team = teamForm.save()

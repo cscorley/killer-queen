@@ -28,5 +28,10 @@ class EventRegistrationForm(forms.Form):
     user = forms.ModelChoiceField(
         queryset=User.objects.all(),
         widget=autocomplete.ModelSelect2(url='user-autocomplete'),
-        label="Player Username"
+        label="Player"
+    )
+
+    action = forms.ChoiceField(
+        choices=[('A', 'Add'),
+                 ('R', 'Remove')],
     )

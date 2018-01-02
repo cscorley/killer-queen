@@ -54,11 +54,10 @@
         <form method="post">
             {% csrf_token %}
             <p>
-            {% for field in registerForm %}
-                {{ field.label_tag }}
-                {{ field }}
-            {% endfor %}
-            <button type="submit">Register</button>
+                {{ registerForm.action }}
+                {{ registerForm.user.label_tag }}
+                {{ registerForm.user }}
+                <button type="submit">Register</button>
             </p>
         </form>
         <hr />
@@ -70,9 +69,9 @@
         </small>
         <form method="post">
             {% csrf_token %}
-            <table>
+            <table style="vertical-align: middle">
             {% for field in signUpForm %}
-                <tr style="vertical-align: middle">
+                <tr>
                     <th> {{ field.label_tag }} </th>
                     <td> {{ field }} </td>
                     <td> {% if field.help_text %} <small style="color: grey">{{ field.help_text }}</small> {% endif %} </td>

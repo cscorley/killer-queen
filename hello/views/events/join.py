@@ -41,7 +41,14 @@ def join(request, event_id):
             alert = register_player(event, user)
         elif registerForm.is_valid():
             user = registerForm.cleaned_data.get('user')
-            alert = register_player(event, user)
+            action = registerForm.cleaned_data.get('action')
+
+            if action == 'A':
+                alert = register_player(event, user)
+            elif action == 'R':
+                alert = unregister_player(event, user)
+            else:
+                alert = register_player(event, user)
 
         signUpForm = SignUpForm()
         registerForm = EventRegistrationForm()
@@ -70,7 +77,7 @@ class TeamViewItem:
 
 
 def register_player(event: Event, user: User) -> Alert:
-    if user:
+    if user and event:
         logger.info("Registering user: %s", str(user))
         ep = EventPlayer()
         ep.event = event
@@ -78,8 +85,17 @@ def register_player(event: Event, user: User) -> Alert:
         try:
             ep.validate_unique()
             ep.save()
-            return Alert("Registered user %s" % str(user), "success", 5000)
+            return Alert("Registered user: %s" % str(user), "success", 5000)
         except ValidationError:
-            return Alert("Unable to register user %s.  Is this user already registered?" % str(user), "warning", 15000)
+            return Alert("Unable to register user: %s.  Is this user already registered?" % str(user), "warning", 15000)
 
     return Alert("Unable to register user.", "danger", 30000)
+
+def unregister_player(event: Event, user: User) -> Alert:
+    if user and event:
+        logger.info("Removing user: %s", str(user))
+
+        EventPlayer.objects.filter(event=event).filter(player=user.player).delete()
+        return Alert("Removed user: %s" % str(user), "success", 5000)
+
+    return Alert("Unable to remove user.", "danger", 30000)
