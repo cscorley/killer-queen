@@ -6,11 +6,10 @@ verify_ssl = true
 
 [packages]
 
-dj-database-url = "*"
-Django = "*"
+django = "*"
 gunicorn = "*"
+django-heroku = "*"
 "psycopg2" = "*"
-whitenoise = "*"
 requests = "*"
 trueskill = "*"
 parameterized = "*"
