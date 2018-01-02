@@ -13,7 +13,10 @@ def top_players(request):
     players = sorted(players, key=lambda player: player.trueskill_rating_exposure, reverse=True)
 
     queen = players[0]
-    bees = players[1:10]
+    if request.user.is_staff:
+        bees = players[1:]
+    else:
+        bees = players[1:10]
 
     return render(request, 'top-players.html', {'queen': queen,
                                                 'bees': bees,

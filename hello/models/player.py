@@ -25,7 +25,11 @@ class Player(models.Model):
         return skill_env.Rating(self.trueskill_rating_mu, self.trueskill_rating_sigma)
 
     def __str__(self) -> str:
-        return "%s (%s, rating=%d)" % (self.user.get_full_name(), self.user.username, self.trueskill_rating_exposure)
+        return "%s (%s, e=%.3f, m=%.3f, s=%.3f)" % (self.user.get_full_name(),
+                                                    self.user.username,
+                                                    self.trueskill_rating_exposure,
+                                                    self.trueskill_rating_mu,
+                                                    self.trueskill_rating_sigma)
 
 @receiver(post_save, sender=User)
 def update_user_profile(sender, instance, created, **kwargs):
