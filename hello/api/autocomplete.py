@@ -8,7 +8,7 @@ logger = logging.getLogger('hello')
 
 class UserAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = User.objects.all().order_by('username')
+        qs = User.objects.filter(is_active=True).order_by('username')
 
         if self.q:
             qs = qs.filter(
