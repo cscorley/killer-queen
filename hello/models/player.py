@@ -31,9 +31,8 @@ class Player(models.Model):
                                                     self.trueskill_rating_mu,
                                                     self.trueskill_rating_sigma)
 
-    def level_str(self):
-        return "Level %d (%d%% confidence)" % (int(self.trueskill_rating_mu),
-                                        int(100 * (1.0 - self.trueskill_rating_sigma / default_sigma)))
+    def confidence(self):
+        return min(100.0, 100 * (1.0 - self.trueskill_rating_sigma / default_sigma))
 
 
 @receiver(post_save, sender=User)
