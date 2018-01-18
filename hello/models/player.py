@@ -31,6 +31,11 @@ class Player(models.Model):
                                                     self.trueskill_rating_mu,
                                                     self.trueskill_rating_sigma)
 
+    def level_str(self):
+        return "Level %d (%d%% confidence)" % (int(self.trueskill_rating_exposure),
+                                        int(100 * (1.0 - self.trueskill_rating_sigma / default_sigma)))
+
+
 @receiver(post_save, sender=User)
 def update_user_profile(sender, instance, created, **kwargs):
     if created:

@@ -6,12 +6,12 @@
   <h2>Top {{ bees|length|add:1 }} players</h2>
   <hr />
 
-  <h4>Current Queen: <strong>{% if user.is_staff %} {{ queen }} {% else %} {{ queen.user.get_full_name }} {% endif %}</strong></h4>
+  <h4>Current Queen: <strong>{% if user.is_staff %} {{ queen }} {% else %} {{ queen.user.get_full_name }} {% endif %}</strong> - {{ queen.level_str }} </h4>
 
   <hr />
   <ol start="2">
     {% for bee in bees %}
-      <li> {% if user.is_staff %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %} </li>
+      <li> {% if user.is_staff %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %} - {{ bee.level_str }} </li>
     {% endfor %}
   </ol>
 
