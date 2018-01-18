@@ -11,7 +11,7 @@
   <hr />
   <ol start="2">
     {% for bee in bees %}
-      <li> {% if user.is_staff %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %} - {{ bee.level_str }} </li>
+      <li> <strong>{% if user.is_staff %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> - {{ bee.level_str }} </li>
     {% endfor %}
   </ol>
 
