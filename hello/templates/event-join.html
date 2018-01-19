@@ -17,7 +17,7 @@
         {% if all_players %}
             <ol>
                 {% for player in all_players %}
-                    <li> {{ player.user.get_full_name }}
+                    <li> {% if forloop.last %} <strong> {{ player.user.get_full_name }} </strong> {% else %}{{ player.user.get_full_name }} {% endif %}
                          {% if user.is_staff %} <small style="color: grey">({{ player.user.username }}, r={{ player.trueskill_rating_exposure|floatformat:1 }})</small> {% endif %}
                     </li>
                 {% endfor %}
@@ -46,7 +46,6 @@
         {% else %}
             Whoops, not enough players are registered... yet!  Join us?
         {% endif %}
-
     </div>
 
     <div class="col-md-8">

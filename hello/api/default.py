@@ -120,5 +120,25 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     grouped_players = sum(groups, list())
     logger.info("Grouped players: %d", len(grouped_players))
 
+    # remove the None players
+    for num, group in enumerate(groups):
+        groups[num] = [item for item in group if item]
+
+    players_on_teams = [player for team in groups for player in team if player is not None]
+    teamless_players = [player for player in players if player not in players_on_teams]
+
+    while teamless_players:
+        player = teamless_players.pop()
+        if player:
+            for team in reversed(groups):
+                if len(team) < max_players_per_team:
+                    team.append(player)
+                    break
+
+    # re-add the Nones so they're displayed
+    # seems bad, man
+    for team in groups:
+        while len(team) < max_players_per_team:
+            team.append(None)
 
     return groups
