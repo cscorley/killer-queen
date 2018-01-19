@@ -2,7 +2,7 @@
 
 {% load tz %}
 
-{% block header %}
+{% block scripts %}
 {{ registerForm.media }}
 {% endblock %}
 
@@ -13,7 +13,17 @@
     {{ event.when | timezone:event.timezone }} ({{ event.when | utc }} UTC) &#8226; Tournament style: {{ event.tournament_style }} <br/>
     <hr />
     <div class="col-md-4">
-        <h2>Suggested teams</h2>
+        <h3>Current players</h3>
+        {% if all_players %}
+            <ol>
+                {% for player in all_players %}
+                    <li> {{ player.user.get_full_name }}
+                         {% if user.is_staff %} <small style="color: grey">({{ player.user.username }}, r={{ player.trueskill_rating_exposure|floatformat:1 }})</small> {% endif %}
+                    </li>
+                {% endfor %}
+            </ol>
+        {% endif %}
+        <h3>Suggested teams</h3>
         <br />
         {% if teams %}
             <ol>
@@ -34,8 +44,9 @@
             {% endfor %}
             </ol>
         {% else %}
-            Whoops, nobody is registered... yet!  Join us?
+            Whoops, not enough players are registered... yet!  Join us?
         {% endif %}
+
     </div>
 
     <div class="col-md-8">
@@ -47,14 +58,14 @@
                 You should already have an account (even if you didn't make it yourself -- just ask).
             </p>
             <p>
-                Try typing your username or first name in the field below and select your user.
+                Try typing your <u>username</u> or <u>first name</u> in the field below and select your user.
                 If you're having trouble, find a staff member and we'll get you sorted out.
             </p>
         </small>
         <form method="post">
             {% csrf_token %}
             <p>
-                {{ registerForm.action }}
+                {% if user.is_staff %} {{ registerForm.action }} {% endif %}
                 {{ registerForm.user.label_tag }}
                 {{ registerForm.user }}
                 <button type="submit">Register</button>

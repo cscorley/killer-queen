@@ -62,11 +62,14 @@ def join(request, event_id):
     team_names = random.sample([r.name for r in RandomName.objects.all()], len(teams))
     team_items = [TeamViewItem(team_name, team) for team_name, team in zip(team_names, teams)]
 
+    all_players: List[Player] = list(event.players.all())
+
     return render(request, 'event-join.html', {'signUpForm': signUpForm,
                                                'registerForm': registerForm,
                                                'teams': team_items,
                                                'event': event,
-                                               'alert': alert})
+                                               'alert': alert,
+                                               'all_players': all_players})
 
 
 
