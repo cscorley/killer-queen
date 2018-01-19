@@ -49,11 +49,13 @@ class EventTeam(models.Model):
 
 
 class EventPlayer(models.Model):
+    created = models.DateTimeField('registration time', auto_now_add=True)
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('player', 'event')
+        ordering = ['created']
 
     def __str__(self) -> str:
         return "%s (%s)" % (self.player.user.username, self.event.name)
