@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 
 {% load tz %}
+{% load static %}
 
 {% block scripts %}
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
 {{ registerForm.media }}
 {% endblock %}
 
@@ -12,6 +14,7 @@
     <h1>Killer Queen: {{ event.name }}</h1>
     {{ event.when | timezone:event.timezone }} ({{ event.when | utc }} UTC) &#8226; Tournament style: {{ event.tournament_style }} <br/>
     <hr />
+    <div class="row">
     <div class="col-md-4">
         <h3>Current players</h3>
         {% if all_players %}
@@ -92,6 +95,7 @@
             <button type="submit">Sign up and register</button>
         </form>
     </div>
+</div>
 </div>
 
 {% endblock %}

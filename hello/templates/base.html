@@ -1,114 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-  <title>Killer Queen League</title>
+    <title>Killer Queen League</title>
 
-  <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.4/js/all.js"></script>
 
-  <!-- Optional theme -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-  <script type="text/javascript">
-      function toast(sMessage, mainContainer, level, displayLength) {
-        var mainContainer = $(document.getElementsByClassName(mainContainer))
-        var message = $(document.createElement("div"));
-        message.addClass("alert alert-" + level);
-        message.text(sMessage);
-        message.prependTo(mainContainer);
+    <style type="text/css">
+        .jumbotron {
+            background: #532f8c;
+            color: white;
+            padding-bottom: 80px
+        }
 
-        message.delay(100).fadeIn("slow", function()
-        {
-            $(this).delay(displayLength).fadeOut("slow", function()
-            {
-                $(this).remove();
-            });
-        });
-    }
-  </script>
-  <style type="text/css">
-    .jumbotron {
-        background: #532f8c;
-        color: white;
-        padding-bottom: 80px
-    }
-    .jumbotron .btn-primary {
-        background: #845ac7;
-        border-color: #845ac7
-    }
-    .jumbotron .btn-primary:hover {
-        background: #7646c1
-    }
-    .jumbotron p {
-        color: #d9ccee;
-        max-width: 75%;
-        margin: 1em auto 2em
-    }
-    .navbar+.jumbotron {
-        margin-top: -20px
-    }
-    .jumbotron .lang-logo {
-        display: block;
-        background: #b01302;
-        border-radius: 50%;
-        overflow: hidden;
-        width: 100px;
-        height: 100px;
-        margin: auto;
-        border: 2px solid white
-    }
-    .jumbotron .lang-logo img {
-        max-width: 100%
-    }
+        .jumbotron .btn-primary {
+            background: #845ac7;
+            border-color: #845ac7
+        }
 
+        .jumbotron .btn-primary:hover {
+            background: #7646c1
+        }
 
-  </style>
+        .jumbotron p {
+            color: #d9ccee;
+            max-width: 75%;
+            margin: 1em auto 2em
+        }
+
+        .navbar+.jumbotron {
+            margin-top: -20px
+        }
+
+        .jumbotron .lang-logo {
+            display: block;
+            background: #b01302;
+            border-radius: 50%;
+            overflow: hidden;
+            width: 100px;
+            height: 100px;
+            margin: auto;
+            border: 2px solid white
+        }
+
+        .jumbotron .lang-logo img {
+            max-width: 100%
+        }
+    </style>
 </head>
+
 <body>
-<nav class="navbar navbar-default navbar-static-top navbar-inverse">
-  <div class="container">
-    <ul class="nav navbar-nav">
-      <li class="active"> <a href="/events/current"><span class="glyphicon glyphicon-flag"></span> Current Event</a> </li>
-      <li> <a href="/events"><span class="glyphicon glyphicon-flag"></span> Past Events</a> </li>
-      <li> <a href="/top_players"><span class="glyphicon glyphicon-queen"></span> Top Players </a> </li>
-    </ul>
-    <ul class="nav navbar-nav navbar-right">
-        {% if user.is_authenticated %}
-          <li> <a href="/account/"><span class="glyphicon glyphicon-cog"></span> Edit Profile </a></li>
-          <li> <a href="/accounts/logout?next=/"><span class="glyphicon glyphicon-remove"></span> Logout {{ user.username }}</a></li>
-          {% if user.is_superuser %}
-            <li> <a href="/admin"><span class="glyphicon glyphicon-glass"></span> Admin panel</a> </li>
-          {% endif %}
-        {% else %}
-          <li> <a href="/accounts/login"><span class="glyphicon glyphicon-user"></span> Login</a></li>
-          <li> <a href="/accounts/signup"><span class="glyphicon glyphicon-pencil"></span> Sign up</a></li>
+    <nav class="navbar navbar-dark navbar-static-top navbar-expand-lg" style="background-color: #532f8c;">
+        <div class="container">
+            <ul class="nav navbar-nav">
+                <li class="nav-item">
+                    <a href="/events/current" class="nav-link">
+                        <span class="fas fa-flag"></span> Current Event</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/events" class="nav-link">
+                        <span class="fas fa-flag-checkered"></span> Past Events</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/top_players" class="nav-link">
+                        <span class="fas fa-list-ol"></span> Top Players </a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a href="/account/" class="nav-link">
+                        <span class="fas fa-cog"></span> Edit Profile </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/accounts/logout?next=/" class="nav-link">
+                        <span class="fas fa-sign-out-alt"></span> Logout {{ user.username }}</a>
+                </li>
+                {% if user.is_superuser %}
+                    <li class="nav-item">
+                        <a href="/admin" class="nav-link">
+                            <span class="fas fa-key"></span> Admin panel</a>
+                    </li>
+                {% endif %}
+                {% else %}
+                <li class="nav-item">
+                    <a href="/accounts/login" class="nav-link">
+                        <span class="fas fa-sign-in-alt"></span> Login</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/accounts/signup" class="nav-link">
+                        <span class="fas fa-user-plus"></span> Sign up</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    {% load staticfiles %}
+
+    {% block alerts %}
+    <div class="alerts zindex-tooltip">
+        {% if alert %}
+        <div class="alert alert-{{ alert.level }} alert-dismissible fade show" role="alert">
+            {{ alert.text|safe }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
         {% endif %}
-    </ul>
-  </div>
-</nav>
+    </div>
+    {% endblock %}
 
-{% load staticfiles %}
-{% block alerts %}
-<div class="container alerts">
-  {% if alert %}
-      <script type="text/javascript"> $(document).ready(function(){ toast("{{ alert.text|safe }}", "container alerts", "{{ alert.level }}", {{ alert.display_length }}); });</script>
-  {% endif %}
-</div>
-{% endblock %}
+    {% block content %}{% endblock %}
 
-{% block content %}{% endblock %}
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
 
-  <!-- Latest compiled and minified JavaScript -->
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+        crossorigin="anonymous"></script>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
-          integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
-          crossorigin="anonymous"></script>
-
-  {% block scripts %}{% endblock %}
+    {% block scripts %}{% endblock %}
 </body>
+
 </html>

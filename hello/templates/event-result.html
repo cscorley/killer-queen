@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 
 {% load tz %}
+{% load static %}
 
 {% block scripts %}
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
 {{ resultForm.media }}
 {{ teamForm.media }}
 {% endblock %}
@@ -13,6 +15,7 @@
     <h1>{{ event.name }}</h1>
     Tournament time: {{ event.when | timezone:event.timezone }} ({{ event.when | utc }} UTC) <br/>
     Tournament style: {{ event.tournament_style }} <br/>
+    <div class="row">
     <div class="col-md-4">
         <h2>Teams</h2>
         <br />
@@ -79,7 +82,7 @@
                 <button type="submit">Add result</button>
             </form>
         {% endif %}
-    </div>
+    </div></div>
 </div>
 
 {% endblock %}
