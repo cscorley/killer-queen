@@ -111,7 +111,7 @@
         crossorigin="anonymous"></script>
 
     {% block alerts %}
-    <div class="alerts zindex-tooltip" id="main-alert">
+    <div class="container alerts zindex-tooltip" id="main-alert">
         {% if alert %}
         <div class="alert alert-{{ alert.level }} alert-dismissible fade show" role="alert">
             {{ alert.text|safe }}
