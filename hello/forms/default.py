@@ -6,13 +6,14 @@ from django.contrib.auth.models import User
 from hello.models import Player
 
 class SignUpForm(UserCreationForm):
-    first_name = forms.CharField(max_length=30, required=True, help_text='Required.  So we know what to call you.')
-    last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-    email = forms.EmailField(max_length=254, help_text='Required. This will allow you to reset your password.')
+    first_name = forms.CharField(max_length=30, required=True, help_text='So we know what to call you.')
+    last_name = forms.CharField(max_length=30, required=False, help_text='Optional, but an initial would be helpful.')
+    email = forms.EmailField(max_length=254, required=False, help_text='Optional, this will allow you to reset your password.')
 
     def __init__(self, *args, **kwargs):
         super(SignUpForm, self).__init__(*args, **kwargs)
-        self.fields['password1'].help_text = "Your password must contain at least 8 characters.  Your password can't be: too similar to your other personal information, a commonly used password, or all numbers."
+        self.fields['username'].help_text = "Think of something clever."
+        self.fields['password1'].help_text = "Your password must contain at least 8 characters."
         self.fields['username'].widget.attrs.pop("autofocus", None)
 
     class Meta:
