@@ -91,17 +91,17 @@ def register_player(event: Event, user: User) -> Alert:
         try:
             ep.validate_unique()
             ep.save()
-            return Alert("Registered user: %s" % str(user), "success", 5000)
+            return Alert("Registered user: <strong>%s</strong>" % str(user), "success", 10000)
         except ValidationError:
-            return Alert("Unable to register user: %s.  Is this user already registered?" % str(user), "warning", 15000)
+            return Alert("Unable to register user: <strong>%s</strong>.  Is this user already registered?" % str(user), "warning", 15000)
 
     return Alert("Unable to register user.", "danger", 30000)
 
 def unregister_player(event: Event, user: User) -> Alert:
     if user and event:
-        logger.info("Removing user: %s", str(user))
+        logger.info("Removing user: <strong>%s</strong>", str(user))
 
         EventPlayer.objects.filter(event=event).filter(player=user.player).delete()
-        return Alert("Removed user: %s" % str(user), "success", 5000)
+        return Alert("Removed user: <strong>%s</strong>" % str(user), "success", 10000)
 
     return Alert("Unable to remove user.", "danger", 30000)
