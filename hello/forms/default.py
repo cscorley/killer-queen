@@ -10,11 +10,13 @@ class SignUpForm(UserCreationForm):
     last_name = forms.CharField(max_length=30, required=False, help_text='Optional, but an initial would be helpful.')
     email = forms.EmailField(max_length=254, required=False, help_text='Optional, this will allow you to reset your password.')
 
+
     def __init__(self, *args, **kwargs):
         super(SignUpForm, self).__init__(*args, **kwargs)
         self.fields['username'].help_text = "Think of something clever."
         self.fields['password1'].help_text = "Your password must contain at least 8 characters."
         self.fields['username'].widget.attrs.pop("autofocus", None)
+        del self.fields['password2']
 
     class Meta:
         model = User
@@ -22,8 +24,7 @@ class SignUpForm(UserCreationForm):
                  'first_name',
                  'last_name',
                  'email',
-                 'password1',
-                 'password2', )
+                 'password1',)
 
 class EventRegistrationForm(forms.Form):
     user = forms.ModelChoiceField(

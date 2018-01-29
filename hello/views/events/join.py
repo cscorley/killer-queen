@@ -40,6 +40,9 @@ def join(request, event_id):
             raw_password = signUpForm.cleaned_data.get('password1')
             user = authenticate(username=user.username, password=raw_password)
             alert = register_player(event, user)
+            if alert.level == 'success':
+                signUpForm = SignUpForm()
+
         elif registerForm.is_valid():
             user = registerForm.cleaned_data.get('user')
             action = registerForm.cleaned_data.get('action')
@@ -51,7 +54,6 @@ def join(request, event_id):
             else:
                 alert = register_player(event, user)
 
-        signUpForm = SignUpForm()
         registerForm = EventRegistrationForm()
 
     teams = team_suggestions_internal(event,
