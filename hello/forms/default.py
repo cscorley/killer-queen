@@ -35,4 +35,5 @@ class EventRegistrationForm(forms.Form):
     action = forms.ChoiceField(
         choices=[('A', 'Add'),
                  ('R', 'Remove')],
+        required=False
     )
