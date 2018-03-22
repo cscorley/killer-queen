@@ -13,7 +13,7 @@ class SignUpForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super(SignUpForm, self).__init__(*args, **kwargs)
-        self.fields['username'].help_text = "Think of something clever."
+        self.fields['username'].help_text = "Think of something clever.  Only letters and numbers, no spaces."
         self.fields['password1'].help_text = "Your password must contain at least 8 characters."
         self.fields['username'].widget.attrs.pop("autofocus", None)
         del self.fields['password2']
