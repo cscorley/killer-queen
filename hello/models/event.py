@@ -37,7 +37,7 @@ class Event(models.Model):
                                  default=int(TournamentStyle.ROUND_ROBIN))
 
     def __str__(self) -> str:
-        return "%s (%s)" % (self.name, str(self.when))
+        return "%s (%s, %s)" % (self.name, self.season.name, str(self.when))
 
 
 class EventTeam(models.Model):

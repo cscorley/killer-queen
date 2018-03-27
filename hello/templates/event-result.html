@@ -12,7 +12,7 @@
 {% block content %}
 
 <div class="container">
-    <h1>{{ event.name }}</h1>
+    <h1>{{ event.season.name }} {{ event.name }}</h1>
     Tournament time: {{ event.when | timezone:event.timezone }} ({{ event.when | utc }} UTC) <br/>
     Tournament style: {{ event.tournament_style }} <br/>
     <div class="row">

@@ -11,7 +11,7 @@
 {% block content %}
 
 <div class="container">
-    <h1>Killer Queen: {{ event.name }}</h1>
+    <h1>Killer Queen: {{ event.season.name }} {{ event.name }}</h1>
     {{ event.when | timezone:event.timezone }} ({{ event.when | utc }} UTC) &#8226; Tournament style: {{ event.tournament_style }} <br/>
     <hr />
     <div class="row">
