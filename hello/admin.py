@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import Player, Team, TeamMembership, GameResult, Event, EventTeam, EventPlayer, RandomName
+from .models import Player, Team, TeamMembership, GameResult, Event, EventTeam, EventPlayer, RandomName, Season
 
 # Register your models here.
 
-admin.site.register((Player, Team, TeamMembership, GameResult, Event, EventTeam, EventPlayer, RandomName))
+admin.site.register((Player, Team, TeamMembership, GameResult, Event, EventTeam, EventPlayer, RandomName, Season))

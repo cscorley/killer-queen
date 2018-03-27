@@ -7,6 +7,7 @@ from .fields import EnumField
 
 from .player import Player
 from .team import Team
+from .season import Season
 
 import itertools
 import trueskill
@@ -25,6 +26,8 @@ class Event(models.Model):
                                    through='EventTeam',
                                    through_fields=('event', 'team'),
                                    )
+
+    season = models.ForeignKey(Season, on_delete=models.CASCADE)
 
     is_current = models.BooleanField('Determines whether this is a current event', default=False)
     is_active = models.BooleanField('Determines whether this is an active event', default=True)
