@@ -54,6 +54,8 @@ def join(request, event_id):
             else:
                 alert = register_player(event, user)
 
+            signUpForm = SignUpForm()
+
         registerForm = EventRegistrationForm()
 
     teams = team_suggestions_internal(event,
