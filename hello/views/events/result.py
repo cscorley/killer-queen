@@ -18,7 +18,6 @@ def result(request, event_id):
     resultForm.fields['blue'].queryset = event.teams.all().order_by('name')
     resultForm.fields['gold'].queryset = event.teams.all().order_by('name')
 
-
     teamForm = CreateTeamForm()
     alert = None
 
@@ -48,6 +47,8 @@ def result(request, event_id):
             alert = Alert("Both forms were invalid.", "danger", 10000)
 
         resultForm = CreateGameResultForm(data)
+        resultForm.fields['blue'].queryset = event.teams.all().order_by('name')
+        resultForm.fields['gold'].queryset = event.teams.all().order_by('name')
         teamForm = CreateTeamForm()
 
     return render(request, 'event-result.html', {'games': games,
