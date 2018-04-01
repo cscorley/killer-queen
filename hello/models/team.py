@@ -5,7 +5,7 @@ import statistics
 from .player import Player
 
 class Team(models.Model):
-    name = models.CharField('name', max_length=255, unique=True)
+    name = models.CharField('name', max_length=255, unique=False)
     created = models.DateTimeField('date created', auto_now_add=True)
     members = models.ManyToManyField(Player,
                                      through='TeamMembership',
@@ -13,7 +13,7 @@ class Team(models.Model):
                                      )
 
     def __str__(self) -> str:
-        return self.name
+        return "%s (%s)" % (self.name, self.id)
 
     def get_rating_mean(self) -> float:
         players = list(self.members.all())

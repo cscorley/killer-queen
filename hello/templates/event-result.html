@@ -22,7 +22,7 @@
         <ol>
         {% for team in event.teams.all|dictsort:"name" %}
             <li> {{ team.name }}
-                {% if user.is_staff %} <small style="color: grey">(r={{ team.get_rating_mean |floatformat:1 }})</small> {% endif %}
+                {% if user.is_staff %} <small style="color: grey">({{ team.id }}, r={{ team.get_rating_mean |floatformat:1 }})</small> {% endif %}
                 <br /><ol>
             {% for player in team.members.all|dictsort:"user.id" %}
                 {% if player %}
@@ -44,11 +44,11 @@
         <ol>
         {% for game in games %}
             <li>
-                <span style="color: rgb(69, 122, 236)">{{ game.blue }}</span>
+                <span style="color: rgb(69, 122, 236)">{{ game.blue.name }}</span>
                 wins:
                 <strong> <span style="color: rgb(69, 122, 236)">{{ game.blue_win_count }}</span> </strong>
                 <br />
-                <span style="color: rgb(170, 131, 25)">{{ game.gold }}</span>
+                <span style="color: rgb(170, 131, 25)">{{ game.gold.name }}</span>
                 wins:
                 <strong> <span style="color: rgb(170, 131, 25)">{{ game.gold_win_count }}</span> </strong>
             </li>
