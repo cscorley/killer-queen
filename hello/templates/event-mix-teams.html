@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% load tz %}
+{% load static %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+{{ registerForm.media }}
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h1>Killer Queen: {{ event.season.name }} {{ event.name }}</h1>
+    {{ event.when | timezone:event.timezone }} ({{ event.when | utc }} UTC) &#8226; Tournament style: {{ event.tournament_style }} <br/>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Current players</h3>
+            {% if all_players %}
+                <ol>
+                    {% for player in all_players %}
+                        <li> {% if forloop.last %} <strong> {{ player.user.get_full_name }} </strong> {% else %}{{ player.user.get_full_name }} {% endif %}
+                            {% if user.is_staff %} <small style="color: grey">({{ player.user.username }}, r={{ player.trueskill_rating_exposure|floatformat:1 }})</small> {% endif %}
+                        </li>
+                    {% endfor %}
+                </ol>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <h3>Suggested teams</h3>
+            <br />
+            {% if teams %}
+                <ol>
+                {% for team in teams %}
+                    <li>{{ team.name }}
+                        {% if user.is_staff %} <small style="color: grey">(r={{ team.rating_mean|floatformat:1}})</small> {% endif %}
+                        <br /><ol>
+                    {% for player in team.players %}
+                        {% if player %}
+                            <li> {{ player.user.get_full_name }}
+                                {% if user.is_staff %} <small style="color: grey">({{ player.user.username }}, r={{ player.trueskill_rating_exposure|floatformat:1 }})</small> {% endif %}
+                                </li>
+                        {% else %}
+                            <strong><li> </li></strong>
+                        {% endif %}
+                    {% endfor %}
+                    </ol></li>
+                {% endfor %}
+                </ol>
+            {% else %}
+                Whoops, not enough players are registered... yet!  Join us?
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <form method="post">
+                {% csrf_token %}
+                <table style="vertical-align: middle">
+                {% for field in form %}
+                    <tr>
+                        <th> {{ field.label_tag }} </th>
+                        <td> {{ field }} </td>
+                        <td> {% if field.help_text %} <small style="color: grey">{{ field.help_text }}</small> {% endif %} </td>
+                        <td> {% for error in field.errors %} <p style="color: red">{{ error }}</p> {% endfor %} </td>
+                    </tr>
+                {% endfor %}
+                </table>
+                <button type="submit">Remix</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
