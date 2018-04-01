@@ -19,7 +19,7 @@ def mix(request, event_id):
     event_id = int(event_id)
     event = Event.objects.get(pk=event_id)
 
-    if not event.is_active or not request.user.is_staff:
+    if not request.user.is_staff:
         logger.info("redirecting to result page: %d", event.id)
         return redirect(reverse('event_join', args=[event.id]))
 
