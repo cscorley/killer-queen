@@ -45,7 +45,7 @@ def mix(request, event_id):
     if randomness:
         sorter = lambda player: int(player.trueskill_rating_exposure / (rating_factor if rating_factor else 1))
     else:
-        sorter = lambda player: int(player.trueskill_rating_exposure)
+        sorter = lambda player: player.trueskill_rating_exposure
 
     teams = team_suggestions_internal(event,
                                       max_players_per_team,
