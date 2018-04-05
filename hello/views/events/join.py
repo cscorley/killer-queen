@@ -58,32 +58,13 @@ def join(request, event_id):
 
         registerForm = EventRegistrationForm()
 
-    teams = team_suggestions_internal(event,
-                                      max_players_per_team,
-                                      min_teams,
-                                      lambda player: int(player.trueskill_rating_exposure))
-
-    team_names = random.sample([r.name for r in RandomName.objects.all()], len(teams))
-    team_items = [TeamViewItem(team_name, team) for team_name, team in zip(team_names, teams)]
-
     all_players: List[Player] = list(event.players.order_by('eventplayer__created'))
 
     return render(request, 'event-join.html', {'signUpForm': signUpForm,
                                                'registerForm': registerForm,
-                                               'teams': team_items,
                                                'event': event,
                                                'alert': alert,
                                                'all_players': all_players})
-
-
-
-class TeamViewItem:
-
-    def __init__(self, name, players):
-        self.name = name
-        self.players = list(sorted(players, key=lambda player: player.user.id if player else 9999))
-        self.rating_mean = statistics.mean([x.trueskill_rating_exposure if x else 0 for x in players])
-        self.rating_median = statistics.median([x.trueskill_rating_exposure if x else 0 for x in players])
 
 
 def register_player(event: Event, user: User) -> Alert:
