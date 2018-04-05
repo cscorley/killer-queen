@@ -36,6 +36,8 @@ class Event(models.Model):
                                  enum_class=TournamentStyle,
                                  default=int(TournamentStyle.ROUND_ROBIN))
 
+    tournament_url = models.CharField('tournament url', max_length=255)
+
     def __str__(self) -> str:
         return "%s (%s, %s)" % (self.name, self.season.name, str(self.when))
 
