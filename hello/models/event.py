@@ -32,10 +32,6 @@ class Event(models.Model):
     is_current = models.BooleanField('Determines whether this is a current event', default=False)
     is_active = models.BooleanField('Determines whether this is an active event', default=True)
 
-    tournament_style = EnumField(verbose_name='tournament style',
-                                 enum_class=TournamentStyle,
-                                 default=int(TournamentStyle.ROUND_ROBIN))
-
     tournament_url = models.CharField('tournament url', max_length=255)
 
     def __str__(self) -> str:

@@ -12,7 +12,9 @@
 
 <div class="container">
     <h1>Killer Queen: {{ event.season.name }} {{ event.name }}</h1>
-    {{ event.when | timezone:event.timezone }} ({{ event.when | utc }} UTC) &#8226; Tournament style: {{ event.tournament_style }} <br/>
+        &#8226; {{ event.when | timezone:event.timezone }} ({{ event.when | utc }} UTC)
+        &#8226; <a href="{{ event.tournament_url }}" target="_blank">{{ event.tournament_url }}</a>
+        &#8226; <br/>
     <hr />
     <div class="row">
         <div class="col-md-4">
