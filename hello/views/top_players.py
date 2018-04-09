@@ -16,7 +16,7 @@ def top_players(request):
     if request.user.is_staff:
         bees = players[1:]
     else:
-        bees = [player for player in players if player.confidence() > 50][1:10]
+        bees = [player for player in players if len(player.team_set.all()) >= 3][1:10]
 
     return render(request, 'top-players.html', {'queen': queen,
                                                 'bees': bees,
