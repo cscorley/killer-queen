@@ -26,7 +26,7 @@ class Player(models.Model):
         self.map_wins = self.map_wins + map_wins
         self.map_losses = self.map_losses + map_losses
 
-        if self.map_wins > self.map_losses:
+        if map_wins > map_losses:
             self.match_wins = self.match_wins + 1
         else:
             self.match_losses = self.match_losses + 1
