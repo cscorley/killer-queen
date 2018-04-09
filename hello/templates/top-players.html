@@ -3,15 +3,39 @@
 {% block content %}
 <div class="container">
 
-  <h2>Top {{ bees|length|add:1 }} players</h2>
+  <h2>Top {{ rank_bees|length|add:1 }} players by skill level</h2>
   <hr />
 
-  <h4>Current Queen: <strong>{% if user.is_staff %} {{ queen }} {% else %} {{ queen.user.get_full_name }} {% endif %}</strong> - Level {{ queen.trueskill_rating_exposure|floatformat:"0" }} </h4>
+  <h4>Current Queen: <strong>{% if user.is_staff %} {{ rank_queen }} {% else %} {{ rank_queen.user.get_full_name }} {% endif %}</strong> - Level {{ rank_queen.trueskill_rating_exposure|floatformat:"0" }} </h4>
 
   <hr />
   <ol start="2">
-    {% for bee in bees %}
+    {% for bee in rank_bees %}
       <li> <strong>{% if user.is_staff %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> - Level {{ bee.trueskill_rating_exposure|floatformat:"0" }} </li>
+    {% endfor %}
+  </ol>
+
+  <h2>Top {{ match_wins_bees|length|add:1 }} players by match wins</h2>
+  <hr />
+
+  <h4>Current Queen: <strong>{% if user.is_staff %} {{ match_wins_queen }} {% else %} {{ match_wins_queen.user.get_full_name }} {% endif %}</strong> - {{ match_wins_queen.match_wins }} wins, {{ match_wins_queen.match_losses }} losses </h4>
+
+  <hr />
+  <ol start="2">
+    {% for bee in match_wins_bees %}
+      <li> <strong>{% if user.is_staff %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> - {{ bee.match_wins }} wins, {{ bee.match_losses}} losses </li>
+    {% endfor %}
+  </ol>
+
+  <h2>Top {{ match_wins_bees|length|add:1 }} players by individual map wins</h2>
+  <hr />
+
+  <h4>Current Queen: <strong>{% if user.is_staff %} {{ map_wins_queen }} {% else %} {{ map_wins_queen.user.get_full_name }} {% endif %}</strong> - {{ map_wins_queen.map_wins }} wins, {{ map_wins_queen.map_losses }} losses </h4>
+
+  <hr />
+  <ol start="2">
+    {% for bee in map_wins_bees %}
+      <li> <strong>{% if user.is_staff %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> - {{ bee.map_wins }} wins, {{ bee.map_losses}} losses </li>
     {% endfor %}
   </ol>
 
