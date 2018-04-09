@@ -12,7 +12,17 @@ import trueskill
 from hello.models import *
 from hello.trueskill_environment import skill_env
 
+from rq import Queue
+from worker import conn
+
+q = Queue(connection=conn)
+
+
 def refresh_ratings(request):
+    result = q.enqueue(refresh_ratings_internal, 'http://heroku.com')
+    return HttpResponse('OK')
+
+def refresh_ratings_internal():
     """
     Reset and re-rank all players based on all game results
     """
@@ -25,7 +35,6 @@ def refresh_ratings(request):
     for result in GameResult.objects.order_by('created'):
         result.process()
 
-    return HttpResponse('OK')
 
 
 def team_suggestions(request):

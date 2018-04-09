@@ -15,6 +15,7 @@ trueskill = "*"
 parameterized = "*"
 pytz = "*"
 django-autocomplete-light = "*"
+rq = "*"
 
 
 [requires]
