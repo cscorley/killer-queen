@@ -14,12 +14,36 @@ class Player(models.Model):
                                                default=default_sigma)
     trueskill_rating_exposure = models.FloatField('TrueSkill.Rating exposure.  Use this for sorting',
                                                   default=default_exposure)
+    map_wins = models.PositiveIntegerField('Number of wins by map', default=0)
+    map_losses = models.PositiveIntegerField('Number of losses by map', default=0)
+    match_wins = models.PositiveIntegerField('Number of wins by match', default=0)
+    match_losses = models.PositiveIntegerField('Number of losses by match', default=0)
 
-    def update_rating(self, rating: trueskill.Rating) -> None:
+    def update_rating(self, rating: trueskill.Rating, map_wins: int, map_losses: int) -> None:
         self.trueskill_rating_mu = rating.mu
         self.trueskill_rating_sigma = rating.sigma
         self.trueskill_rating_exposure = trueskill.expose(rating)
+        self.map_wins = self.map_wins + map_wins
+        self.map_losses = self.map_losses + map_losses
+
+        if self.map_wins > self.map_losses:
+            self.match_wins = self.match_wins + 1
+        else:
+            self.match_losses = self.match_losses + 1
+
         self.save()
+
+    def clear_stats(self):
+        self.trueskill_rating_mu = default_mu
+        self.trueskill_rating_sigma = default_sigma
+        self.trueskill_rating_exposure = default_exposure
+        self.map_wins = 0
+        self.map_losses = 0
+        self.match_wins = 0
+        self.match_losses = 0
+
+        self.save()
+
 
     def get_rating(self) -> trueskill.Rating:
         return skill_env.Rating(self.trueskill_rating_mu, self.trueskill_rating_sigma)

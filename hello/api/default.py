@@ -19,7 +19,7 @@ def refresh_ratings(request):
 
     # reset all players back to default rating
     for player in Player.objects.all(): # type: Player
-        player.update_rating(skill_env.Rating())
+        player.clear_stats()
 
     result: GameResult
     for result in GameResult.objects.order_by('created'):

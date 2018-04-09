@@ -98,10 +98,10 @@ class GameResult(models.Model):
             blue_ratings, gold_ratings = skill_env.rate([blue_ratings, gold_ratings], ranks=win)
 
         for player, rating in zip(blue, blue_ratings):
-            player.update_rating(rating)
+            player.update_rating(rating, self.blue_win_count, self.gold_win_count)
 
         for player, rating in zip(gold, gold_ratings):
-            player.update_rating(rating)
+            player.update_rating(rating, self.gold_win_count, self.blue_win_count)
 
 @receiver(post_save, sender=GameResult)
 def process_game_result(sender, instance, created, **kwargs):
