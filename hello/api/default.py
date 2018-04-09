@@ -19,7 +19,7 @@ q = Queue(connection=conn)
 
 
 def refresh_ratings(request):
-    result = q.enqueue(refresh_ratings_internal, 'http://heroku.com')
+    result = q.enqueue(refresh_ratings_internal)
     return HttpResponse('OK')
 
 def refresh_ratings_internal():
