@@ -1,6 +1,7 @@
 import itertools
 import logging
 import random
+import statistics
 
 logger = logging.getLogger('hello')
 
@@ -35,6 +36,27 @@ def refresh_ratings_internal():
     for result in GameResult.objects.order_by('created'):
         result.process()
 
+
+class TeamViewItem:
+
+    def __init__(self, name, players):
+        self.name = name
+        self.players = players
+        self.rating_mean = 0.0
+        self.rating_median = 0.0
+        self._sort()
+
+    def _sort(self):
+        self.players = list(sorted(self.players, key=lambda player: player.user.id if player else 9999))
+
+        if self.players:
+            self.rating_mean = statistics.mean([x.trueskill_rating_exposure if x else 0 for x in self.players])
+            self.rating_median = statistics.median([x.trueskill_rating_exposure if x else 0 for x in self.players])
+
+
+    def add_player(self, player: Player) -> None:
+        self.players.append(player)
+        self._sort()
 
 
 def team_suggestions(request):
@@ -80,74 +102,54 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     elif len(players) == 1:
         return [players]
 
-    team_size: int = max(min_teams, int((len(players) / max_players_per_team) + 0.5))
+    team_ratio = len(players) / max_players_per_team
+    if team_ratio % 1 > 0:
+        team_ratio = int(team_ratio + 1)
+    else:
+        team_ratio = int(team_ratio)
+    team_size: int = max(min_teams, team_ratio)
 
-    walk_on_count = len(players) % team_size
-    if walk_on_count > 0:
-        players += [None] * (team_size - walk_on_count)
-
+    logger.info("Team size: %d", team_size)
     logger.info("Players: %d", len(players))
 
-    # https://stackoverflow.com/a/10364399
-    # group the players into a 2D matrix:
-    # [(1, 2, 3, 4),
-    #  (5, 6, 7, 8)]
-    groups = list(zip(*[iter(players)]*team_size))
+    queens = [player for player in players if player.wants_queen]
+    bees = [player for player in players if not player.wants_queen]
 
-    while (len(groups) > max_players_per_team):
-        team_size += 1
-        groups = list(zip(*[iter(players)]*team_size))
+    logger.info("Queens: %d, %s", len(queens), queens)
+    logger.info("Bees: %d, %s", len(bees), bees)
 
-    logger.info("Group size initial: %d", len(groups))
-    logger.debug("Groups: %s", str(groups))
+    teams = []
+    team_names = random.sample([r.name for r in RandomName.objects.all()], team_size)
+    for name in team_names:
+        teams.append(TeamViewItem(name, list()))
 
-    # reverse the odd groups so they are ranked high to low
-    # [(1, 2, 3, 4),
-    #  (8, 7, 6, 5),
-    for num, group in enumerate(groups):
-        if (num % 2 == 1):
-            groups[num] = list(reversed(group))
-        elif (num == len(groups) - 1):
-            # always flip the last group if it wasn't already flipped
-            # this ensures the worst players (or walk-ons/empty slots) are paired with the best
-            groups[-1] = list(reversed(groups[-1]))
+    full_teams = []
 
-    logger.info("Group size reverse: %d", len(groups))
-    logger.debug("Groups: %s", str(groups))
+    for queen in queens:
+        team = teams.pop()
+        team.add_player(queen)
 
-    # https://stackoverflow.com/a/4937526
-    # create teams by transposing the matrix
-    # [(1, 8,
-    #  (2, 7,
-    #  (3, 6,
-    #  (4, 5,
-    groups = list(list(x) for x in zip(*groups))
+        if len(team.players) < max_players_per_team:
+            teams.insert(0, team)
+        else:
+            full_teams.append(team)
 
-    logger.info("Group size final: %d", len(groups))
-    logger.debug("Groups: %s", str(groups))
 
-    grouped_players = sum(groups, list())
-    logger.info("Grouped players: %d", len(grouped_players))
+    for bee in bees:
+        team = teams.pop()
+        team.add_player(bee)
 
-    # remove the None players
-    for num, group in enumerate(groups):
-        groups[num] = [item for item in group if item]
-
-    players_on_teams = [player for team in groups for player in team if player is not None]
-    teamless_players = [player for player in players if player not in players_on_teams]
-
-    while teamless_players:
-        player = teamless_players.pop()
-        if player:
-            for team in reversed(groups):
-                if len(team) < max_players_per_team:
-                    team.append(player)
-                    break
+        if len(team.players) < max_players_per_team:
+            teams.insert(0, team)
+        else:
+            full_teams.append(team)
 
     # re-add the Nones so they're displayed
     # seems bad, man
-    for team in groups:
-        while len(team) < max_players_per_team:
-            team.append(None)
+    for team in teams:
+        while len(team.players) < max_players_per_team:
+            team.add_player(None)
 
-    return groups
+        full_teams.append(team)
+
+    return sorted(full_teams, key=lambda team: team.rating_mean, reverse=True)

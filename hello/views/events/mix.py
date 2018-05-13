@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 from hello.forms import MixerForm
-from hello.api import team_suggestions_internal
+from hello.api import team_suggestions_internal, TeamViewItem
 from hello.models import EventPlayer, Event, RandomName
 from hello.views import Alert
 
@@ -53,22 +53,10 @@ def mix(request, event_id):
                                       sorter)
 
 
-    team_names = random.sample([r.name for r in RandomName.objects.all()], len(teams))
-    team_items = [TeamViewItem(team_name, team) for team_name, team in zip(team_names, teams)]
-    team_items = sorted(team_items, key=lambda team: team.rating_mean, reverse=True)
+    team_items = sorted(teams, key=lambda team: team.rating_mean, reverse=True)
 
     return render(request, 'event-mix-teams.html', {'form': form,
                                                     'teams': team_items,
                                                     'event': event,
                                                     'alert': alert,
                                                     'all_players': all_players})
-
-
-
-class TeamViewItem:
-
-    def __init__(self, name, players):
-        self.name = name
-        self.players = list(sorted(players, key=lambda player: player.user.id if player else 9999))
-        self.rating_mean = statistics.mean([x.trueskill_rating_exposure if x else 0 for x in players])
-        self.rating_median = statistics.median([x.trueskill_rating_exposure if x else 0 for x in players])
