@@ -33,6 +33,7 @@ class Event(models.Model):
     is_active = models.BooleanField('Determines whether this is an active event', default=True)
 
     tournament_url = models.CharField('tournament url', max_length=255)
+    token = models.CharField('Secret token', max_length=50, default='')
 
     def __str__(self) -> str:
         return "%s (%s, %s)" % (self.name, self.season.name, str(self.when))

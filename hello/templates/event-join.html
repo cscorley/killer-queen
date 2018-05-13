@@ -38,44 +38,55 @@
     <div class="col-md-8">
         <h2>Register as a player</h2>
         <hr />
-        <h4>Played with us before?</h4>
-        <small>
-            <p style="color: grey">
-                You should already have an account (even if you didn't make it yourself -- just ask).
-                Try typing your <u>username</u> or <u>first name</u> in the field below and select your user.
-                If you're having trouble, find a staff member and we'll get you sorted out.
-            </p>
-        </small>
-        <form method="post">
-            {% csrf_token %}
-            <p>
-                {% if user.is_staff %} {{ registerForm.action }} {% endif %}
-                {{ registerForm.user.label_tag }}
-                {{ registerForm.user }}
-                <button type="submit">Register</button>
-            </p>
-        </form>
-        <hr />
-        <h4><span style="font-weight:bold;color:#532f8c">New</span> to our league?</h4>
-        <small>
-            <p>
-            Sign up for an account so we can keep track of your scores for the season!
-            </p>
-        </small>
-        <form method="post">
-            {% csrf_token %}
-            <table style="vertical-align: middle">
-            {% for field in signUpForm %}
-                <tr>
-                    <th> {{ field.label_tag }} </th>
-                    <td> {{ field }} </td>
-                    <td> {% if field.help_text %} <small style="color: grey">{{ field.help_text }}</small> {% endif %} </td>
-                    <td> {% for error in field.errors %} <p style="color: red">{{ error }}</p> {% endfor %} </td>
-                </tr>
-            {% endfor %}
-            </table>
-            <button type="submit">Sign up and register</button>
-        </form>
+        {% if registerForm %}
+            <h4>Played with us before?</h4>
+            <small>
+                <p style="color: grey">
+                    You should already have an account (even if you didn't make it yourself -- just ask).
+                    Try typing your <u>username</u> or <u>first name</u> in the field below and select your user.
+                    If you're having trouble, find a staff member and we'll get you sorted out.
+                </p>
+            </small>
+            <form method="post">
+                {% csrf_token %}
+                <p>
+                    {% if user.is_staff %} {{ registerForm.action }} {% endif %}
+                    {{ registerForm.user.label_tag }}
+                    {{ registerForm.user }}
+                    <button type="submit">Register</button>
+                </p>
+            </form>
+            <hr />
+            <h4><span style="font-weight:bold;color:#532f8c">New</span> to our league?</h4>
+            <small>
+                <p>
+                Sign up for an account so we can keep track of your scores for the season!
+                </p>
+            </small>
+            <form method="post">
+                {% csrf_token %}
+                <table style="vertical-align: middle">
+                {% for field in signUpForm %}
+                    <tr>
+                        <th> {{ field.label_tag }} </th>
+                        <td> {{ field }} </td>
+                        <td> {% if field.help_text %} <small style="color: grey">{{ field.help_text }}</small> {% endif %} </td>
+                        <td> {% for error in field.errors %} <p style="color: red">{{ error }}</p> {% endfor %} </td>
+                    </tr>
+                {% endfor %}
+                </table>
+                <button type="submit">Sign up and register</button>
+            </form>
+        {% else %}
+            <h4>Staff password required to unlock signups on this computer</h4>
+            <form method="post">
+                {% csrf_token %}
+                <p>
+                {{ tokenForm.as_p }}
+                <button type="submit">Enter</button>
+                </p>
+            </form>
+        {% endif %}
     </div>
 </div>
 </div>

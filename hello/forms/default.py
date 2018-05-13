@@ -38,3 +38,6 @@ class EventRegistrationForm(forms.Form):
                  ('R', 'Remove')],
         required=False
     )
+
+class TokenForm(forms.Form):
+    token = forms.CharField(max_length=50, required=True, help_text="You do know it, don't you?")

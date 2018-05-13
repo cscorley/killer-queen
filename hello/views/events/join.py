@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
-from hello.forms import SignUpForm, EventRegistrationForm
+from hello.forms import SignUpForm, EventRegistrationForm, TokenForm
 from hello.api import team_suggestions_internal
 from hello.models import EventPlayer, Event, RandomName
 from hello.views import Alert
@@ -18,17 +18,43 @@ def join(request, event_id):
     event_id = int(event_id)
     event = Event.objects.get(pk=event_id)
 
-    if not event.is_active and not request.user.is_staff:
-        logger.info("redirecting to result page: %d", event.id)
-        return redirect(reverse('event_result', args=[event.id]))
-
     max_players_per_team = 5  # TODO
     min_teams = 2
     signUpForm = SignUpForm()
     registerForm = EventRegistrationForm()
+    tokenForm = TokenForm()
     alert = None
 
-    if request.method == 'POST':
+    all_players: List[Player] = list(event.players.order_by('eventplayer__created'))
+
+    if not event.is_active and not request.user.is_staff:
+        logger.info("redirecting to result page: %d", event.id)
+        return redirect(reverse('event_result', args=[event.id]))
+
+    token = ''
+    has_token = (request.session.get('token', token) == event.token)
+    if not has_token:
+        if request.method == 'POST':
+            tokenForm = TokenForm(request.POST)
+
+        if tokenForm.is_valid():
+            token = tokenForm.cleaned_data.get('token')
+
+            if token == event.token:
+                has_token = True
+                request.session['token'] = token
+
+        if not has_token:
+            return render(request, 'event-join.html',
+            {
+                'signUpForm': None,
+                'registerForm': None,
+                'event': event,
+                'alert': alert,
+                'all_players': all_players,
+                'tokenForm': tokenForm
+            })
+    elif request.method == 'POST':
         signUpForm = SignUpForm(request.POST)
         registerForm = EventRegistrationForm(request.POST)
         logger.info(str(request.POST))
@@ -58,7 +84,7 @@ def join(request, event_id):
 
         registerForm = EventRegistrationForm()
 
-    all_players: List[Player] = list(event.players.order_by('eventplayer__created'))
+        all_players: List[Player] = list(event.players.order_by('eventplayer__created'))
 
     return render(request, 'event-join.html', {'signUpForm': signUpForm,
                                                'registerForm': registerForm,
