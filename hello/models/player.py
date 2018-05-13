@@ -19,6 +19,8 @@ class Player(models.Model):
     match_wins = models.PositiveIntegerField('Number of wins by match', default=0)
     match_losses = models.PositiveIntegerField('Number of losses by match', default=0)
 
+    wants_queen = models.BooleanField('Would like to play Queen', default=False)
+
     def update_rating(self, rating: trueskill.Rating, map_wins: int, map_losses: int) -> None:
         self.trueskill_rating_mu = rating.mu
         self.trueskill_rating_sigma = rating.sigma
@@ -49,11 +51,12 @@ class Player(models.Model):
         return skill_env.Rating(self.trueskill_rating_mu, self.trueskill_rating_sigma)
 
     def __str__(self) -> str:
-        return "%s (%s, e=%.3f, m=%.3f, s=%.3f)" % (self.user.get_full_name(),
+        return "%s (%s, e=%.3f, m=%.3f, s=%.3f, q=%i)" % (self.user.get_full_name(),
                                                     self.user.username,
                                                     self.trueskill_rating_exposure,
                                                     self.trueskill_rating_mu,
-                                                    self.trueskill_rating_sigma)
+                                                    self.trueskill_rating_sigma,
+                                                    self.wants_queen)
 
     def confidence(self):
         return min(100.0, 100 * (1.0 - self.trueskill_rating_sigma / default_sigma))

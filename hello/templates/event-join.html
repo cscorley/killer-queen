@@ -23,6 +23,7 @@
             <ol>
                 {% for player in all_players %}
                     <li> {% if forloop.last %} <strong> {{ player.user.get_full_name }} </strong> {% else %}{{ player.user.get_full_name }} {% endif %}
+                         {% if player.wants_queen %} <strong>👑</strong> {% endif %}
                          {% if user.is_staff %} <small style="color: grey">({{ player.user.username }}, r={{ player.trueskill_rating_exposure|floatformat:1 }})</small> {% endif %}
                     </li>
                 {% endfor %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <form action="" method="post">
+        {% csrf_token %}
+        <table>
+        {{ user_form.as_table }}
+        {{ profile_form.as_table }}
+        </table>
+        <input type="submit" value="Update" />
+    </form>
+
+    <br />
+    <br />
+    <p>
+        <a href="/accounts/password_change">Change your password</a>
+    </p>
+</div>
+
+{% endblock %}

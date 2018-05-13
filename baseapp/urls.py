@@ -11,7 +11,7 @@ import hello.api
 
 urlpatterns = [
     url(r'^accounts/', include('django.contrib.auth.urls')),
-    url(r'^account/$', hello.views.UserUpdateView.as_view(), name='account_update'),
+    url(r'^account/$', hello.views.update_profile, name='account_update'),
     url(r'^accounts/signup/$', hello.views.signup, name='account_signup'),
     url(r'^top_players$', hello.views.top_players, name='top_players'),
     url(r'^events/(?P<event_id>\d+)/join$', hello.views.events.join, name='event_join'),
