@@ -33,7 +33,7 @@ def join(request, event_id):
 
     token = ''
     has_token = (request.session.get('token', token) == event.token)
-    if not has_token:
+    if not request.user.is_staff and not has_token:
         if request.method == 'POST':
             tokenForm = TokenForm(request.POST)
 
