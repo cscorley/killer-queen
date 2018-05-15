@@ -120,6 +120,7 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
 
     players = queens + bees
 
+    full_teams = []
     teams = []
     team_names = random.sample([r.name for r in RandomName.objects.all()], team_size)
     for name in team_names:
@@ -127,16 +128,22 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
 
     current_team = 0
     for player in players:
-        team = teams[current_team]
-
         min_teams = _teams_with_least_players(teams)
         team = min(min_teams, key=lambda t: t.rating_mean)
+
+        # move any full teams
+        while len(team.players) >= max_players_per_team:
+            full_teams.append(team)
+            teams.remove(team)
+
+            min_teams = _teams_with_least_players(teams)
+            team = min(min_teams, key=lambda t: t.rating_mean)
+
+
+        team.add_player(player)
         current_team = teams.index(team)
 
         logger.info("Team: %d, %.2f \t Player: %.2f", current_team, team.rating_mean, player.trueskill_rating_exposure)
-
-        if len(team.players) < max_players_per_team:
-            team.add_player(player)
 
     # re-add the Nones so they're displayed
     # seems bad, man
@@ -144,7 +151,9 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
         while len(team.players) < max_players_per_team:
             team.add_player(None)
 
-    return sorted(teams, key=lambda team: team.rating_mean, reverse=True)
+        full_teams.append(team)
+
+    return sorted(full_teams, key=lambda team: team.rating_mean, reverse=True)
 
 
 def _teams_with_least_players(teams):
