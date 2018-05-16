@@ -125,8 +125,6 @@ STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-django_heroku.settings(locals())
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
@@ -137,6 +135,8 @@ EMAIL_TIMEOUT = None
 EMAIL_USE_LOCALTIME = False
 EMAIL_USE_SSL = True
 EMAIL_USE_TLS = False
+
+django_heroku.settings(locals())
 
 LOGGING = {
     'version': 1,
