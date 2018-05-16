@@ -133,7 +133,7 @@ EMAIL_PORT = 587
 EMAIL_SUBJECT_PREFIX = '[Django] '
 EMAIL_TIMEOUT = None
 EMAIL_USE_LOCALTIME = False
-EMAIL_USE_SSL = True
+EMAIL_USE_SSL = False
 EMAIL_USE_TLS = True
 
 django_heroku.settings(locals())
