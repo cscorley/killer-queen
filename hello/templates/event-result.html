@@ -24,7 +24,7 @@
         <ol>
         {% for team in event.teams.all|dictsort:"name" %}
             <li> {{ team.name }}
-                {% if user.is_staff %} <small style="color: grey">({{ team.id }}, r={{ team.get_rating_mean |floatformat:1 }})</small> {% endif %}
+                {% if user.is_superuser %} <small style="color: grey">({{ team.id }}, r={{ team.get_rating_mean |floatformat:1 }})</small> {% endif %}
                 <br /><ol>
             {% for player in team.members.all|dictsort:"user.id" %}
                 {% if player %}
