@@ -10,7 +10,7 @@
 
   <ol>
     {% for bee in map_wins_bees %}
-      <li> <strong>{% if user.is_staff %} {{ bee.player }} {% else %} {{ bee.player.user.get_full_name }} {% endif %}</strong> - {{ bee.total_wins }} wins, {{ bee.total_losses}} losses </li>
+      <li> <strong>{% if user.is_superuser %} {{ bee.player }} {% else %} {{ bee.player.user.get_full_name }} {% endif %}</strong> - {{ bee.total_wins }} wins, {{ bee.total_losses}} losses </li>
     {% endfor %}
   </ol>
 
