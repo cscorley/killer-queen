@@ -9,9 +9,9 @@
   <hr />
 
   <ol>
-    <li> 👑 <strong>{% if user.is_staff %} {{ rank_queen }} {% else %} {{ rank_queen.user.get_full_name }} {% endif %}</strong> 👑 - Level {{ rank_queen.trueskill_rating_exposure|floatformat:"0" }} </li>
+    <li> 👑 <strong>{% if user.is_superuser %} {{ rank_queen }} {% else %} {{ rank_queen.user.get_full_name }} {% endif %}</strong> 👑 - Level {{ rank_queen.trueskill_rating_exposure|floatformat:"0" }} </li>
     {% for bee in rank_bees %}
-      <li> <strong>{% if user.is_staff %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> - Level {{ bee.trueskill_rating_exposure|floatformat:"0" }} </li>
+      <li> <strong>{% if user.is_superuser %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> - Level {{ bee.trueskill_rating_exposure|floatformat:"0" }} </li>
     {% endfor %}
   </ol>
 
@@ -19,9 +19,9 @@
   <hr />
 
   <ol>
-    <li>👑<strong>{% if user.is_staff %} {{ match_wins_queen }} {% else %} {{ match_wins_queen.user.get_full_name }} {% endif %}</strong> 👑 - {{ match_wins_queen.match_wins }} wins, {{ match_wins_queen.match_losses }}</li>
+    <li>👑<strong>{% if user.is_superuser %} {{ match_wins_queen }} {% else %} {{ match_wins_queen.user.get_full_name }} {% endif %}</strong> 👑 - {{ match_wins_queen.match_wins }} wins, {{ match_wins_queen.match_losses }}</li>
     {% for bee in match_wins_bees %}
-      <li> <strong>{% if user.is_staff %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> - {{ bee.match_wins }} wins, {{ bee.match_losses}} losses </li>
+      <li> <strong>{% if user.is_superuser %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> - {{ bee.match_wins }} wins, {{ bee.match_losses}} losses </li>
     {% endfor %}
   </ol>
 
@@ -29,9 +29,9 @@
   <hr />
 
   <ol>
-    <li>👑<strong>{% if user.is_staff %} {{ map_wins_queen }} {% else %} {{ map_wins_queen.user.get_full_name }} {% endif %}</strong> 👑 - {{ map_wins_queen.map_wins }} wins, {{ map_wins_queen.map_losses}} losses</li>
+    <li>👑<strong>{% if user.is_superuser %} {{ map_wins_queen }} {% else %} {{ map_wins_queen.user.get_full_name }} {% endif %}</strong> 👑 - {{ map_wins_queen.map_wins }} wins, {{ map_wins_queen.map_losses}} losses</li>
     {% for bee in map_wins_bees %}
-      <li> <strong>{% if user.is_staff %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> - {{ bee.map_wins }} wins, {{ bee.map_losses}} losses </li>
+      <li> <strong>{% if user.is_superuser %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> - {{ bee.map_wins }} wins, {{ bee.map_losses}} losses </li>
     {% endfor %}
   </ol>
 

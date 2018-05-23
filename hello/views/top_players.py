@@ -29,7 +29,7 @@ def _split_queen(request, players, sorter):
     bees = sorted(players, key=sorter, reverse=True)
 
     queen = bees[0]
-    if request.user.is_staff:
+    if request.user.is_superuser:
         bees = bees[1:]
     else:
         bees = [bee for bee in bees if len(bee.team_set.all()) >= 3][1:10]
