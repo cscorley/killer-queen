@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^events/current/$', hello.views.events.current, name='event_current'),
     url(r'^events/$', hello.views.events.EventListView.as_view()),
     url(r'^seasons/$', hello.views.seasons.SeasonListView.as_view()),
+    url(r'^seasons/(?P<season_id>\d+)/top_players$', hello.views.seasonal_top_players, name='seasonal_top_players'),
     path('admin/', admin.site.urls),
     url(r'^api/refresh_ratings$', hello.api.refresh_ratings, name='refresh_ratings'),
     url(r'^api/team_suggestions$', hello.api.team_suggestions, name='team_suggestions'),

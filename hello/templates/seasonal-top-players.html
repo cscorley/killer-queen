@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <h1>{{ title }}</h1>
+  <hr />
+
+  <h3>Top {{ map_wins_bees|length|add:1 }} players by individual map wins</h3>
+  <hr />
+
+  <ol>
+    {% for bee in map_wins_bees %}
+      <li> <strong>{% if user.is_staff %} {{ bee.player }} {% else %} {{ bee.player.user.get_full_name }} {% endif %}</strong> - {{ bee.total_wins }} wins, {{ bee.total_losses}} losses </li>
+    {% endfor %}
+  </ol>
+
+</div>
+{% endblock %}
