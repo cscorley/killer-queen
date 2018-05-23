@@ -46,10 +46,12 @@ def seasonal_top_players(request, season_id):
     player_map_wins = list()
 
     for player in players:
-        map_counts = player.team_set.all().aggregate(blue_wins=Sum('blue_result__blue_win_count'),
-                                                     blue_losses=Sum('blue_result__gold_win_count'),
-                                                     gold_wins=Sum('gold_result__gold_win_count'),
-                                                     gold_losses=Sum('gold_result__blue_win_count'))
+        map_counts = player.team_set.filter(event__season__id=season_id).aggregate(
+            blue_wins=Sum('blue_result__blue_win_count'),
+            blue_losses=Sum('blue_result__gold_win_count'),
+            gold_wins=Sum('gold_result__gold_win_count'),
+            gold_losses=Sum('gold_result__blue_win_count')
+        )
 
         for key, value in map_counts.items():
             if value is None:
