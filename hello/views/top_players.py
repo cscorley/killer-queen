@@ -42,16 +42,23 @@ def seasonal_top_players(request, season_id):
     season = Season.objects.get(pk=season_id)
 
     # players on teams in results for events this season
-    players = Player.objects.filter(team__event__season__id=season_id).distinct()
+    players = Player.objects.filter(team__event__season=season).distinct()
+    logger.debug(players.query)
     player_map_wins = list()
 
     for player in players:
-        map_counts = player.team_set.filter(event__season__id=season_id).aggregate(
-            blue_wins=Sum('blue_result__blue_win_count'),
-            blue_losses=Sum('blue_result__gold_win_count'),
-            gold_wins=Sum('gold_result__gold_win_count'),
-            gold_losses=Sum('gold_result__blue_win_count')
+        qs = player.team_set.filter(event__season=season)
+        map_counts = qs.aggregate(
+            blue_wins=Sum('blue_result__blue_win_count', distinct=True),
+            blue_losses=Sum('blue_result__gold_win_count', distinct=True),
         )
+
+        map_counts.update(qs.aggregate(
+            gold_wins=Sum('gold_result__gold_win_count', distinct=True),
+            gold_losses=Sum('gold_result__blue_win_count', distinct=True)
+        ))
+
+        logger.debug(qs.query)
 
         for key, value in map_counts.items():
             if value is None:
@@ -60,9 +67,15 @@ def seasonal_top_players(request, season_id):
         map_counts['player'] = player
         map_counts['total_wins'] = map_counts['blue_wins'] + map_counts['gold_wins']
         map_counts['total_losses'] = map_counts['blue_losses'] + map_counts['gold_losses']
+
+        if player.id == 34:
+            logger.debug(map_counts)
+
         player_map_wins.append(map_counts)
 
     player_map_wins.sort(key=lambda p: p['total_wins'], reverse=True)
+
+    player_map_wins = filter(lambda x: x['total_wins'] > 0, player_map_wins)
 
     return render(request, 'seasonal-top-players.html', {'map_wins_bees': player_map_wins,
                                                         'title': season.name

@@ -13,6 +13,7 @@ import trueskill
 from hello.models import *
 from hello.trueskill_environment import skill_env
 
+from redis.exceptions import ConnectionError
 from rq import Queue
 from worker import conn
 
@@ -20,7 +21,11 @@ q = Queue(connection=conn)
 
 
 def refresh_ratings(request):
-    result = q.enqueue(refresh_ratings_internal)
+    try:
+        result = q.enqueue(refresh_ratings_internal)
+    except ConnectionError:
+        refresh_ratings_internal()
+
     return HttpResponse('OK')
 
 def refresh_ratings_internal():
