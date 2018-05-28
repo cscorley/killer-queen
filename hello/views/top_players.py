@@ -48,15 +48,18 @@ def seasonal_top_players(request, season_id):
 
     for player in players:
         qs = player.team_set.filter(event__season=season)
-        map_counts = qs.aggregate(
+        blue_counts = qs.filter(blue_result__contributes_to_season_score=True).aggregate(
             blue_wins=Sum('blue_result__blue_win_count', distinct=True),
             blue_losses=Sum('blue_result__gold_win_count', distinct=True),
         )
 
-        map_counts.update(qs.aggregate(
+        gold_counts = qs.filter(gold_result__contributes_to_season_score=True).aggregate(
             gold_wins=Sum('gold_result__gold_win_count', distinct=True),
-            gold_losses=Sum('gold_result__blue_win_count', distinct=True)
-        ))
+            gold_losses=Sum('gold_result__blue_win_count', distinct=True),
+        )
+
+        map_counts = blue_counts
+        map_counts.update(gold_counts)
 
         logger.debug(qs.query)
 

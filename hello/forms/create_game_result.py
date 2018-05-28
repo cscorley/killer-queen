@@ -12,4 +12,5 @@ class CreateGameResultForm(forms.ModelForm):
                   'gold',
                   'blue_win_count',
                   'gold_win_count',
-                  'event')
+                  'event',
+                  'contributes_to_season_score')

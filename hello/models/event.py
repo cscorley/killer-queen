@@ -70,6 +70,7 @@ class GameResult(models.Model):
     blue_win_count = models.PositiveSmallIntegerField('Number of wins by the Blue team')
     gold_win_count = models.PositiveSmallIntegerField('Number of wins by the Gold team')
     event = models.ForeignKey(Event, on_delete=models.CASCADE, blank=True, null=True)
+    contributes_to_season_score = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         if self.event:
