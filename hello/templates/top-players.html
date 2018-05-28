@@ -19,7 +19,7 @@
   <hr />
 
   <ol>
-    <li>👑<strong>{% if user.is_superuser %} {{ match_wins_queen }} {% else %} {{ match_wins_queen.user.get_full_name }} {% endif %}</strong> 👑 - {{ match_wins_queen.match_wins }} wins, {{ match_wins_queen.match_losses }}</li>
+    <li>👑<strong>{% if user.is_superuser %} {{ match_wins_queen }} {% else %} {{ match_wins_queen.user.get_full_name }} {% endif %}</strong> 👑 - {{ match_wins_queen.match_wins }} wins, {{ match_wins_queen.match_losses }} losses</li>
     {% for bee in match_wins_bees %}
       <li> <strong>{% if user.is_superuser %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> - {{ bee.match_wins }} wins, {{ bee.match_losses}} losses </li>
     {% endfor %}

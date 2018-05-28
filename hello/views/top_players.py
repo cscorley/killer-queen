@@ -78,5 +78,5 @@ def seasonal_top_players(request, season_id):
     player_map_wins = filter(lambda x: x['total_wins'] > 0, player_map_wins)
 
     return render(request, 'seasonal-top-players.html', {'map_wins_bees': player_map_wins,
-                                                        'title': season.name
-                                                        })
+                                                         'title': season.name
+                                                         })

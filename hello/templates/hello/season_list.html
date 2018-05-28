@@ -9,7 +9,8 @@
     <ul>
         {% for season in object_list %}
             <li>
-                {{ season.name }}
+                {% url 'seasonal_top_players' season.id as seasonal_top_players %}
+                {{ season.name }} - <a href="{{ seasonal_top_players }}">Top Players</a>
 
                 <ul>
                 {% for event in season.events.all|dictsort:"when" %}
