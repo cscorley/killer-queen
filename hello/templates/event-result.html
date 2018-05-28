@@ -45,7 +45,8 @@
         <br />
         <ol>
         {% for game in games %}
-            <li>
+            <li> {% if game.contributes_to_season_score %}✔️{% endif %}
+                <br />
                 <span style="color: rgb(69, 122, 236)">{{ game.blue.name }}</span>
                 wins:
                 <strong> <span style="color: rgb(69, 122, 236)">{{ game.blue_win_count }}</span> </strong>
@@ -56,6 +57,7 @@
             </li>
         {% endfor %}
         </ol>
+        <p>(games marked with ✔️ contributed to season score)</p>
         {% if user.is_staff %}
             <hr />
             <form method="post">
