@@ -95,6 +95,8 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     player: Player
     players: List[Player] = list(event.players.all())
 
+    players = list(filter(lambda player: player.user.is_active == True, players))
+
     # shuffle players so any equal ratings are out of order
     random.shuffle(players)
 
