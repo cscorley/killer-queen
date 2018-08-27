@@ -29,7 +29,8 @@ def mix(request, event_id):
     form = MixerForm()
     alert = None
 
-    all_players: List[Player] = list(event.players.filter(user__is_active=True).order_by('eventplayer__created'))
+    all_players: List[Player] = list(event.players.order_by('eventplayer__created'))
+    all_players = list(filter(lambda player: player.user.is_active == True, all_players))
     max_rating = max([x.trueskill_rating_exposure if x else 0 for x in all_players])
 
     if request.method == 'POST':
