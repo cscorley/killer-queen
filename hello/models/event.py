@@ -90,7 +90,13 @@ class GameResult(models.Model):
 
         # cycle between blue and gold wins so scores are updated somewhat fairly since we don't
         # track literal win order
-        alternating = list(next(i) for i in itertools.cycle([blue_wins_iter, gold_wins_iter]))
+        alternating = list()
+
+        for i in itertools.cycle([blue_wins_iter, gold_wins_iter]):
+            try:
+                alternating.append(next(i))
+            except StopIteration:
+                break
 
         # since one team may have won a bunch more than the other, just put any that weren't able
         #  to be alternated at the end
