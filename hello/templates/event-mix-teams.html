@@ -5,6 +5,29 @@
 
 {% block scripts %}
 <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+<script type="text/javascript">
+function copyToClipboard(elementId) {
+  // Create a "hidden" input
+  var aux = document.createElement("div");
+
+  // Assign it the value of the specified element
+  aux.setAttribute("contentEditable", true);
+  aux.innerHTML = document.getElementById(elementId).innerHTML.replace(/\r/g, "<br />");
+  aux.setAttribute("onfocus", "document.execCommand('selectAll',false,null)");
+
+  // Append it to the body
+  document.body.appendChild(aux);
+
+  // Highlight its content
+  aux.focus();
+
+  // Copy the highlighted text
+  document.execCommand("copy");
+
+  // Remove it from the body
+  document.body.removeChild(aux);
+}
+</script>
 {{ registerForm.media }}
 {% endblock %}
 
@@ -71,8 +94,15 @@
                     </tr>
                 {% endfor %}
                 </table>
-                <button type="submit">Remix</button>
+                <button class="btn btn-primary btn-md" type="submit">Remix</button>
             </form>
+
+            <br />
+            {% if teams %}
+            <textarea id="team-names" readonly rows={{ teams | length }}>{% for team in teams %}{{ team.name }}{% if not forloop.last %}&#013;&#010;{% endif %}{% endfor %}</textarea>
+            <br />
+            <button class="btn btn-primary btn-md" onclick="copyToClipboard('team-names')">Copy Team Names</button>
+            {% endif %}
         </div>
     </div>
 </div>
