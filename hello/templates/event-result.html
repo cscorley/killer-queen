@@ -45,15 +45,26 @@
         <br />
         <ol>
         {% for game in games %}
-            <li> {% if game.contributes_to_season_score %}✔️{% endif %}
-                <br />
+            <li>
                 <span style="color: rgb(69, 122, 236)">{{ game.blue.name }}</span>
-                wins:
-                <strong> <span style="color: rgb(69, 122, 236)">{{ game.blue_win_count }}</span> </strong>
-                <br />
+                vs
                 <span style="color: rgb(170, 131, 25)">{{ game.gold.name }}</span>
-                wins:
+                :
+                <strong> <span style="color: rgb(69, 122, 236)">{{ game.blue_win_count }}</span> </strong>
+                -
                 <strong> <span style="color: rgb(170, 131, 25)">{{ game.gold_win_count }}</span> </strong>
+                {% if game.contributes_to_season_score %}✔️{% endif %}
+                <br />
+                Order:
+                    {% for win in game.win_order %}
+                        {% if win == "B" %}
+                            <span style="color: rgb(69, 122, 236)">
+                        {% else %}
+                            <span style="color: rgb(170, 131, 25)">
+                        {% endif %}
+                        {{ win }}
+                        </span>
+                    {% endfor %}
             </li>
         {% endfor %}
         </ol>

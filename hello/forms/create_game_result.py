@@ -10,7 +10,6 @@ class CreateGameResultForm(forms.ModelForm):
         model = GameResult
         fields = ('blue',
                   'gold',
-                  'blue_win_count',
-                  'gold_win_count',
+                  'win_order',
                   'event',
                   'contributes_to_season_score')

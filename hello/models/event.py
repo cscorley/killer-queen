@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.validators import RegexValidator
 
 from .enums import TournamentStyle
 from .fields import EnumField
@@ -62,15 +63,25 @@ class EventPlayer(models.Model):
     def __str__(self) -> str:
         return "%s (%s)" % (self.player.user.username, self.event.name)
 
+def get_win(letter: str):
+    if letter == 'B':
+        return [0, 1]
+    elif letter == 'G':
+        return [1, 0]
+    else:
+        return None
+
+win_validator = RegexValidator(r'^[BGbg]*$', 'Only B or G characters are allowed.')
 
 class GameResult(models.Model):
     created = models.DateTimeField('date created', auto_now_add=True)
     blue = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='blue_result')
     gold = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='gold_result')
-    blue_win_count = models.PositiveSmallIntegerField('Number of wins by the Blue team')
-    gold_win_count = models.PositiveSmallIntegerField('Number of wins by the Gold team')
+    blue_win_count = models.PositiveSmallIntegerField('Number of wins by the Blue team', default=0)
+    gold_win_count = models.PositiveSmallIntegerField('Number of wins by the Gold team', default=0)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, blank=True, null=True)
     contributes_to_season_score = models.BooleanField(default=True)
+    win_order = models.CharField('Win order', max_length=9, default="", validators=[win_validator])
 
     def __str__(self) -> str:
         if self.event:
@@ -85,24 +96,52 @@ class GameResult(models.Model):
         blue_ratings: List[trueskill.Rating] = [x.get_rating() for x in blue]
         gold_ratings: List[trueskill.Rating] = [x.get_rating() for x in gold]
 
-        blue_wins_iter = iter([[0, 1]] * self.blue_win_count)
-        gold_wins_iter = iter([[1, 0]] * self.gold_win_count)
+        results: List[List[int]]
 
-        # cycle between blue and gold wins so scores are updated somewhat fairly since we don't
-        # track literal win order
-        alternating = list()
+        if len(self.win_order) != 0:
+            results = [get_win(win) for win in self.win_order]
 
-        for i in itertools.cycle([blue_wins_iter, gold_wins_iter]):
-            try:
-                alternating.append(next(i))
-            except StopIteration:
-                break
+            if self.blue_win_count == 0 and self.gold_win_count == 0:
+                self.win_order = self.win_order.upper()
+                self.blue_win_count = self.win_order.count('B')
+                self.gold_win_count = self.win_order.count('G')
+                self.save()
+        else:
+            blue_wins_iter = iter([get_win('B')] * self.blue_win_count)
+            gold_wins_iter = iter([get_win('G')] * self.gold_win_count)
 
-        # since one team may have won a bunch more than the other, just put any that weren't able
-        #  to be alternated at the end
-        remainder = list(itertools.chain(blue_wins_iter, gold_wins_iter))
+            # cycle between blue and gold wins so scores are updated somewhat fairly since we don't
+            # track literal win order
+            alternating = list()
 
-        for win in alternating + remainder:
+            for i in itertools.cycle([blue_wins_iter, gold_wins_iter]):
+                try:
+                    alternating.append(next(i))
+                except StopIteration:
+                    break
+
+            # since one team may have won a bunch more than the other, just put any that weren't able
+            #  to be alternated at the end
+            remainder = list(itertools.chain(blue_wins_iter, gold_wins_iter))
+
+            results = list(alternating + remainder)
+
+            # need to generate win_order results
+            for win in results:
+                if win == [0, 1]:
+                    # blue win
+                    self.win_order += 'B'
+                elif win == [1, 0]:
+                    # gold win
+                    self.win_order += 'G'
+                else:
+                    # unknown
+                    self.win_order += 'E'
+
+            if len(self.win_order) != 0:
+                self.save()
+
+        for win in results:
             blue_ratings, gold_ratings = skill_env.rate([blue_ratings, gold_ratings], ranks=win)
 
         for player, rating in zip(blue, blue_ratings):
