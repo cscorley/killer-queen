@@ -81,7 +81,7 @@ class GameResult(models.Model):
     gold_win_count = models.PositiveSmallIntegerField('Number of wins by the Gold team', default=0)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, blank=True, null=True)
     contributes_to_season_score = models.BooleanField(default=True)
-    win_order = models.CharField('Win order', max_length=9, default="", validators=[win_validator])
+    win_order = models.CharField('Win order', max_length=20, default="", validators=[win_validator])
 
     def __str__(self) -> str:
         if self.event:
