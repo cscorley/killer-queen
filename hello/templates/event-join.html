@@ -54,7 +54,7 @@
                     {% if user.is_staff %} {{ registerForm.action }} {% endif %}
                     {{ registerForm.user.label_tag }}
                     {{ registerForm.user }}
-                    <button type="submit">Register</button>
+                    <button class="btn btn-primary btn-md" type="submit">Register</button>
                 </p>
             </form>
             <hr />
@@ -76,7 +76,7 @@
                     </tr>
                 {% endfor %}
                 </table>
-                <button type="submit">Sign up and register</button>
+                <button class="btn btn-primary btn-md" type="submit">Sign up and register</button>
             </form>
         {% else %}
             <h4>Staff password required to unlock signups on this computer</h4>
@@ -84,7 +84,7 @@
                 {% csrf_token %}
                 <p>
                 {{ tokenForm.as_p }}
-                <button type="submit">Enter</button>
+                <button class="btn btn-primary btn-md" type="submit">Enter</button>
                 </p>
             </form>
         {% endif %}
