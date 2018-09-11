@@ -13,7 +13,7 @@ def result(request, event_id):
     event = Event.objects.get(pk=event_id)
     games = GameResult.objects.filter(event=event).order_by('created')
 
-    data = {'event':event}
+    data = {'event':event, 'contributes_to_season_score': True}
     resultForm = CreateGameResultForm(data)
     resultForm.fields['blue'].queryset = event.teams.all().order_by('name')
     resultForm.fields['gold'].queryset = event.teams.all().order_by('name')
