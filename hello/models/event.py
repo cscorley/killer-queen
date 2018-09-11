@@ -75,13 +75,13 @@ win_validator = RegexValidator(r'^[BGbg]*$', 'Only B or G characters are allowed
 
 class GameResult(models.Model):
     created = models.DateTimeField('date created', auto_now_add=True)
-    blue = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='blue_result')
-    gold = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='gold_result')
-    blue_win_count = models.PositiveSmallIntegerField('Number of wins by the Blue team', default=0)
-    gold_win_count = models.PositiveSmallIntegerField('Number of wins by the Gold team', default=0)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, blank=True, null=True)
-    contributes_to_season_score = models.BooleanField(default=True)
+    gold = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='gold_result')
+    blue = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='blue_result')
+    gold_win_count = models.PositiveSmallIntegerField('Number of wins by the Gold team', default=0)
+    blue_win_count = models.PositiveSmallIntegerField('Number of wins by the Blue team', default=0)
     win_order = models.CharField('Win order', max_length=20, default="", validators=[win_validator])
+    contributes_to_season_score = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         if self.event:
