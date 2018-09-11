@@ -27,7 +27,8 @@ def result(request, event_id):
         teamForm = CreateTeamForm(request.POST)
 
         if resultForm.is_valid():
-            result = resultForm.save()
+            result = resultForm.save(commit=False)
+            result.event = event
             result.save()
 
             alert = Alert("Created new result.", "success", 5000)
