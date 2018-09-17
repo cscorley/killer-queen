@@ -26,12 +26,16 @@ def mix(request, event_id):
     max_players_per_team = 5  # TODO
     min_teams = 2
     randomness = 0
+    queen_randomness = 0
     form = MixerForm()
     alert = None
+    max_rating = 0
 
     all_players: List[Player] = list(event.players.order_by('eventplayer__created'))
     all_players = list(filter(lambda player: player.user.is_active == True, all_players))
-    max_rating = max([x.trueskill_rating_exposure if x else 0 for x in all_players])
+
+    if all_players:
+        max_rating = max([x.trueskill_rating_exposure if x else 0 for x in all_players])
 
     if request.method == 'POST':
         logger.info(str(request.POST))
@@ -41,23 +45,32 @@ def mix(request, event_id):
             max_players_per_team = form.cleaned_data.get('max_players_per_team')
             min_teams = form.cleaned_data.get('min_teams')
             randomness = form.cleaned_data.get('randomness')
+            queen_randomness = form.cleaned_data.get('queen_randomness')
 
-    rating_factor = (max_rating / 100) * randomness
-    if randomness:
-        sorter = lambda player: int(player.trueskill_rating_exposure / (rating_factor if rating_factor else 1))
-    else:
-        sorter = lambda player: player.trueskill_rating_exposure
 
+    player_sorter = get_sorter(randomness, max_rating)
+    queen_sorter = get_sorter(queen_randomness, max_rating)
     teams = team_suggestions_internal(event,
                                       max_players_per_team,
                                       min_teams,
-                                      sorter)
-
-
-    team_items = sorted(teams, key=lambda team: team.rating_mean, reverse=True)
+                                      player_sorter,
+                                      queen_sorter)
 
     return render(request, 'event-mix-teams.html', {'form': form,
-                                                    'teams': team_items,
+                                                    'teams': teams,
                                                     'event': event,
                                                     'alert': alert,
                                                     'all_players': all_players})
+
+
+def get_sorter(randomness: int, max_rating: float):
+    if randomness:
+        # Ensure all players are the same when we want completely random
+        if randomness == 100:
+            return lambda player: 0
+
+        rating_factor = (max_rating / 100) * randomness
+        return lambda player: int(player.trueskill_rating_exposure / (rating_factor if rating_factor else 1))
+    else:
+        # If we have no randomness, don't bother
+        return lambda player: player.trueskill_rating_exposure

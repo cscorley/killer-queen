@@ -91,23 +91,20 @@ def team_suggestions(request):
 
     return JsonResponse({num: [{'id': player.pk, 'name': player.user.username} for player in team] for num, team in enumerate(teams)})
 
-def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams: int, sorting_key=None):
+def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams: int,
+                              player_sorting_key=None, queen_sorting_key=None):
     player: Player
     players: List[Player] = list(event.players.all())
 
     players = list(filter(lambda player: player.user.is_active == True, players))
 
-    # shuffle players so any equal ratings are out of order
-    random.shuffle(players)
-
-    # now sort by rating
-    if sorting_key:
-        players = sorted(players, key=sorting_key, reverse=True)
-
     if len(players) == 0:
         return list()
     elif len(players) == 1:
-        return [players]
+        return [TeamViewItem("Loneliest team", players)]
+
+    # shuffle players so any equal ratings are out of order
+    random.shuffle(players)
 
     team_ratio = len(players) / max_players_per_team
     if team_ratio % 1 > 0:
@@ -121,6 +118,15 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
 
     queens = [player for player in players if player.wants_queen]
     bees = [player for player in players if not player.wants_queen]
+
+    # now sort by rating
+    if player_sorting_key:
+        logger.info("Sorting bees")
+        bees = list(sorted(bees, key=player_sorting_key, reverse=True))
+
+    if queen_sorting_key:
+        logger.info("Sorting queens")
+        queens = list(sorted(queens, key=queen_sorting_key, reverse=True))
 
     logger.info("Queens: %d, %s", len(queens), queens)
     logger.info("Bees: %d, %s", len(bees), bees)
