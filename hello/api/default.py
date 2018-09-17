@@ -2,6 +2,7 @@ import itertools
 import logging
 import random
 import statistics
+from datetime import datetime, timezone, timedelta
 
 logger = logging.getLogger('hello')
 
@@ -19,16 +20,24 @@ from worker import conn
 
 q = Queue(connection=conn)
 
-
 def refresh_ratings(request):
+    if not request.user.is_staff:
+        return HttpResponse("You don't have access to this.")
+
+    filter_by_weeks = 0
     try:
-        result = q.enqueue(refresh_ratings_internal)
+        filter_by_weeks = int(request.GET.get("weeks", 0))
+    except ValueError:
+        pass # Got bad value
+
+    try:
+        result = q.enqueue(refresh_ratings_internal, filter_by_weeks)
     except ConnectionError:
-        refresh_ratings_internal()
+        refresh_ratings_internal(filter_by_weeks)
 
-    return HttpResponse('OK')
+    return HttpResponse('OK -- filtered by last %d weeks' % filter_by_weeks)
 
-def refresh_ratings_internal():
+def refresh_ratings_internal(filter_by_weeks: int):
     """
     Reset and re-rank all players based on all game results
     """
@@ -37,8 +46,16 @@ def refresh_ratings_internal():
     for player in Player.objects.all(): # type: Player
         player.clear_stats()
 
+    if filter_by_weeks:
+        minimum = datetime.now(timezone.utc) - timedelta(weeks=filter_by_weeks)
+        logger.info("Filtering last %d weeks (since %s)", filter_by_weeks, minimum)
+        results = GameResult.objects.filter(event__when__gte=minimum).order_by('created')
+    else:
+        logger.info("Not filtering any game results")
+        results = GameResult.objects.order_by('created')
+
     result: GameResult
-    for result in GameResult.objects.order_by('created'):
+    for result in results:
         result.process()
 
 
