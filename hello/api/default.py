@@ -37,7 +37,9 @@ def refresh_ratings(request):
         pass # Got bad value
 
     try:
-        result = q.enqueue(refresh_ratings_internal, filter_by_weeks, decay)
+        result = q.enqueue(refresh_ratings_internal,
+                           filter_by_weeks, decay,
+                           timeout=1800)  # Should never need 30 minutes, but hey
     except ConnectionError:
         refresh_ratings_internal(filter_by_weeks, decay)
 
