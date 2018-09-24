@@ -12,7 +12,7 @@ from django.http import HttpResponse, JsonResponse
 import trueskill
 
 from hello.models import *
-from hello.trueskill_environment import skill_env
+from hello.trueskill_environment import skill_env, default_sigma
 
 from redis.exceptions import ConnectionError
 from rq import Queue
@@ -30,14 +30,20 @@ def refresh_ratings(request):
     except ValueError:
         pass # Got bad value
 
+    decay = 0
     try:
-        result = q.enqueue(refresh_ratings_internal, filter_by_weeks)
+        decay = int(request.GET.get("decay", 0))
+    except ValueError:
+        pass # Got bad value
+
+    try:
+        result = q.enqueue(refresh_ratings_internal, filter_by_weeks, decay)
     except ConnectionError:
-        refresh_ratings_internal(filter_by_weeks)
+        refresh_ratings_internal(filter_by_weeks, decay)
 
-    return HttpResponse('OK -- filtered by last %d weeks' % filter_by_weeks)
+    return HttpResponse('OK -- filtered by last %d weeks with decay %d' % (filter_by_weeks, decay))
 
-def refresh_ratings_internal(filter_by_weeks: int):
+def refresh_ratings_internal(filter_by_weeks: int, decay: int):
     """
     Reset and re-rank all players based on all game results
     """
@@ -46,17 +52,40 @@ def refresh_ratings_internal(filter_by_weeks: int):
     for player in Player.objects.all(): # type: Player
         player.clear_stats()
 
+    now = datetime.now(timezone.utc)
+    events: List[Event]
     if filter_by_weeks:
-        minimum = datetime.now(timezone.utc) - timedelta(weeks=filter_by_weeks)
+        minimum = now - timedelta(weeks=filter_by_weeks)
         logger.info("Filtering last %d weeks (since %s)", filter_by_weeks, minimum)
-        results = GameResult.objects.filter(event__when__gte=minimum).order_by('created')
+        events = Event.objects.filter(when__gte=minimum, when__lte=now).order_by('when')
     else:
         logger.info("Not filtering any game results")
-        results = GameResult.objects.order_by('created')
+        events = Event.objects.filter(when__lte=now).order_by('when')
 
-    result: GameResult
-    for result in results:
-        result.process()
+    event: Event
+    for event in events:
+        results: List[GameResult] = GameResult.objects.filter(event=event).order_by('created')
+
+        updated_players = set()
+        for result in results:
+            result.process()
+
+            updated_players.update(result.blue.members.all())
+            updated_players.update(result.gold.members.all())
+
+        all_players = set(Player.objects.all())
+        decay_players = all_players - updated_players
+        if decay:
+            logger.info("Decaying %d of %d players for Event %s", len(decay_players), len(all_players), str(event))
+            decay_rate = 1.0 + (decay / 100)
+            player: Player
+            for player in all_players:
+                sigma = player.trueskill_rating_sigma * decay_rate
+                if sigma > default_sigma:
+                    sigma = default_sigma
+
+                player.trueskill_rating_sigma = sigma
+                player.save()
 
 
 class TeamViewItem:
