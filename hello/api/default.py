@@ -86,7 +86,7 @@ def refresh_ratings_internal(filter_by_weeks: int, decay: int):
                     sigma = default_sigma
 
                 new_rating = skill_env.create_rating(rating.mu, sigma)
-                player.update_rating(rating, 0, 0)
+                player.update_rating(new_rating, 0, 0)
 
 
 class TeamViewItem:
