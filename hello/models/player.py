@@ -30,7 +30,7 @@ class Player(models.Model):
 
         if map_wins > map_losses:
             self.match_wins = self.match_wins + 1
-        else:
+        elif map_wins < map_losses:
             self.match_losses = self.match_losses + 1
 
         self.save()

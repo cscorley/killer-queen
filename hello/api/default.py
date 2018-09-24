@@ -80,12 +80,13 @@ def refresh_ratings_internal(filter_by_weeks: int, decay: int):
             decay_rate = 1.0 + (decay / 100)
             player: Player
             for player in all_players:
-                sigma = player.trueskill_rating_sigma * decay_rate
+                rating: trueskill.Rating = player.get_rating()
+                sigma = rating.sigma * decay_rate
                 if sigma > default_sigma:
                     sigma = default_sigma
 
-                player.trueskill_rating_sigma = sigma
-                player.save()
+                new_rating = skill_env.create_rating(rating.mu, sigma)
+                player.update_rating(rating, 0, 0)
 
 
 class TeamViewItem:
