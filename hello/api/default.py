@@ -154,9 +154,10 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
 
     max_rating = max([x.trueskill_rating_exposure if x else 0 for x in players])
 
-    player_sorter = get_sorter(randomness, max_rating, lambda p: p.trueskill_rating_exposure)
-    queen_sorter = get_sorter(queen_randomness, max_rating, lambda p: p.trueskill_rating_exposure)
-    team_sorter = get_sorter(randomness, max_rating, lambda t: t.rating_mean)
+    player_sorter = _get_sorter(randomness, max_rating, lambda p: p.trueskill_rating_exposure)
+    queen_sorter = _get_sorter(queen_randomness, max_rating, lambda p: p.trueskill_rating_exposure)
+    team_sorter = _get_sorter(randomness, max_rating, lambda t: t.rating_mean)
+    team_queen_sorter = _get_sorter(queen_randomness, max_rating, lambda t: t.rating_mean)
 
     # shuffle players so any equal ratings are out of order
     random.shuffle(players)
@@ -192,24 +193,8 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     for name in team_names:
         teams.append(TeamViewItem(name, list()))
 
-    current_team = 0
-    for player in players:
-        min_teams = _teams_with_least_players(teams)
-        team = min(min_teams, key=team_sorter)
-
-        # move any full teams
-        while len(team.players) >= max_players_per_team:
-            full_teams.append(team)
-            teams.remove(team)
-
-            min_teams = _teams_with_least_players(teams)
-            team = min(min_teams, key=team_sorter)
-
-
-        team.add_player(player)
-        current_team = teams.index(team)
-
-        logger.info("Assigned Team: %d %s, %.2f \t Player: %s, %.2f", current_team, team.name, team.rating_mean, str(player.user), player.trueskill_rating_exposure)
+    _add_players(queens, teams, max_players_per_team, team_queen_sorter)
+    _add_players(bees, teams, max_players_per_team, team_sorter)
 
     # re-add the Nones so they're displayed
     # seems bad, man
@@ -221,12 +206,31 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
 
     return sorted(full_teams, key=lambda team: team.rating_mean, reverse=True)
 
+def _add_players(players, teams, max_players_per_team, sorter):
+    for player in players:
+        min_teams = _teams_with_least_players(teams)
+        team = min(min_teams, key=sorter)
+
+        # move any full teams
+        while len(team.players) >= max_players_per_team:
+            full_teams.append(team)
+            teams.remove(team)
+
+            min_teams = _teams_with_least_players(teams)
+            team = min(min_teams, key=sorter)
+
+
+        team.add_player(player)
+
+        logger.info("Assigned Team: %s, %.2f \t Player: %s, %.2f", team.name, team.rating_mean, str(player.user), player.trueskill_rating_exposure)
+
+
 
 def _teams_with_least_players(teams):
     min_players = min(len(team.players) for team in teams)
     return [team for team in teams if len(team.players) == min_players]
 
-def get_sorter(randomness: int, max_rating: float, key):
+def _get_sorter(randomness: int, max_rating: float, key):
     if randomness:
         # Ensure all players are the same when we want completely random
         if randomness == 100:
