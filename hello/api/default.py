@@ -209,7 +209,7 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
         team.add_player(player)
         current_team = teams.index(team)
 
-        logger.info("Assigned Team: %d, %.2f \t Player: %s, %.2f", current_team, team.rating_mean, str(player.user), player.trueskill_rating_exposure)
+        logger.info("Assigned Team: %d %s, %.2f \t Player: %s, %.2f", current_team, team.name, team.rating_mean, str(player.user), player.trueskill_rating_exposure)
 
     # re-add the Nones so they're displayed
     # seems bad, man
