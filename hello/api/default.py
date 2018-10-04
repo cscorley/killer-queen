@@ -141,7 +141,7 @@ def team_suggestions(request):
     return JsonResponse({num: [{'id': player.pk, 'name': player.user.username} for player in team] for num, team in enumerate(teams)})
 
 def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams: int,
-                              player_sorting_key=None, queen_sorting_key=None):
+                              randomness: int, queen_randomness: int):
     player: Player
     players: List[Player] = list(event.players.all())
 
@@ -151,6 +151,12 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
         return list()
     elif len(players) == 1:
         return [TeamViewItem("Loneliest team", players)]
+
+    max_rating = max([x.trueskill_rating_exposure if x else 0 for x in players])
+
+    player_sorter = get_sorter(randomness, max_rating, lambda p: p.trueskill_rating_exposure)
+    queen_sorter = get_sorter(queen_randomness, max_rating, lambda p: p.trueskill_rating_exposure)
+    team_sorter = get_sorter(randomness, max_rating, lambda t: t.rating_mean)
 
     # shuffle players so any equal ratings are out of order
     random.shuffle(players)
@@ -169,13 +175,11 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     bees = [player for player in players if not player.wants_queen]
 
     # now sort by rating
-    if player_sorting_key:
-        logger.info("Sorting bees")
-        bees = list(sorted(bees, key=player_sorting_key, reverse=True))
+    logger.info("Sorting bees")
+    bees = list(sorted(bees, key=player_sorter, reverse=True))
 
-    if queen_sorting_key:
-        logger.info("Sorting queens")
-        queens = list(sorted(queens, key=queen_sorting_key, reverse=True))
+    logger.info("Sorting queens")
+    queens = list(sorted(queens, key=queen_sorter, reverse=True))
 
     logger.info("Queens: %d, %s", len(queens), queens)
     logger.info("Bees: %d, %s", len(bees), bees)
@@ -191,7 +195,7 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
     current_team = 0
     for player in players:
         min_teams = _teams_with_least_players(teams)
-        team = min(min_teams, key=lambda t: t.rating_mean)
+        team = min(min_teams, key=team_sorter)
 
         # move any full teams
         while len(team.players) >= max_players_per_team:
@@ -199,13 +203,13 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
             teams.remove(team)
 
             min_teams = _teams_with_least_players(teams)
-            team = min(min_teams, key=lambda t: t.rating_mean)
+            team = min(min_teams, key=team_sorter)
 
 
         team.add_player(player)
         current_team = teams.index(team)
 
-        logger.info("Team: %d, %.2f \t Player: %.2f", current_team, team.rating_mean, player.trueskill_rating_exposure)
+        logger.info("Assigned Team: %d, %.2f \t Player: %s, %.2f", current_team, team.rating_mean, str(player.user), player.trueskill_rating_exposure)
 
     # re-add the Nones so they're displayed
     # seems bad, man
@@ -221,4 +225,16 @@ def team_suggestions_internal(event: Event, max_players_per_team: int, min_teams
 def _teams_with_least_players(teams):
     min_players = min(len(team.players) for team in teams)
     return [team for team in teams if len(team.players) == min_players]
+
+def get_sorter(randomness: int, max_rating: float, key):
+    if randomness:
+        # Ensure all players are the same when we want completely random
+        if randomness == 100:
+            return lambda player: 0
+
+        rating_factor = (max_rating / 100) * randomness
+        return lambda player: int(key(player) / (rating_factor if rating_factor else 1))
+    else:
+        # If we have no randomness, don't bother
+        return lambda player: key(player)
 
