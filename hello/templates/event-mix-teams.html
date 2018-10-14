@@ -4,29 +4,26 @@
 {% load static %}
 
 {% block scripts %}
-<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
-<script type="text/javascript">
-function copyToClipboard(elementId) {
-  // Create a "hidden" input
-  var aux = document.createElement("div");
-
-  // Assign it the value of the specified element
-  aux.setAttribute("contentEditable", true);
-  aux.innerHTML = document.getElementById(elementId).innerHTML.replace(/\r/g, "<br />");
-  aux.setAttribute("onfocus", "document.execCommand('selectAll',false,null)");
-
-  // Append it to the body
-  document.body.appendChild(aux);
-
-  // Highlight its content
-  aux.focus();
-
-  // Copy the highlighted text
-  document.execCommand("copy");
-
-  // Remove it from the body
-  document.body.removeChild(aux);
-}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+<script type="text/javascript" src="{% static 'vue/vue-clipboard.min.js' %}"></script>
+<script>
+new Vue({
+  el: '#vueApp',
+  template: '#vueTemplate',
+  delimiters: ['${', '}'],
+  data: {
+      teamNames: '{% for team in teams %}{{ team.name }}{% if not forloop.last %}\n{% endif %}{% endfor %}',
+      copyButtonText: 'Copy Team Names'
+  },
+  methods: {
+    onCopy: function (e) {
+        this.copyButtonText = 'Copied!'
+    },
+    onError: function (e) {
+      alert('Failed to copy text')
+    }
+  }
+})
 </script>
 {{ registerForm.media }}
 {% endblock %}
@@ -99,9 +96,18 @@ function copyToClipboard(elementId) {
 
             <br />
             {% if teams %}
-            <textarea id="team-names" readonly rows={{ teams | length }}>{% for team in teams %}{{ team.name }}{% if not forloop.last %}&#013;&#010;{% endif %}{% endfor %}</textarea>
-            <br />
-            <button class="btn btn-primary btn-md" onclick="copyToClipboard('team-names')">Copy Team Names</button>
+            <div id="vueApp">
+                <template id="vueTemplate">
+                    <div class="vueContainer">
+                        <textarea id="team-names" v-model="teamNames" readonly rows={{ teams | length }}></textarea>
+                        <br />
+                        <button type="button" class="btn btn-primary btn-md"
+                        v-clipboard:copy="teamNames"
+                        v-clipboard:success="onCopy"
+                        v-clipboard:error="onError">${copyButtonText}</button>
+                    </div>
+                </template>
+            </div>
             {% endif %}
         </div>
     </div>
