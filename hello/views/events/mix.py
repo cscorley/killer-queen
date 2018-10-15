@@ -10,7 +10,6 @@ from hello.models import EventPlayer, Event, RandomName
 from hello.views import Alert
 
 import logging
-import json
 
 logger = logging.getLogger("hello")
 
@@ -21,6 +20,8 @@ def mix(request, event_id):
     if not request.user.is_staff:
         logger.info("redirecting to result page: %d", event.id)
         return redirect(reverse('event_join', args=[event.id]))
+
+    teams_already_formed = event.teams.exists()
 
     max_players_per_team = 5
     min_teams = 2
@@ -71,5 +72,6 @@ def mix(request, event_id):
                                                     'event': event,
                                                     'alert': alert,
                                                     'all_players': all_players,
-                                                    'teams_data': teams_data})
+                                                    'teams_data': teams_data,
+                                                    'teams_already_formed': teams_already_formed})
 

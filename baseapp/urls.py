@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^events/(?P<event_id>\d+)/join$', hello.views.events.join, name='event_join'),
     url(r'^events/(?P<event_id>\d+)/result$', hello.views.events.result, name='event_result'),
     url(r'^events/(?P<event_id>\d+)/mix$', hello.views.events.mix, name='event_mix'),
+    url(r'^events/(?P<event_id>\d+)/start$', hello.views.events.start, name='event_start'),
     url(r'^events/current/$', hello.views.events.current, name='event_current'),
     url(r'^events/$', hello.views.events.EventListView.as_view()),
     url(r'^seasons/$', hello.views.seasons.SeasonListView.as_view()),

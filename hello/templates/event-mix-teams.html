@@ -4,10 +4,19 @@
 {% load static %}
 
 {% block scripts %}
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
 <script src="//cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+<script src="//cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
 <script type="text/javascript" src="{% static 'vue/vue-clipboard.min.js' %}"></script>
 {{ teams_data|json_script:"team-data" }}
+{% csrf_token %}
 <script>
+var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+
+Vue.http.interceptors.push(function(request) {
+  request.headers.set('X-CSRFToken', csrftoken);
+});
+
 var app = new Vue({
   el: '#vueApp',
   delimiters: ['${', '}'],
@@ -27,11 +36,23 @@ var app = new Vue({
     },
     onError: function (e) {
       alert('Failed to copy text');
+    },
+    goToResults: function (e) {
+        window.location.href = '/events/{{ event.id }}/result'
+    },
+    startTournament: function (e) {
+        console.log(this.teamData);
+
+        if (confirm("Are you sure you are ready to start the tournament?"))
+        {
+            this.$http.post('/events/{{ event.id }}/start', this.teamData)
+                    .then(response => { window.location.href = '/events/{{ event.id }}/result' },
+                            error => { alert("Could not start tournament.  This event may already have teams.") });
+        }
     }
   }
 })
 </script>
-{{ registerForm.media }}
 {% endblock %}
 
 {% block content %}
@@ -52,7 +73,9 @@ var app = new Vue({
                     <br />
                     <ol>
                         <li v-for="player in team.players">
-                            ${ player.name } ${ player.role } <small style="color: grey">(${ player.rating })</small>
+                            <div v-if="player.id > 0">
+                                ${ player.name } ${ player.role } <small style="color: grey">(${ player.rating })</small>
+                            </div>
                         </li>
                     </ol>
                 </li>
@@ -63,6 +86,21 @@ var app = new Vue({
         <div class="col-md-4">
             <h3>Swap players</h3>
             TODO
+
+            <br />
+            {% if teams_already_formed %}
+                Teams for this event have already been formed.
+
+                <button
+                    type="button"
+                    class="btn btn-primary btn-md"
+                    v-on:click="goToResults">Go to results</button>
+            {% else %}
+                <button
+                    type="button"
+                    class="btn btn-primary btn-md"
+                    v-on:click="startTournament">Start tournament</button>
+            {% endif %}
         </div>
 
         <div class="col-md-4">
@@ -84,7 +122,11 @@ var app = new Vue({
             <br />
             <textarea id="team-names" v-model="teamNames" readonly rows={{ teams | length }}></textarea>
             <br />
-            <button type="button" class="btn btn-primary btn-md" v-clipboard:copy="teamNames" v-clipboard:success="onCopy"
+            <button
+                type="button"
+                class="btn btn-primary btn-md"
+                v-clipboard:copy="teamNames"
+                v-clipboard:success="onCopy"
                 v-clipboard:error="onError">${copyButtonText}</button>
             <br />
         </div>
