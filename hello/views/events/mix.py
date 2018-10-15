@@ -9,9 +9,8 @@ from hello.api import team_suggestions_internal, TeamViewItem
 from hello.models import EventPlayer, Event, RandomName
 from hello.views import Alert
 
-import statistics
 import logging
-import random
+import json
 
 logger = logging.getLogger("hello")
 
@@ -50,9 +49,19 @@ def mix(request, event_id):
                                       randomness,
                                       queen_randomness)
 
+    teams_data = list()
+    for team in teams:
+        team_data = { "name": team.name, "players": list() }
+        player: Player
+        for player in team.players:
+            if player:
+                team_data["players"].append({ "id": player.user.id, "name": player.user.get_full_name(), "rating": player.trueskill_rating_exposure })
+        teams_data.append(team_data)
+
     return render(request, 'event-mix-teams.html', {'form': form,
                                                     'teams': teams,
                                                     'event': event,
                                                     'alert': alert,
-                                                    'all_players': all_players})
+                                                    'all_players': all_players,
+                                                    'teams_data': teams_data})
 

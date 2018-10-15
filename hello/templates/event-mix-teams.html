@@ -6,21 +6,27 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
 <script type="text/javascript" src="{% static 'vue/vue-clipboard.min.js' %}"></script>
+{{ teams_data|json_script:"team-data" }}
 <script>
-new Vue({
+var app = new Vue({
   el: '#vueApp',
-  template: '#vueTemplate',
   delimiters: ['${', '}'],
   data: {
-      teamNames: '{% for team in teams %}{{ team.name }}{% if not forloop.last %}\n{% endif %}{% endfor %}',
+      teamData: JSON.parse(document.getElementById('team-data').textContent),
       copyButtonText: 'Copy Team Names'
+  },
+  computed: {
+      teamNames: function() {
+          return this.teamData.map(x => x.name).join('\n')
+      }
   },
   methods: {
     onCopy: function (e) {
-        this.copyButtonText = 'Copied!'
+        this.copyButtonText = 'Copied!';
+        console.log(this.teamData);
     },
     onError: function (e) {
-      alert('Failed to copy text')
+      alert('Failed to copy text');
     }
   }
 })
@@ -74,7 +80,7 @@ new Vue({
                 {% endfor %}
                 </ol>
             {% else %}
-                Whoops, not enough players are registered... yet!  Join us?
+                Whoops, not enough players are registered... yet!
             {% endif %}
         </div>
 
@@ -97,16 +103,12 @@ new Vue({
             <br />
             {% if teams %}
             <div id="vueApp">
-                <template id="vueTemplate">
-                    <div class="vueContainer">
-                        <textarea id="team-names" v-model="teamNames" readonly rows={{ teams | length }}></textarea>
-                        <br />
-                        <button type="button" class="btn btn-primary btn-md"
-                        v-clipboard:copy="teamNames"
-                        v-clipboard:success="onCopy"
-                        v-clipboard:error="onError">${copyButtonText}</button>
-                    </div>
-                </template>
+                    <textarea id="team-names" v-model="teamNames" readonly rows={{ teams | length }}></textarea>
+                    <br />
+                    <button type="button" class="btn btn-primary btn-md"
+                    v-clipboard:copy="teamNames"
+                    v-clipboard:success="onCopy"
+                    v-clipboard:error="onError">${copyButtonText}</button>
             </div>
             {% endif %}
         </div>
