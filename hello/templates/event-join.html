@@ -31,8 +31,11 @@
         {% endif %}
         <br />
         {% if user.is_staff %}
-            {% url 'event_mix' event.id as the_url %}
-            <a class="btn btn-primary btn-md" href="{{ the_url }}"> Generate Teams </a>
+            {% url 'event_mix' event.id as generate_teams_url %}
+            <a class="btn btn-primary btn-md" href="{{ generate_teams_url }}"> Generate Teams </a>
+
+            {% url 'event_result' event.id as results_url %}
+            <a class="btn btn-primary btn-md" href="{{ results_url }}"> Go to results </a>
         {% endif %}
     </div>
 

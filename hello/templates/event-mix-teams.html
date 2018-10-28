@@ -38,15 +38,19 @@ var app = new Vue({
       alert('Failed to copy text');
     },
     goToResults: function (e) {
-        window.location.href = '/events/{{ event.id }}/result'
+        {% url 'event_result' event.id as results_url %}
+        window.location.href = '{{ results_url }}'
     },
     startTournament: function (e) {
         console.log(this.teamData);
 
         if (confirm("Are you sure you are ready to start the tournament?"))
         {
-            this.$http.post('/events/{{ event.id }}/start', this.teamData)
-                    .then(response => { window.location.href = '/events/{{ event.id }}/result' },
+
+            {% url 'event_start' event.id as start_url %}
+            {% url 'event_result' event.id as results_url %}
+            this.$http.post('{{ start_url }}', this.teamData)
+                      .then(response => { window.location.href = '{{ results_url }}' },
                             error => { alert("Could not start tournament.  This event may already have teams.") });
         }
     }
