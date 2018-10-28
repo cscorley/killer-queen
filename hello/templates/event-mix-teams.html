@@ -89,25 +89,11 @@ var app = new Vue({
 
         <div class="col-md-4">
             <h3>Swap players</h3>
-            TODO
-
+            TODO -- player swapping
             <br />
-            {% if teams_already_formed %}
-                Teams for this event have already been formed.
+            <br />
 
-                <button
-                    type="button"
-                    class="btn btn-primary btn-md"
-                    v-on:click="goToResults">Go to results</button>
-            {% else %}
-                <button
-                    type="button"
-                    class="btn btn-primary btn-md"
-                    v-on:click="startTournament">Start tournament</button>
-            {% endif %}
-        </div>
-
-        <div class="col-md-4">
+            <h3>Remixing</h3>
             <form method="post">
                 {% csrf_token %}
                 <table style="vertical-align: middle">
@@ -123,7 +109,11 @@ var app = new Vue({
                 <button class="btn btn-primary btn-md" type="submit">Remix</button>
             </form>
 
-            <br />
+        </div>
+
+        <div class="col-md-4">
+            <h3>Start tournament</h3>
+
             <textarea id="team-names" v-model="teamNames" readonly rows={{ teams | length }}></textarea>
             <br />
             <button
@@ -133,6 +123,25 @@ var app = new Vue({
                 v-clipboard:success="onCopy"
                 v-clipboard:error="onError">${copyButtonText}</button>
             <br />
+
+            <br />
+            {% if teams_already_formed %}
+                Teams for this event have already been formed.
+                <br />
+
+                <button
+                    type="button"
+                    class="btn btn-primary btn-md"
+                    v-on:click="goToResults">Go to results</button>
+            {% else %}
+                This will automatically setup the current teams for result entry.
+                <br />
+
+                <button
+                    type="button"
+                    class="btn btn-primary btn-md"
+                    v-on:click="startTournament">Start tournament</button>
+            {% endif %}
         </div>
     </div>
 </div>
