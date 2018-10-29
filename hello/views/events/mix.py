@@ -25,8 +25,8 @@ def mix(request, event_id):
 
     max_players_per_team = 5
     min_teams = 2
-    randomness = 0
-    queen_randomness = 0
+    randomness = 1
+    queen_randomness = 100
     form = MixerForm()
     alert = None
 
@@ -37,11 +37,11 @@ def mix(request, event_id):
         logger.info(str(request.POST))
         form = MixerForm(request.POST)
 
-        if form.is_valid():
-            max_players_per_team = form.cleaned_data.get('max_players_per_team')
-            min_teams = form.cleaned_data.get('min_teams')
-            randomness = form.cleaned_data.get('randomness')
-            queen_randomness = form.cleaned_data.get('queen_randomness')
+    if form.is_valid():
+        max_players_per_team = form.cleaned_data.get('max_players_per_team')
+        min_teams = form.cleaned_data.get('min_teams')
+        randomness = form.cleaned_data.get('randomness')
+        queen_randomness = form.cleaned_data.get('queen_randomness')
 
 
     teams = team_suggestions_internal(event,
