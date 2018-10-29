@@ -40,7 +40,7 @@ def start(request, event_id):
 
         for raw_player in raw_team["players"]:
             player_id = raw_player["id"]
-            if player_id:
+            if player_id > 0:
                 player = Player.objects.get(pk=player_id)
                 membership = TeamMembership(team=team, player=player)
                 membership.save()

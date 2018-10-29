@@ -50,6 +50,7 @@ def mix(request, event_id):
                                       randomness,
                                       queen_randomness)
 
+    fake_id = -1
     teams_data = list()
     team: TeamViewItem
     for team in teams:
@@ -61,10 +62,12 @@ def mix(request, event_id):
                     "id": player.user.id,
                     "name": player.user.get_full_name(),
                     "rating": int(player.trueskill_rating_exposure),
-                    "role": "👑" if player.wants_queen else ""
+                    "role": "👑" if player.wants_queen else "",
+                    "team": team.name
                     })
             else:
-                team_data["players"].append({ "id": 0, "name": "", "rating": 0 })
+                team_data["players"].append({ "id": fake_id, "name": "", "rating": 0, "team": team.name })
+                fake_id -= 1
         teams_data.append(team_data)
 
     return render(request, 'event-mix-teams.html', {'form': form,
