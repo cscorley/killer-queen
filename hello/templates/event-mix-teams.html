@@ -32,7 +32,8 @@ var app = new Vue({
   },
   computed: {
       teamNames: function() {
-          return this.teamData.map(x => x.name).join('\n')
+          var counter = 1;
+          return this.teamData.map(x => counter++ + ". " + x.name).join('\n')
       },
       players: function() {
           return [].concat.apply([], this.teamData.map(x => x.players))
