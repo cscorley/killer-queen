@@ -22,7 +22,7 @@
         <h2>Teams</h2>
         <br />
         <ol>
-        {% for team in event.teams.all|dictsort:"name" %}
+        {% for team in event.teams.all|dictsort:"created" %}
             <li> {{ team.name }}
                 {% if user.is_superuser %} <small style="color: grey">({{ team.id }}, r={{ team.get_rating_mean |floatformat:1 }})</small> {% endif %}
                 <br /><ol>
