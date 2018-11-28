@@ -18,6 +18,8 @@ def join(request, event_id):
     event_id = int(event_id)
     event = Event.objects.get(pk=event_id)
 
+    teams_already_formed = event.teams.exists()
+
     max_players_per_team = 5  # TODO
     min_teams = 2
     signUpForm = SignUpForm()
@@ -52,7 +54,8 @@ def join(request, event_id):
                 'event': event,
                 'alert': alert,
                 'all_players': all_players,
-                'tokenForm': tokenForm
+                'tokenForm': tokenForm,
+                'teams_already_formed': teams_already_formed
             })
     elif request.method == 'POST':
         signUpForm = SignUpForm(request.POST)
@@ -90,7 +93,9 @@ def join(request, event_id):
                                                'registerForm': registerForm,
                                                'event': event,
                                                'alert': alert,
-                                               'all_players': all_players})
+                                               'all_players': all_players,
+                                               'teams_already_formed': teams_already_formed
+                                              })
 
 
 def register_player(event: Event, user: User) -> Alert:

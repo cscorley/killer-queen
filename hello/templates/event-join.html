@@ -35,8 +35,11 @@
             <a class="btn btn-primary btn-md" href="{{ generate_teams_url }}"> Generate Teams </a>
         {% endif %}
 
-        {% url 'event_result' event.id as results_url %}
-        <a class="btn btn-primary btn-md" href="{{ results_url }}"> Go to results </a>
+        {% if user.is_staff or teams_already_formed %}
+            {% url 'event_result' event.id as results_url %}
+            <a class="btn btn-primary btn-md" href="{{ results_url }}"> Go to results </a>
+        {% endif %}
+
     </div>
 
     <div class="col-md-8">
