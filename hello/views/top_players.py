@@ -13,13 +13,10 @@ def top_players(request):
     players = Player.objects.filter(user__is_active=True).distinct()
 
     rank_queen, rank_bees = _split_queen(request, players, lambda player: player.trueskill_rating_exposure)
-    match_wins_queen, match_wins_bees = _split_queen(request, players, lambda player: player.match_wins)
     map_wins_queen, map_wins_bees = _split_queen(request, players, lambda player: player.map_wins)
 
     return render(request, 'top-players.html', {'rank_queen': rank_queen,
                                                 'rank_bees': rank_bees,
-                                                'match_wins_queen': match_wins_queen,
-                                                'match_wins_bees': match_wins_bees,
                                                 'map_wins_queen': map_wins_queen,
                                                 'map_wins_bees': map_wins_bees,
                                                 'title': 'All time'
@@ -27,7 +24,7 @@ def top_players(request):
 
 def _split_queen(request, players, sorter):
     bees = sorted(players, key=sorter, reverse=True)
-    bees = [bee for bee in bees if len(bee.team_set.all()) >= 3]
+    bees = [bee for bee in bees if len(bee.event_set.all()) >= 3]
 
     queen = None
     if bees:
