@@ -1,27 +1,29 @@
 {% extends 'base.html' %}
 
+{% load math %}
+
 {% block content %}
 <div class="container">
   <h1>{{ title }}</h1>
   <hr />
 
+  <h3>Top {{ map_ratio_bees|length|add:1 }} players by win ratio</h3>
+  <hr />
+
+  <ol>
+    <li>👑<strong>{% if user.is_superuser %} {{ map_ratio_queen }} {% else %} {{ map_ratio_queen.user.get_full_name }} {% endif %}</strong> 👑 &#8226; {{ map_ratio_queen.map_wins }} wins, {{ map_ratio_queen.map_losses}} losses &#8226; {{ map_ratio_queen.map_wins |divide:map_ratio_queen.map_losses |floatformat:2 }} ratio</li>
+    {% for bee in map_ratio_bees %}
+      <li> <strong>{% if user.is_superuser %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> &#8226; {{ bee.map_wins }} wins, {{ bee.map_losses}} losses &#8226; {{ bee.map_wins | divide:bee.map_losses  |floatformat:2}} ratio</li>
+    {% endfor %}
+  </ol>
+
   <h3>Top {{ map_wins_bees|length|add:1 }} players by individual map wins</h3>
   <hr />
 
   <ol>
-    <li>👑<strong>{% if user.is_superuser %} {{ map_wins_queen }} {% else %} {{ map_wins_queen.user.get_full_name }} {% endif %}</strong> 👑 - {{ map_wins_queen.map_wins }} wins, {{ map_wins_queen.map_losses}} losses</li>
+    <li>👑<strong>{% if user.is_superuser %} {{ map_wins_queen }} {% else %} {{ map_wins_queen.user.get_full_name }} {% endif %}</strong> 👑 &#8226; {{ map_wins_queen.map_wins }} wins, {{ map_wins_queen.map_losses}} losses &#8226; {{ map_wins_queen.map_wins |divide:map_wins_queen.map_losses |floatformat:2 }} ratio</li>
     {% for bee in map_wins_bees %}
-      <li> <strong>{% if user.is_superuser %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> - {{ bee.map_wins }} wins, {{ bee.map_losses}} losses </li>
-    {% endfor %}
-  </ol>
-
-  <h3>Top {{ rank_bees|length|add:1 }} players by skill level</h3>
-  <hr />
-
-  <ol>
-    <li> 👑 <strong>{% if user.is_superuser %} {{ rank_queen }} {% else %} {{ rank_queen.user.get_full_name }} {% endif %}</strong> 👑 - Level {{ rank_queen.trueskill_rating_exposure|floatformat:"0" }} </li>
-    {% for bee in rank_bees %}
-      <li> <strong>{% if user.is_superuser %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> - Level {{ bee.trueskill_rating_exposure|floatformat:"0" }} </li>
+      <li> <strong>{% if user.is_superuser %} {{ bee }} {% else %} {{ bee.user.get_full_name }} {% endif %}</strong> &#8226; {{ bee.map_wins }} wins, {{ bee.map_losses}} losses  &#8226; {{ bee.map_wins |divide:bee.map_losses |floatformat:2 }} ratio</li>
     {% endfor %}
   </ol>
 

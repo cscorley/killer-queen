@@ -13,10 +13,13 @@ def top_players(request):
     players = Player.objects.filter(user__is_active=True).distinct()
 
     rank_queen, rank_bees = _split_queen(request, players, lambda player: player.trueskill_rating_exposure)
+    map_ratio_queen, map_ratio_bees = _split_queen(request, players, lambda player: player.map_wins / max(1, player.map_losses))
     map_wins_queen, map_wins_bees = _split_queen(request, players, lambda player: player.map_wins)
 
     return render(request, 'top-players.html', {'rank_queen': rank_queen,
                                                 'rank_bees': rank_bees,
+                                                'map_ratio_queen': map_ratio_queen,
+                                                'map_ratio_bees': map_ratio_bees,
                                                 'map_wins_queen': map_wins_queen,
                                                 'map_wins_bees': map_wins_bees,
                                                 'title': 'All time'
