@@ -27,12 +27,15 @@ def top_players(request):
 
 def _split_queen(request, players, sorter):
     bees = sorted(players, key=sorter, reverse=True)
+    bees = [bee for bee in bees if len(bee.team_set.all()) >= 3]
 
-    queen = bees[0]
-    if request.user.is_superuser:
-        bees = bees[1:]
-    else:
-        bees = [bee for bee in bees if len(bee.team_set.all()) >= 3][1:10]
+    queen = None
+    if bees:
+        queen = bees[0]
+        if request.user.is_superuser:
+            bees = bees[1:]
+        else:
+            bees = bees[1:10]
 
     return queen, bees
 
