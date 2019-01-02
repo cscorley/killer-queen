@@ -54,6 +54,7 @@
                 -
                 <strong> <span style="color: rgb(170, 131, 25)">{{ game.gold_win_count }}</span> </strong>
                 {% if game.contributes_to_season_score %}✔️{% endif %}
+                {% if game.ghost_subs %}👻{% endif %}
                 <br />
                 Order:
                     {% for win in game.win_order %}
@@ -68,7 +69,7 @@
             </li>
         {% endfor %}
         </ol>
-        <p>(games marked with ✔️ contributed to season score)</p>
+        <p>(games marked with ✔️ contributed to season score, 👻 contained subs)</p>
         {% if user.is_staff %}
             <hr />
             <form method="post">
