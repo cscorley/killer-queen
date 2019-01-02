@@ -1,18 +1,20 @@
+import itertools
+import logging
+
+import trueskill
+from .enums import TournamentStyle
+from .fields import EnumField
+from .player import Player
+from .season import Season
+from .team import Team
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.validators import RegexValidator
 
-from .enums import TournamentStyle
-from .fields import EnumField
-
-from .player import Player
-from .team import Team
-from .season import Season
-
-import itertools
-import trueskill
 from hello.trueskill_environment import skill_env
+
+logger = logging.getLogger("hello")
 
 class Event(models.Model):
     name = models.CharField('name', max_length=255)
@@ -82,6 +84,7 @@ class GameResult(models.Model):
     blue_win_count = models.PositiveSmallIntegerField('Number of wins by the Blue team', default=0)
     win_order = models.CharField('Win order', max_length=20, default="", validators=[win_validator])
     contributes_to_season_score = models.BooleanField(default=True)
+    ghost_subs = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         if self.event:
@@ -95,6 +98,21 @@ class GameResult(models.Model):
 
         blue_ratings: List[trueskill.Rating] = [x.get_rating() for x in blue]
         gold_ratings: List[trueskill.Rating] = [x.get_rating() for x in gold]
+
+        if self.ghost_subs:
+            blue_ghost_count = 5 - len(blue)
+            gold_ghost_count = 5 - len(gold)
+
+            logger.info("Adding %d ghosts to BLUE team of %d", blue_ghost_count, len(blue))
+            logger.info("Adding %d ghosts to GOLD team of %d", gold_ghost_count, len(gold))
+
+            for n in range(0, blue_ghost_count):
+                logger.info("Added BLUE ghost")
+                blue_ratings.append(skill_env.create_rating())
+
+            for n in range(0, gold_ghost_count):
+                logger.info("Added GOLD ghost")
+                gold_ratings.append(skill_env.create_rating())
 
         results: List[List[int]]
 

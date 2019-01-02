@@ -13,10 +13,7 @@ def result(request, event_id):
     event = Event.objects.get(pk=event_id)
     games = GameResult.objects.filter(event=event).order_by('created')
 
-    data = {'event':event, 'contributes_to_season_score': True}
-    resultForm = CreateGameResultForm(data)
-    resultForm.fields['blue'].queryset = event.teams.all().order_by('name')
-    resultForm.fields['gold'].queryset = event.teams.all().order_by('name')
+    resultForm = get_new_result_form(event)
 
     teamForm = CreateTeamForm()
     alert = None
@@ -47,9 +44,7 @@ def result(request, event_id):
         else:
             alert = Alert("Both forms were invalid.", "danger", 10000)
 
-        resultForm = CreateGameResultForm(data)
-        resultForm.fields['blue'].queryset = event.teams.all().order_by('name')
-        resultForm.fields['gold'].queryset = event.teams.all().order_by('name')
+        resultForm = get_new_result_form(event)
         teamForm = CreateTeamForm()
 
     return render(request, 'event-result.html', {'games': games,
@@ -57,3 +52,10 @@ def result(request, event_id):
                                                  'resultForm': resultForm,
                                                  'teamForm': teamForm,
                                                  'alert': alert})
+
+def get_new_result_form(event: Event):
+    data = {'event':event, 'contributes_to_season_score': True, 'ghost_subs': True}
+    resultForm = CreateGameResultForm(data)
+    resultForm.fields['blue'].queryset = event.teams.all().order_by('name')
+    resultForm.fields['gold'].queryset = event.teams.all().order_by('name')
+    return resultForm
