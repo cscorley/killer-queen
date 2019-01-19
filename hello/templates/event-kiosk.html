@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% load tz %}
+{% load static %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+<script src="//cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+<script src="//cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+{% csrf_token %}
+<script>
+var csrfToken = jQuery("[name=csrfmiddlewaretoken]").val();
+
+Vue.http.interceptors.push(function(request) {
+  request.headers.set('X-CSRFToken', csrfToken);
+});
+
+function ExtractString(text,startS,endS)
+{
+    var indexS = text.indexOf(startS)+startS.length;
+    var indexE = text.lastIndexOf(endS);
+    if(indexE < indexS)
+        return "";
+    return text.substring(indexS,indexE);
+}
+
+function connectSocket(vueApp)
+{
+    var socket = new WebSocket("ws://localhost:12749")
+    socket.onmessage = function(event) {
+        vueApp.connected = true
+        console.debug("CAB MESSAGE:", event)
+
+        var msg = ExtractString(event.data,"![","]!");
+
+        console.log("parsed message: ", msg)
+        if(msg == null)
+            return;
+        var key = ExtractString(msg, "k[", "],v");
+        var value = ExtractString(msg, "v[", "]");
+        console.log("key: ", key)
+        console.log("value: ", value)
+        if (key === "bracket")
+        {
+            var bracket =  JSON.parse(value)
+            console.log(bracket)
+        }
+        else if (key === "currentmatch")
+        {
+            var currentMatch =  JSON.parse(value)
+            console.log(currentMatch)
+
+            vueApp.currentMatch.onBlue = (currentMatch.team1 === undefined) ? "TBD" : currentMatch.team1
+            vueApp.currentMatch.onGold = (currentMatch.team2 === undefined) ? "TBD" : currentMatch.team2
+            vueApp.currentMatch.upBlue = (currentMatch.next1 === undefined) ? "TBD" : currentMatch.team1
+            vueApp.currentMatch.upGold = (currentMatch.next2 === undefined) ? "TBD" : currentMatch.team2
+        }
+        else if (key == "alive")
+        {
+            console.log("sent im alive")
+            socket.send("![k[im alive],v[mixerApp]]!")
+        }
+    };
+
+    socket.onclose = function(event)
+    {
+        vueApp.connected = false
+    }
+
+    socket.onopen = function(event)
+    {
+        vueApp.connected = true
+        socket.send("![k[connect],v[{\"name\":\"mixerApp\",\"isGameMachine\":false}]]!")
+        socket.send("![k[adminlogin],v[midwife]]!")
+        //socket.send("![k[adminlogin],v[bigbee]]!")
+        socket.send("![k[get],v[tournamentstatus]]!")
+        socket.send("![k[get],v[currentmatch]]!")
+    }
+
+    return socket
+}
+
+var app = new Vue({
+  el: '#vueApp',
+  delimiters: ['${', '}'],
+  data: {
+    socket: null,
+    connected: false,
+    currentMatch: {
+        onBlue: "Unknown",
+        onGold: "Unknown",
+        nextBlue: "Unknown",
+        nextGold: "Unknown"
+    }
+  },
+  mounted () {
+    console.log('vue-native-websocket mounted/connected=', this.connected)
+  },
+  created () {
+    console.log('vue-native-websocket created/connected=', this.connected)
+    this.socket = connectSocket(this)
+  }
+})
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h1>{{ event.season.name }} {{ event.name }}</h1>
+        &#8226; {{ event.when | timezone:event.timezone }} ({{ event.when | utc }} UTC)
+        &#8226; <a href="{{ event.tournament_url }}" target="_blank">{{ event.tournament_url }}</a>
+        &#8226; <br/>
+    <hr />
+    <div class="row">
+        <div class="col-md-3">
+            <h2>Teams</h2>
+            <br />
+            <ol>
+            {% for team in event.teams.all|dictsort:"created" %}
+                <li> {{ team.name }} <br />
+                    <ol>
+                    {% for player in team.members.all|dictsort:"user.id" %}
+                        {% if player %}
+                            <li> {{ player.user.get_full_name }} </li>
+                        {% else %}
+                            <strong><li> </li></strong>
+                        {% endif %}
+                    {% endfor %}
+                </ol></li>
+            {% endfor %}
+            </ol>
+        </div>
+
+        <div class="col-md-5">
+            <div id="vueApp">
+                <div v-if="connected">
+                    <h2>Tournament mode ⚡</h2>
+                    <h4>On cab</h4>
+                        <span style="color: rgb(170, 131, 25)">${ currentMatch.onGold }</span>
+                        vs
+                        <span style="color: rgb(69, 122, 236)">${ currentMatch.onBlue }</span>
+                    <br />
+                    <br />
+                    <h4>Up next</h4>
+                        <span style="color: rgb(170, 131, 25)">${ currentMatch.upGold }</span>
+                        vs
+                        <span style="color: rgb(69, 122, 236)">${ currentMatch.upBlue }</span>
+                </div>
+                <div v-if="!connected"><h2>Tournament mode 🛑</h2></div>
+            </div>
+            <br />
+            <br />
+            <h2>Game results</h2>
+            <ol>
+            {% for game in games %}
+                <li>
+                    <span style="color: rgb(170, 131, 25)">{{ game.gold.name }}</span>
+                    <strong> <span style="color: rgb(170, 131, 25)">{{ game.gold_win_count }}</span> </strong>
+                    vs
+                    <span style="color: rgb(69, 122, 236)">{{ game.blue.name }}</span>
+                    <strong> <span style="color: rgb(69, 122, 236)">{{ game.blue_win_count }}</span> </strong>
+                    <br />
+                    &#8226;
+                    {% for win in game.win_order %}
+                        {% if win == "B" %}
+                            <span style="color: rgb(69, 122, 236)">
+                        {% else %}
+                            <span style="color: rgb(170, 131, 25)">
+                        {% endif %}
+                        {{ win }}
+                        </span>
+                    {% endfor %}
+                </li>
+            {% endfor %}
+            </ol>
+        </div>
+        <div class="col-md-4">
+            <h2>Twitch chat</h2>
+            <br />
+            <iframe src="https://www.nightdev.com/hosted/obschat/?theme=light&channel=thecoinop&bot_activity=false&prevent_clipping=false"
+             height="100%"
+             width="100%"
+             style="color:#000"></iframe>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
