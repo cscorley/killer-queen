@@ -26,24 +26,37 @@ function ExtractString(text,startS,endS)
 
 function connectSocket(vueApp)
 {
-    var socket = new WebSocket("ws://localhost:12749")
+    var socket = new WebSocket("ws://" + vueApp.cabAddress + ":12749")
     socket.onmessage = function(event) {
-        vueApp.connected = true
-        console.debug("CAB MESSAGE:", event)
-
         var msg = ExtractString(event.data,"![","]!");
-
-        console.log("parsed message: ", msg)
         if(msg == null)
+        {
             return;
+        }
         var key = ExtractString(msg, "k[", "],v");
         var value = ExtractString(msg, "v[", "]");
-        console.log("key: ", key)
-        console.log("value: ", value)
         if (key === "bracket")
         {
-            var bracket =  JSON.parse(value)
-            console.log(bracket)
+            console.log(value)
+            var tournament = JSON.parse(value)
+            console.log(tournament)
+            vueApp.sets = []
+            if (tournament.format === "r")
+            {
+                for (var bracket of tournament.brackets)
+                {
+                    for (var round of bracket.rounds)
+                    {
+                        for (var set of round.sets)
+                        {
+                            if (set.id > 0)
+                            {
+                                vueApp.sets.push(set)
+                            }
+                        }
+                    }
+                }
+            }
         }
         else if (key === "currentmatch")
         {
@@ -54,12 +67,19 @@ function connectSocket(vueApp)
             vueApp.currentMatch.onGold = (currentMatch.team2 === undefined) ? "TBD" : currentMatch.team2
             vueApp.currentMatch.upBlue = (currentMatch.next1 === undefined) ? "TBD" : currentMatch.team1
             vueApp.currentMatch.upGold = (currentMatch.next2 === undefined) ? "TBD" : currentMatch.team2
+
+            socket.send("![k[get],v[bracket]]!")
+        }
+        else if (key == "victory")
+        {
+            socket.send("![k[get],v[currentmatch]]!")
         }
         else if (key == "alive")
         {
-            console.log("sent im alive")
             socket.send("![k[im alive],v[mixerApp]]!")
         }
+
+        vueApp.connected = true
     };
 
     socket.onclose = function(event)
@@ -71,9 +91,6 @@ function connectSocket(vueApp)
     {
         vueApp.connected = true
         socket.send("![k[connect],v[{\"name\":\"mixerApp\",\"isGameMachine\":false}]]!")
-        socket.send("![k[adminlogin],v[midwife]]!")
-        //socket.send("![k[adminlogin],v[bigbee]]!")
-        socket.send("![k[get],v[tournamentstatus]]!")
         socket.send("![k[get],v[currentmatch]]!")
     }
 
@@ -81,25 +98,33 @@ function connectSocket(vueApp)
 }
 
 var app = new Vue({
-  el: '#vueApp',
-  delimiters: ['${', '}'],
-  data: {
-    socket: null,
-    connected: false,
-    currentMatch: {
-        onBlue: "Unknown",
-        onGold: "Unknown",
-        nextBlue: "Unknown",
-        nextGold: "Unknown"
+    el: '#vueApp',
+    delimiters: ['${', '}'],
+    data: {
+        sets: [],
+        cabAddress: 'localhost',
+        connected: false,
+        currentMatch: {
+            onBlue: "Unknown",
+            onGold: "Unknown",
+            nextBlue: "Unknown",
+            nextGold: "Unknown"
+        },
+        socket: null
+    },
+    methods: {
+        reconnect: function()
+        {
+            this.socket = connectSocket(this)
+        }
+    },
+    mounted () {
+        console.log('vue-native-websocket mounted/connected=', this.connected)
+    },
+    created () {
+        console.log('vue-native-websocket created/connected=', this.connected)
+        this.reconnect()
     }
-  },
-  mounted () {
-    console.log('vue-native-websocket mounted/connected=', this.connected)
-  },
-  created () {
-    console.log('vue-native-websocket created/connected=', this.connected)
-    this.socket = connectSocket(this)
-  }
 })
 </script>
 {% endblock %}
@@ -136,44 +161,42 @@ var app = new Vue({
             <div id="vueApp">
                 <div v-if="connected">
                     <h2>Tournament mode ⚡</h2>
-                    <h4>On cab</h4>
+                    <h3>On cab</h3>
                         <span style="color: rgb(170, 131, 25)">${ currentMatch.onGold }</span>
                         vs
                         <span style="color: rgb(69, 122, 236)">${ currentMatch.onBlue }</span>
                     <br />
                     <br />
-                    <h4>Up next</h4>
-                        <span style="color: rgb(170, 131, 25)">${ currentMatch.upGold }</span>
+                    <h3>Up next</h3>
+                        <span style="color: rgb(170, 131, 25); font-size: larger; font-weight: bold">${ currentMatch.upGold }</span>
                         vs
-                        <span style="color: rgb(69, 122, 236)">${ currentMatch.upBlue }</span>
-                </div>
-                <div v-if="!connected"><h2>Tournament mode 🛑</h2></div>
-            </div>
-            <br />
-            <br />
-            <h2>Game results</h2>
-            <ol>
-            {% for game in games %}
-                <li>
-                    <span style="color: rgb(170, 131, 25)">{{ game.gold.name }}</span>
-                    <strong> <span style="color: rgb(170, 131, 25)">{{ game.gold_win_count }}</span> </strong>
-                    vs
-                    <span style="color: rgb(69, 122, 236)">{{ game.blue.name }}</span>
-                    <strong> <span style="color: rgb(69, 122, 236)">{{ game.blue_win_count }}</span> </strong>
+                        <span style="color: rgb(69, 122, 236); font-size: larger; font-weight: bold">${ currentMatch.upBlue }</span>
                     <br />
-                    &#8226;
-                    {% for win in game.win_order %}
-                        {% if win == "B" %}
-                            <span style="color: rgb(69, 122, 236)">
-                        {% else %}
-                            <span style="color: rgb(170, 131, 25)">
-                        {% endif %}
-                        {{ win }}
-                        </span>
-                    {% endfor %}
-                </li>
-            {% endfor %}
-            </ol>
+                    <br />
+                    <h3>Bracket</h3>
+                    <ol>
+                        <li v-for="set in sets">
+                            <span style="color: rgb(170, 131, 25)">${ set.teams[0].name }
+                                <span style="font-weight: bold" v-if="set.start_time">${ set.teams[0].score }</span>
+                            </span>
+                            vs
+                            <span style="color: rgb(69, 122, 236)">${ set.teams[1].name }
+                                <span style="font-weight: bold" v-if="set.start_time">${ set.teams[1].score }</span>
+                            </span>
+                        </li>
+                    </ol>
+
+                </div>
+                <div v-if="!connected">
+                    <h2>Tournament mode 🛑</h2>
+                    Could not connect.  Please make sure you are on the same network or enter a new cab address:
+                    <input type="text" v-model="cabAddress" />
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-md"
+                        v-on:click="reconnect">Reconnect</button>
+                        </div>
+            </div>
         </div>
         <div class="col-md-4">
             <h2>Twitch chat</h2>

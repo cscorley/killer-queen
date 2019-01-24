@@ -10,7 +10,5 @@ logger = logging.getLogger("hello")
 def kiosk(request, event_id):
     event_id = int(event_id)
     event = Event.objects.get(pk=event_id)
-    games = GameResult.objects.filter(event=event).order_by('created')
 
-    return render(request, 'event-kiosk.html', {'games': games,
-                                                'event': event })
+    return render(request, 'event-kiosk.html', { 'event': event })

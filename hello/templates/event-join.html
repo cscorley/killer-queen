@@ -30,14 +30,17 @@
             </ol>
         {% endif %}
         <br />
+
+        {% url 'event_kiosk' event.id as kiosk_url %}
+        <a class="btn btn-primary btn-md" href="{{ kiosk_url }}"> Kiosk </a>
+        <br />
+        <br />
+
         {% if user.is_staff %}
             {% url 'event_mix' event.id as generate_teams_url %}
             <a class="btn btn-primary btn-md" href="{{ generate_teams_url }}"> Generate Teams </a>
-        {% endif %}
-
-        {% if user.is_staff or teams_already_formed %}
-            {% url 'event_result' event.id as results_url %}
-            <a class="btn btn-primary btn-md" href="{{ results_url }}"> Go to results </a>
+            <br />
+            <br />
         {% endif %}
 
     </div>
