@@ -24,9 +24,16 @@ function ExtractString(text,startS,endS)
     return text.substring(indexS,indexE);
 }
 
+function send(socket, key, value)
+{
+    socket.send("![k[" + key + "],v[" + value + "]]!");
+}
+
 function connectSocket(vueApp)
 {
     var socket = new WebSocket("ws://" + vueApp.cabAddress + ":12749")
+    vueApp.socket = socket;
+
     socket.onmessage = function(event) {
         var msg = ExtractString(event.data,"![","]!");
         if(msg == null)
@@ -63,20 +70,25 @@ function connectSocket(vueApp)
             var currentMatch =  JSON.parse(value)
             console.log(currentMatch)
 
-            vueApp.currentMatch.onBlue = (currentMatch.team1 === undefined) ? "TBD" : currentMatch.team1
-            vueApp.currentMatch.onGold = (currentMatch.team2 === undefined) ? "TBD" : currentMatch.team2
-            vueApp.currentMatch.upBlue = (currentMatch.next1 === undefined) ? "TBD" : currentMatch.team1
-            vueApp.currentMatch.upGold = (currentMatch.next2 === undefined) ? "TBD" : currentMatch.team2
+            if (currentMatch.team1 != undefined)
+            {
+                vueApp.currentMatch = currentMatch;
+            }
 
-            socket.send("![k[get],v[bracket]]!")
+            send(socket, "get", "bracket");
         }
-        else if (key == "victory")
+        else if (key === "victory")
         {
-            socket.send("![k[get],v[currentmatch]]!")
+            send(socket, "get", "currentmatch");
         }
-        else if (key == "alive")
+        else if (key === "alive")
         {
-            socket.send("![k[im alive],v[mixerApp]]!")
+            send(socket, "im alive", "mixerApp");
+        }
+        else if (key === "goldonleft")
+        {
+            vueApp.goldOnLeft = (value == 'True')
+            send(socket, "get", "currentmatch");
         }
 
         vueApp.connected = true
@@ -90,8 +102,14 @@ function connectSocket(vueApp)
     socket.onopen = function(event)
     {
         vueApp.connected = true
-        socket.send("![k[connect],v[{\"name\":\"mixerApp\",\"isGameMachine\":false}]]!")
-        socket.send("![k[get],v[currentmatch]]!")
+        var params =
+        {
+            name: "mixerApp",
+            isGameMachine: false
+        }
+        send(socket, "connect", JSON.stringify(params));
+        send(socket, "get", "goldonleft");
+        send(socket, "get", "currentmatch");
     }
 
     return socket
@@ -101,16 +119,36 @@ var app = new Vue({
     el: '#vueApp',
     delimiters: ['${', '}'],
     data: {
-        sets: [],
+        blueStyle: { color: 'rgb(69, 122, 236)' },
+        goldStyle: { color: 'rgb(170, 131, 25)' },
         cabAddress: '192.168.50.3',
         connected: false,
         currentMatch: {
-            onBlue: "Unknown",
-            onGold: "Unknown",
-            nextBlue: "Unknown",
-            nextGold: "Unknown"
+            team1: "Unknown",
+            team2: "Unknown",
+            score1: 0,
+            score2: 0,
+            next1: "Unknown",
+            next2: "Unknown"
         },
+        goldOnLeft: false,
+        sets: [],
         socket: null
+    },
+    computed:
+    {
+        leftStyle: function()
+        {
+            return this.goldOnLeft
+                 ? this.goldStyle
+                 : this.blueStyle;
+        },
+        rightStyle: function()
+        {
+            return this.goldOnLeft
+                 ? this.blueStyle
+                 : this.goldStyle;
+        }
     },
     methods: {
         reconnect: function()
@@ -162,26 +200,30 @@ var app = new Vue({
                 <div v-if="connected">
                     <h2>Tournament mode ⚡</h2>
                     <h3>On cab</h3>
-                        <span style="color: rgb(170, 131, 25)">${ currentMatch.onGold }</span>
+                        <span :style="leftStyle">${ currentMatch.team1 }
+                                <span style="font-weight: bold">${ currentMatch.score1 }</span>
+                        </span>
                         vs
-                        <span style="color: rgb(69, 122, 236)">${ currentMatch.onBlue }</span>
+                        <span :style="rightStyle">${ currentMatch.team2 }
+                                <span style="font-weight: bold">${ currentMatch.score2 }</span>
+                        </span>
                     <br />
                     <br />
                     <h3>Up next</h3>
-                        <span style="color: rgb(170, 131, 25); font-size: larger; font-weight: bold">${ currentMatch.upGold }</span>
+                        <span :style="leftStyle">${ currentMatch.next1 }</span>
                         vs
-                        <span style="color: rgb(69, 122, 236); font-size: larger; font-weight: bold">${ currentMatch.upBlue }</span>
+                        <span :style="rightStyle">${ currentMatch.next2 }</span>
                     <br />
                     <br />
                     <h3>Bracket</h3>
                     <ol>
                         <li v-for="set in sets">
-                            <span style="color: rgb(170, 131, 25)">${ set.teams[0].name }
-                                <span style="font-weight: bold" v-if="set.start_time">${ set.teams[0].score }</span>
+                            <span :style="leftStyle">${ set.teams[0].name }
+                                <span style="font-weight: bold" v-show="set.start_time">${ set.teams[0].score }</span>
                             </span>
                             vs
-                            <span style="color: rgb(69, 122, 236)">${ set.teams[1].name }
-                                <span style="font-weight: bold" v-if="set.start_time">${ set.teams[1].score }</span>
+                            <span :style="rightStyle">${ set.teams[1].name }
+                                <span style="font-weight: bold" v-show="set.start_time">${ set.teams[1].score }</span>
                             </span>
                         </li>
                     </ol>
