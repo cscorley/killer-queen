@@ -95,12 +95,11 @@ function connectSocket(vueApp)
             {
                 vueApp.currentMatch = currentMatch;
             }
-
-            send(socket, "get", "bracket");
         }
         else if (key === "victory")
         {
             send(socket, "get", "currentmatch");
+            send(socket, "get", "bracket");
         }
         else if (key === "alive")
         {
@@ -128,6 +127,9 @@ function connectSocket(vueApp)
             isGameMachine: false
         }
         send(socket, "connect", JSON.stringify(params));
+
+        setInterval(send, 1000 * 30, socket, "get", "bracket");
+        setInterval(send, 990 * 30, socket, "get", "currentmatch");
     }
 
     return socket
