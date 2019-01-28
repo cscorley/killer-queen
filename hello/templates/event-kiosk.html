@@ -139,6 +139,8 @@ var app = new Vue({
     data: {
         blueStyle: { color: 'rgb(69, 122, 236)' },
         goldStyle: { color: 'rgb(170, 131, 25)' },
+        blueBackStyle: { backgroundColor: 'rgb(69, 122, 236)' },
+        goldBackStyle: { backgroundColor: 'rgb(170, 131, 25)' },
         cabAddress: '192.168.50.3',
         connected: false,
         currentMatch: {
@@ -168,7 +170,21 @@ var app = new Vue({
             return this.goldOnLeft
                  ? this.blueStyle
                  : this.goldStyle;
-        }
+        },
+        onCabSet: function()
+        {
+            const started = this.sets.filter(set => set.start_time);
+            started.sort((a, b) => a.start_time - b.start_time);
+            const set = started[started.length - 1]
+            return set === undefined ? this.sets[0] : set;
+        },
+        nextUpSet: function()
+        {
+            const queued = this.sets.filter(set => !set.start_time);
+            queued.sort((a, b) => a.id - b.id);
+            const set = queued[0]
+            return set === undefined ? this.sets[0] : set;
+        },
     },
     methods: {
         reconnect: function()
@@ -248,6 +264,21 @@ var app = new Vue({
                                 <span :style="leftStyle"> <span style="font-weight: bold">${ set.teams[0].score }</span> </span>
                                 to
                                 <span :style="rightStyle"> <span style="font-weight: bold">${ set.teams[1].score }</span> </span>
+                                &#8226;
+                                <span v-for="victory in set.victory_types">
+                                    <span v-show="victory == 'gold_snail'" :style="goldBackStyle">🐌</span>
+                                    <span v-show="victory == 'gold_military'" :style="goldBackStyle">⚔</span>
+                                    <span v-show="victory == 'gold_economic'" :style="goldBackStyle">🍇</span>
+                                    <span v-show="victory == 'blue_snail'" :style="blueBackStyle">🐌</span>
+                                    <span v-show="victory == 'blue_military'" :style="blueBackStyle">⚔</span>
+                                    <span v-show="victory == 'blue_economic'" :style="blueBackStyle">🍇</span>
+                                </span>
+                            </span>
+                            <span v-show="set.id == onCabSet.id">
+                                &#8226; On now
+                            </span>
+                            <span v-show="set.id == nextUpSet.id">
+                                &#8226; Up next
                             </span>
                         </li>
                     </ol>
