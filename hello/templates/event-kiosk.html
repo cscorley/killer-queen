@@ -238,34 +238,42 @@ var app = new Vue({
                 <div v-if="connected">
                     <h2>Tournament mode ⚡</h2>
                     <h3>On cab</h3>
-                        <span :style="leftStyle">${ currentMatch.team1 } </span>
+                        <span :style="blueStyle" v-show="!goldOnLeft">${ currentMatch.team1 } </span>
+                        <span :style="goldStyle" v-show="goldOnLeft">${ currentMatch.team2 } </span>
                         vs
-                        <span :style="rightStyle">${ currentMatch.team2 } </span>
+                        <span :style="goldStyle" v-show="!goldOnLeft">${ currentMatch.team2 } </span>
+                        <span :style="blueStyle" v-show="goldOnLeft">${ currentMatch.team1 } </span>
                         &#8226;
-                        <span :style="leftStyle"> <span style="font-weight: bold">${ currentMatch.score1 }</span> </span>
+                        <span :style="blueStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score1 }</span> </span>
+                        <span :style="goldStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score2 }</span> </span>
                         to
-                        <span :style="rightStyle"> <span style="font-weight: bold">${ currentMatch.score2 }</span> </span>
+                        <span :style="goldStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score2 }</span> </span>
+                        <span :style="blueStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score1 }</span> </span>
                     <br />
                     <br />
                     <h3>Up next</h3>
-                        <span :style="leftStyle">${ currentMatch.next1 }</span>
+                        <span :style="blueStyle" v-show="!goldOnLeft">${ currentMatch.next1 }</span>
+                        <span :style="goldStyle" v-show="goldOnLeft">${ currentMatch.next2 }</span>
                         vs
-                        <span :style="rightStyle">${ currentMatch.next2 }</span>
+                        <span :style="goldStyle" v-show="!goldOnLeft">${ currentMatch.next2 }</span>
+                        <span :style="blueStyle" v-show="goldOnLeft">${ currentMatch.next1 }</span>
                     <br />
                     <br />
                     <h3>Bracket</h3>
                     <ol>
                         <li v-for="set in sets">
-                            <span :style="leftStyle">${ set.teams[0].name }
-                            </span>
+                            <span :style="blueStyle" v-show="!goldOnLeft">${ set.teams[0].name } </span>
+                            <span :style="goldStyle" v-show="goldOnLeft">${ set.teams[1].name } </span>
                             vs
-                            <span :style="rightStyle">${ set.teams[1].name }
-                            </span>
+                            <span :style="goldStyle" v-show="!goldOnLeft">${ set.teams[1].name } </span>
+                            <span :style="blueStyle" v-show="goldOnLeft">${ set.teams[0].name } </span>
                             <span v-show="set.start_time">
                                 &#8226;
-                                <span :style="leftStyle"> <span style="font-weight: bold">${ set.teams[0].score }</span> </span>
+                                <span :style="blueStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ set.teams[0].score }</span> </span>
+                                <span :style="goldStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ set.teams[1].score }</span> </span>
                                 to
-                                <span :style="rightStyle"> <span style="font-weight: bold">${ set.teams[1].score }</span> </span>
+                                <span :style="goldStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ set.teams[1].score }</span> </span>
+                                <span :style="blueStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ set.teams[0].score }</span> </span>
                                 &#8226;
                                 <span v-for="victory in set.victory_types">
                                     <span v-show="victory == 'gold_snail'" :style="goldBackStyle">🐌</span>
