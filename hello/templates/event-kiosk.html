@@ -84,7 +84,7 @@ function connectSocket(vueApp)
                 vueApp.standings.push(standing);
             }
 
-            vueApp.standings.sort((a, b) => a.point - b.point);
+            vueApp.standings.sort((a, b) => b.point - a.point);
         }
         else if (key === "currentmatch")
         {
