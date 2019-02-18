@@ -37,6 +37,10 @@
         <br />
 
         {% if user.is_staff %}
+            {% url 'event_result' event.id as event_result_url%}
+            <a class="btn btn-primary btn-md" href="{{ event_result_url }}"> Go to results </a>
+            <br />
+            <br />
             {% url 'event_mix' event.id as generate_teams_url %}
             <a class="btn btn-primary btn-md" href="{{ generate_teams_url }}"> Generate Teams </a>
             <br />
