@@ -78,19 +78,23 @@ win_validator = RegexValidator(r'^[BGbg]*$', 'Only B or G characters are allowed
 class GameResult(models.Model):
     created = models.DateTimeField('date created', auto_now_add=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, blank=True, null=True)
-    gold = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='gold_result')
     blue = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='blue_result')
-    gold_win_count = models.PositiveSmallIntegerField('Number of wins by the Gold team', default=0)
-    blue_win_count = models.PositiveSmallIntegerField('Number of wins by the Blue team', default=0)
+    gold = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='gold_result')
     win_order = models.CharField('Win order', max_length=20, default="", validators=[win_validator])
     contributes_to_season_score = models.BooleanField(default=True)
     ghost_subs = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         if self.event:
-            return "%s (%d) vs %s (%d) at %s" % (self.blue.name, self.blue_win_count, self.gold.name, self.gold_win_count, self.event.name)
+            return "%s (%d) vs %s (%d) at %s" % (self.blue.name, self.blue_win_count(), self.gold.name, self.gold_win_count(), self.event.name)
         else:
-            return "%s (%d) vs %s (%d)" % (self.blue.name, self.blue_win_count, self.gold.name, self.gold_win_count)
+            return "%s (%d) vs %s (%d)" % (self.blue.name, self.blue_win_count(), self.gold.name, self.gold_win_count())
+
+    def blue_win_count(self):
+        return self.win_order.upper().count('B')
+
+    def gold_win_count(self):
+        return self.win_order.upper().count('G')
 
     def process(self) -> None:
         blue: List[Player] = list(self.blue.members.all())
@@ -118,15 +122,9 @@ class GameResult(models.Model):
 
         if len(self.win_order) != 0:
             results = [get_win(win) for win in self.win_order]
-
-            if self.blue_win_count == 0 and self.gold_win_count == 0:
-                self.win_order = self.win_order.upper()
-                self.blue_win_count = self.win_order.count('B')
-                self.gold_win_count = self.win_order.count('G')
-                self.save()
         else:
-            blue_wins_iter = iter([get_win('B')] * self.blue_win_count)
-            gold_wins_iter = iter([get_win('G')] * self.gold_win_count)
+            blue_wins_iter = iter([get_win('B')] * self.blue_win_count())
+            gold_wins_iter = iter([get_win('G')] * self.gold_win_count())
 
             # cycle between blue and gold wins so scores are updated somewhat fairly since we don't
             # track literal win order
@@ -163,10 +161,10 @@ class GameResult(models.Model):
             blue_ratings, gold_ratings = skill_env.rate([blue_ratings, gold_ratings], ranks=win)
 
         for player, rating in zip(blue, blue_ratings):
-            player.update_rating(rating, self.blue_win_count, self.gold_win_count)
+            player.update_rating(rating, self.blue_win_count(), self.gold_win_count())
 
         for player, rating in zip(gold, gold_ratings):
-            player.update_rating(rating, self.gold_win_count, self.blue_win_count)
+            player.update_rating(rating, self.gold_win_count(), self.blue_win_count())
 
 @receiver(post_save, sender=GameResult)
 def process_game_result(sender, instance, created, **kwargs):

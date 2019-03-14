@@ -8,8 +8,8 @@ from hello.models import Event, GameResult, EventTeam, Player, Team
 class CreateGameResultForm(forms.ModelForm):
     class Meta:
         model = GameResult
-        fields = ('gold',
-                  'blue',
+        fields = ('blue',
+                  'gold',
                   'win_order',
                   'contributes_to_season_score',
                   'ghost_subs')
