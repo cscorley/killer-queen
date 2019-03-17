@@ -7,6 +7,7 @@
 <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
 <script src="//cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
 <script src="//cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+<script src="//unpkg.com/axios/dist/axios.min.js"></script>
 
 
 {{ bracket|json_script:"bracket-data" }}
@@ -98,6 +99,13 @@ var app = new Vue({
     methods: {
         reload: function()
         {
+            console.log("reloading cab info");
+            axios.get('/api/cab/bracket')
+                 .then(response => {
+                     this.storedBracket = response.data
+                 })
+                 .catch(console.log);
+
             this.processTournament();
         },
         processTournament: function()
@@ -141,6 +149,10 @@ var app = new Vue({
             this.processTournament()
     }
 })
+
+
+setInterval(app.reload, 1000 * 15);
+
 </script>
 {% endblock %}
 
