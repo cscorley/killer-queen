@@ -3,3 +3,4 @@ from .season import Season
 from .player import Player
 from .team import Team, TeamMembership
 from .names import RandomName
+from .cabinfo import CabInformation

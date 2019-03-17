@@ -35,7 +35,6 @@ class Event(models.Model):
     is_current = models.BooleanField('Determines whether this is a current event', default=False)
     is_active = models.BooleanField('Determines whether this is an active event', default=True)
 
-    tournament_url = models.CharField('tournament url', max_length=255)
     token = models.CharField('Secret token', max_length=50, default='')
 
     def __str__(self) -> str:
