@@ -7,6 +7,10 @@
 <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
 <script src="//cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
 <script src="//cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+
+
+{{ bracket|json_script:"bracket-data" }}
+
 {% csrf_token %}
 <script>
 var csrfToken = jQuery("[name=csrfmiddlewaretoken]").val();
@@ -14,126 +18,6 @@ var csrfToken = jQuery("[name=csrfmiddlewaretoken]").val();
 Vue.http.interceptors.push(function(request) {
   request.headers.set('X-CSRFToken', csrfToken);
 });
-
-function ExtractString(text,startS,endS)
-{
-    var indexS = text.indexOf(startS)+startS.length;
-    var indexE = text.lastIndexOf(endS);
-    if(indexE < indexS)
-        return "";
-    return text.substring(indexS,indexE);
-}
-
-function send(socket, key, value)
-{
-    var item = `![k[${key}],v[${value}]]!`;
-    console.log(`sending key '${key}' value '${value}' literal '${item}'`);
-    socket.send(item);
-}
-
-function connectSocket(vueApp)
-{
-    var socket = new WebSocket("ws://" + vueApp.cabAddress + ":12749")
-    vueApp.socket = socket;
-
-    socket.onmessage = function(event) {
-        var msg = ExtractString(event.data,"![","]!");
-        if(msg == null)
-        {
-            return;
-        }
-        var key = ExtractString(msg, "k[", "],v");
-        var value = ExtractString(msg, "v[", "]");
-
-        if (vueApp.showCabMessages)
-        {
-            console.log("cab message:", msg);
-        }
-
-        if (key === "connected")
-        {
-            send(socket, "get", "goldonleft");
-        }
-        else if (key === "bracket")
-        {
-            var tournament = JSON.parse(value)
-            console.log(tournament)
-            vueApp.sets = []
-            if (tournament.format === "r")
-            {
-                for (var bracket of tournament.brackets)
-                {
-                    for (var round of bracket.rounds)
-                    {
-                        for (var set of round.sets)
-                        {
-                            if (set.id > 0)
-                            {
-                                vueApp.sets.push(set)
-                            }
-                        }
-                    }
-                }
-
-                vueApp.sets.sort((a, b) => a.id - b.id);
-            }
-
-            vueApp.standings = []
-            for (var standing of tournament.standings)
-            {
-                vueApp.standings.push(standing);
-            }
-
-            vueApp.standings.sort((a, b) => b.point - a.point);
-        }
-        else if (key === "currentmatch")
-        {
-            var currentMatch =  JSON.parse(value)
-            console.log(currentMatch)
-
-            if (currentMatch.team1 != undefined)
-            {
-                vueApp.currentMatch = currentMatch;
-            }
-        }
-        else if (key === "victory")
-        {
-            send(socket, "get", "currentmatch");
-            send(socket, "get", "bracket");
-        }
-        else if (key === "alive")
-        {
-            send(socket, "im alive", "null");
-        }
-        else if (key === "goldonleft")
-        {
-            vueApp.goldOnLeft = (value == 'True')
-        }
-
-        vueApp.connected = true
-    };
-
-    socket.onclose = function(event)
-    {
-        vueApp.connected = false
-    }
-
-    socket.onopen = function(event)
-    {
-        vueApp.connected = true
-        var params =
-        {
-            name: "null",
-            isGameMachine: false
-        }
-        send(socket, "connect", JSON.stringify(params));
-
-        setInterval(send, 1000 * 30, socket, "get", "bracket");
-        setInterval(send, 990 * 30, socket, "get", "currentmatch");
-    }
-
-    return socket
-}
 
 var app = new Vue({
     el: '#vueApp',
@@ -143,21 +27,19 @@ var app = new Vue({
         goldStyle: { color: 'rgb(170, 131, 25)' },
         blueBackStyle: { backgroundColor: 'rgb(69, 122, 236)' },
         goldBackStyle: { backgroundColor: 'rgb(170, 131, 25)' },
-        cabAddress: '192.168.50.3',
-        connected: false,
-        currentMatch: {
-            team1: "Unknown",
-            team2: "Unknown",
-            score1: 0,
-            score2: 0,
-            next1: "Unknown",
-            next2: "Unknown"
-        },
         goldOnLeft: false,
         sets: [],
-        showCabMessages: false,
-        socket: null,
         standings: [],
+        storedBracket: JSON.parse(document.getElementById('bracket-data').textContent),
+        dumbSet: {
+                    "id":-1,
+                    "best_of":5,
+                    "on_machine_name":"",
+                    "start_time":"",
+                    "teams":[{"name":"Unknown","score":0},{"name":"Unknown","score":0}],
+                    "victory_types":[],
+                    "match_data_id":[]
+                }
     },
     computed:
     {
@@ -178,28 +60,85 @@ var app = new Vue({
             const started = this.sets.filter(set => set.start_time);
             started.sort((a, b) => a.start_time - b.start_time);
             const set = started[started.length - 1]
-            return set === undefined ? this.sets[0] : set;
+            return set !== undefined ? set : this.dumbSet;
         },
         nextUpSet: function()
         {
             const queued = this.sets.filter(set => !set.start_time);
             queued.sort((a, b) => a.id - b.id);
             const set = queued[0]
-            return set === undefined ? this.sets[0] : set;
+            return set !== undefined ? set : this.dumbSet;
         },
+        currentMatch: function()
+        {
+            var match = {
+                team1: "Unknown",
+                team2: "Unknown",
+                score1: 0,
+                score2: 0,
+                next1: "Unknown",
+                next2: "Unknown"
+            };
+
+            if (this.onCabSet !== undefined) {
+                match.team1 = this.onCabSet.teams[0].name
+                match.team2 = this.onCabSet.teams[1].name
+                match.score1 = this.onCabSet.teams[0].score
+                match.score2 = this.onCabSet.teams[1].score
+            }
+
+            if (this.nextUpSet !== undefined)  {
+                match.next1 = this.nextUpSet.teams[0].name
+                match.next2 = this.nextUpSet.teams[1].name
+            }
+
+            return match;
+        }
     },
     methods: {
-        reconnect: function()
+        reload: function()
         {
-            this.socket = connectSocket(this)
+            this.processTournament();
+        },
+        processTournament: function()
+        {
+            if (this.storedBracket !== undefined && this.storedBracket.json !== undefined) {
+                var tournament = this.storedBracket.json;
+                console.log('processing tournament:', tournament)
+                this.sets = []
+                if (tournament.format === "r")
+                {
+                    for (var bracket of tournament.brackets)
+                    {
+                        for (var round of bracket.rounds)
+                        {
+                            for (var set of round.sets)
+                            {
+                                if (set.id > 0)
+                                {
+                                    this.sets.push(set)
+                                }
+                            }
+                        }
+                    }
+
+                    this.sets.sort((a, b) => a.id - b.id);
+                }
+
+                this.standings = []
+                for (var standing of tournament.standings)
+                {
+                    this.standings.push(standing);
+                }
+
+                this.standings.sort((a, b) => b.point - a.point);
+            }
         }
     },
     mounted () {
-        console.log('vue-native-websocket mounted/connected=', this.connected)
     },
     created () {
-        console.log('vue-native-websocket created/connected=', this.connected)
-        this.reconnect()
+            this.processTournament()
     }
 })
 </script>
@@ -233,85 +172,72 @@ var app = new Vue({
             </ol>
         </div>
 
-        <div class="col-md-5">
+        <div class="col-md-6">
             <div id="vueApp">
-                <div v-if="connected">
-                    <h2>Tournament mode ⚡</h2>
-                    <h3>On cab</h3>
-                        <span :style="blueStyle" v-show="!goldOnLeft">${ currentMatch.team1 } </span>
-                        <span :style="goldStyle" v-show="goldOnLeft">${ currentMatch.team2 } </span>
+                <h3>On cab</h3>
+                    <span :style="blueStyle" v-show="!goldOnLeft">${ currentMatch.team1 } </span>
+                    <span :style="goldStyle" v-show="goldOnLeft">${ currentMatch.team2 } </span>
+                    vs
+                    <span :style="goldStyle" v-show="!goldOnLeft">${ currentMatch.team2 } </span>
+                    <span :style="blueStyle" v-show="goldOnLeft">${ currentMatch.team1 } </span>
+                    &#8226;
+                    <span :style="blueStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score1 }</span> </span>
+                    <span :style="goldStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score2 }</span> </span>
+                    to
+                    <span :style="goldStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score2 }</span> </span>
+                    <span :style="blueStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score1 }</span> </span>
+                <br />
+                <br />
+                <h3>Up next</h3>
+                    <span :style="blueStyle" v-show="!goldOnLeft">${ currentMatch.next1 }</span>
+                    <span :style="goldStyle" v-show="goldOnLeft">${ currentMatch.next2 }</span>
+                    vs
+                    <span :style="goldStyle" v-show="!goldOnLeft">${ currentMatch.next2 }</span>
+                    <span :style="blueStyle" v-show="goldOnLeft">${ currentMatch.next1 }</span>
+                <br />
+                <br />
+                <h3>Bracket</h3>
+                <ol>
+                    <li v-for="set in sets">
+                        <span :style="blueStyle" v-show="!goldOnLeft">${ set.teams[0].name } </span>
+                        <span :style="goldStyle" v-show="goldOnLeft">${ set.teams[1].name } </span>
                         vs
-                        <span :style="goldStyle" v-show="!goldOnLeft">${ currentMatch.team2 } </span>
-                        <span :style="blueStyle" v-show="goldOnLeft">${ currentMatch.team1 } </span>
-                        &#8226;
-                        <span :style="blueStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score1 }</span> </span>
-                        <span :style="goldStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score2 }</span> </span>
-                        to
-                        <span :style="goldStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score2 }</span> </span>
-                        <span :style="blueStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score1 }</span> </span>
-                    <br />
-                    <br />
-                    <h3>Up next</h3>
-                        <span :style="blueStyle" v-show="!goldOnLeft">${ currentMatch.next1 }</span>
-                        <span :style="goldStyle" v-show="goldOnLeft">${ currentMatch.next2 }</span>
-                        vs
-                        <span :style="goldStyle" v-show="!goldOnLeft">${ currentMatch.next2 }</span>
-                        <span :style="blueStyle" v-show="goldOnLeft">${ currentMatch.next1 }</span>
-                    <br />
-                    <br />
-                    <h3>Bracket</h3>
-                    <ol>
-                        <li v-for="set in sets">
-                            <span :style="blueStyle" v-show="!goldOnLeft">${ set.teams[0].name } </span>
-                            <span :style="goldStyle" v-show="goldOnLeft">${ set.teams[1].name } </span>
-                            vs
-                            <span :style="goldStyle" v-show="!goldOnLeft">${ set.teams[1].name } </span>
-                            <span :style="blueStyle" v-show="goldOnLeft">${ set.teams[0].name } </span>
-                            <span v-show="set.start_time">
-                                &#8226;
-                                <span :style="blueStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ set.teams[0].score }</span> </span>
-                                <span :style="goldStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ set.teams[1].score }</span> </span>
-                                to
-                                <span :style="goldStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ set.teams[1].score }</span> </span>
-                                <span :style="blueStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ set.teams[0].score }</span> </span>
-                                &#8226;
-                                <span v-for="victory in set.victory_types">
-                                    <span v-show="victory == 'gold_snail'" :style="goldBackStyle">🐌</span>
-                                    <span v-show="victory == 'gold_military'" :style="goldBackStyle">⚔</span>
-                                    <span v-show="victory == 'gold_economic'" :style="goldBackStyle">🍇</span>
-                                    <span v-show="victory == 'blue_snail'" :style="blueBackStyle">🐌</span>
-                                    <span v-show="victory == 'blue_military'" :style="blueBackStyle">⚔</span>
-                                    <span v-show="victory == 'blue_economic'" :style="blueBackStyle">🍇</span>
-                                </span>
+                        <span :style="goldStyle" v-show="!goldOnLeft">${ set.teams[1].name } </span>
+                        <span :style="blueStyle" v-show="goldOnLeft">${ set.teams[0].name } </span>
+                        <span v-show="set.start_time">
+                            &#8226;
+                            <span :style="blueStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ set.teams[0].score }</span> </span>
+                            <span :style="goldStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ set.teams[1].score }</span> </span>
+                            to
+                            <span :style="goldStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ set.teams[1].score }</span> </span>
+                            <span :style="blueStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ set.teams[0].score }</span> </span>
+                            &#8226;
+                            <span v-for="victory in set.victory_types">
+                                <span v-show="victory == 'gold_snail'" :style="goldBackStyle">🐌</span>
+                                <span v-show="victory == 'gold_military'" :style="goldBackStyle">⚔</span>
+                                <span v-show="victory == 'gold_economic'" :style="goldBackStyle">🍇</span>
+                                <span v-show="victory == 'blue_snail'" :style="blueBackStyle">🐌</span>
+                                <span v-show="victory == 'blue_military'" :style="blueBackStyle">⚔</span>
+                                <span v-show="victory == 'blue_economic'" :style="blueBackStyle">🍇</span>
                             </span>
-                            <span v-show="set.id == onCabSet.id">
-                                &#8226; On now
-                            </span>
-                            <span v-show="set.id == nextUpSet.id">
-                                &#8226; Up next
-                            </span>
-                        </li>
-                    </ol>
-                    <h3>Standings</h3>
-                    <ol>
-                        <li v-for="standing in standings">
-                            ${ standing.name } &#8226; ${ standing.point } points &#8226; ${ standing.win } wins &#8226; ${ standing.loss } losses
-                        </li>
-                    </ol>
-
-                </div>
-                <div v-if="!connected">
-                    <h2>Tournament mode 🛑</h2>
-                    Could not connect.  Please make sure you are on the same network or enter a new cab address:
-                    <input type="text" v-model="cabAddress" />
-                    <button
-                        type="button"
-                        class="btn btn-primary btn-md"
-                        v-on:click="reconnect">Reconnect</button>
-                        </div>
+                        </span>
+                        <span v-show="set.id == onCabSet.id">
+                            &#8226; On now
+                        </span>
+                        <span v-show="set.id == nextUpSet.id">
+                            &#8226; Up next
+                        </span>
+                    </li>
+                </ol>
+                <h3>Standings</h3>
+                <ol>
+                    <li v-for="standing in standings">
+                        ${ standing.name } &#8226; ${ standing.point } points &#8226; ${ standing.win } wins &#8226; ${ standing.loss } losses
+                    </li>
+                </ol>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <h2>Twitch chat</h2>
             <br />
             <iframe src="https://www.nightdev.com/hosted/obschat/?theme=light&channel=thecoinop&bot_activity=false&prevent_clipping=false"

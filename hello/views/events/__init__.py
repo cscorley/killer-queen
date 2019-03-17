@@ -5,4 +5,4 @@ from .result import result
 from .list import EventListView
 from .mix import mix
 from .start import start
-from .kiosk import kiosk
+from .kiosk import kiosk, old_kiosk
