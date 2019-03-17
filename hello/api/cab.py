@@ -36,10 +36,10 @@ def _processCabInfo(infoName, request):
 
         info.save()
 
-        return JsonResponse({"updated": info.updated, infoName: json.loads(info.json)})
+        return JsonResponse({"updated": info.updated, "json": json.loads(info.json)})
     elif request.method == 'GET':
         try:
             info = CabInformation.objects.get(pk=infoName)
-            return JsonResponse({"updated": info.updated, infoName: json.loads(info.json)})
+            return JsonResponse({"updated": info.updated, "json": json.loads(info.json)})
         except ObjectDoesNotExist:
             return HttpResponse()

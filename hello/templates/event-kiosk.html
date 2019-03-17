@@ -110,8 +110,7 @@ var app = new Vue({
 
             axios.get('/api/cab/goldonleft')
                  .then(response => {
-                    var data = JSON.parse(response.data);
-                    this.goldOnLeft = (data !== undefined && data.json !== undefined && data.json);
+                    this.goldOnLeft = response.data.json
                  })
                  .catch(console.log);
         },
@@ -239,12 +238,6 @@ setInterval(app.reload, 1000 * 15);
                                 <span v-show="victory == 'blue_military'" :style="blueBackStyle">⚔</span>
                                 <span v-show="victory == 'blue_economic'" :style="blueBackStyle">🍇</span>
                             </span>
-                        </span>
-                        <span v-show="set.id == onCabSet.id">
-                            &#8226; On now
-                        </span>
-                        <span v-show="set.id == nextUpSet.id">
-                            &#8226; Up next
                         </span>
                     </li>
                 </ol>
