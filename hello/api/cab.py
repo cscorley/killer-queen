@@ -14,26 +14,32 @@ from hello.models import *
 
 logger = logging.getLogger('hello')
 
-
-
 @csrf_exempt
 def bracket(request):
+    return _processCabInfo("bracket", request)
+
+@csrf_exempt
+def goldonleft(request):
+    return _processCabInfo("goldonleft", request)
+
+
+def _processCabInfo(infoName, request):
     if request.method == 'POST':
         text = request.body.decode('utf-8')
         logger.debug(text)
 
         try:
-            bracket = CabInformation.objects.get(pk="bracket")
-            bracket.json = text
+            info = CabInformation.objects.get(pk=infoName)
+            info.json = text
         except ObjectDoesNotExist:
-            bracket = CabInformation(name="bracket", json=text)
+            info = CabInformation(name=infoName, json=text)
 
-        bracket.save()
+        info.save()
 
-        return JsonResponse({"updated": bracket.updated, "bracket": json.loads(bracket.json)})
+        return JsonResponse({"updated": info.updated, infoName: json.loads(info.json)})
     elif request.method == 'GET':
         try:
-            bracket = CabInformation.objects.get(pk="bracket")
-            return JsonResponse({"updated": bracket.updated, "bracket": json.loads(bracket.json)})
+            info = CabInformation.objects.get(pk=infoName)
+            return JsonResponse({"updated": info.updated, infoName: json.loads(info.json)})
         except ObjectDoesNotExist:
             return HttpResponse()

@@ -107,6 +107,13 @@ var app = new Vue({
                  .catch(console.log);
 
             this.processTournament();
+
+            axios.get('/api/cab/goldonleft')
+                 .then(response => {
+                    var data = JSON.parse(response.data);
+                    this.goldOnLeft = (data !== undefined && data.json !== undefined && data.json);
+                 })
+                 .catch(console.log);
         },
         processTournament: function()
         {
