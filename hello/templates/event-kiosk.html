@@ -120,24 +120,22 @@ var app = new Vue({
                 var tournament = this.storedBracket.json;
                 console.log('processing tournament:', tournament)
                 this.sets = []
-                if (tournament.format === "r")
+
+                for (var bracket of tournament.brackets)
                 {
-                    for (var bracket of tournament.brackets)
+                    for (var round of bracket.rounds)
                     {
-                        for (var round of bracket.rounds)
+                        for (var set of round.sets)
                         {
-                            for (var set of round.sets)
+                            if (set.id > 0)
                             {
-                                if (set.id > 0)
-                                {
-                                    this.sets.push(set)
-                                }
+                                this.sets.push(set)
                             }
                         }
                     }
-
-                    this.sets.sort((a, b) => a.id - b.id);
                 }
+
+                this.sets.sort((a, b) => a.id - b.id);
 
                 this.standings = []
                 for (var standing of tournament.standings)
