@@ -36,6 +36,7 @@ class Event(models.Model):
     is_active = models.BooleanField('Determines whether this is an active event', default=True)
 
     token = models.CharField('Secret token', max_length=50, default='')
+    cab_bracket = models.TextField('Cab Bracket', default='{}')
 
     def __str__(self) -> str:
         return "%s (%s, %s)" % (self.name, self.season.name, str(self.when))
