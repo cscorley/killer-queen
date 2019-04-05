@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from django.shortcuts import render, redirect, reverse
 from django.db.models import Sum
 
-from hello.models import Player, Season, GameResult
+from hello.models import Player, Season, GameResult, Event
 
 import statistics
 import logging
@@ -10,6 +10,12 @@ import logging
 logger = logging.getLogger("hello")
 
 def top_players(request):
+    if not request.user.is_superuser:
+        current_events = Event.objects.filter(is_current=True).order_by('when', 'pk')
+        current = current_events[0].season
+        logger.info("redirecting to current season top page: %d", current.id)
+        return redirect(reverse('seasonal_top_players', args=[current.id]))
+
     players = Player.objects.filter(user__is_active=True).distinct()
 
     rank_queen, rank_bees = _split_queen(request, players, lambda player: player.trueskill_rating_exposure)
