@@ -4,6 +4,7 @@ from hello.models import Event, GameResult, EventTeam, TeamMembership
 from hello.forms import CreateGameResultForm, CreateTeamForm
 from hello.views import Alert
 import logging
+import json
 
 logger = logging.getLogger("hello")
 
@@ -51,7 +52,9 @@ def result(request, event_id):
                                                  'event': event,
                                                  'resultForm': resultForm,
                                                  'teamForm': teamForm,
-                                                 'alert': alert})
+                                                 'alert': alert,
+                                                 'bracket': json.loads(event.cab_bracket),
+                                                 })
 
 def get_new_result_form(event: Event):
     data = {'event':event, 'contributes_to_season_score': True, 'ghost_subs': True}

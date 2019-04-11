@@ -14,7 +14,7 @@
 
                 <ul>
                 {% for event in season.events.all|dictsort:"when" %}
-                    {% if not event.is_current and not event.is_active %}
+                    {% if not event.is_current %}
                         {% url 'event_result' event.id as the_url %}
                         <li><a href="{{ the_url }}">{{ event.name }} </a> - {{ event.when | timezone:event.timezone }}</li>
                     {% endif %}

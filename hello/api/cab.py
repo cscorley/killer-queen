@@ -16,7 +16,20 @@ logger = logging.getLogger('hello')
 
 @csrf_exempt
 def bracket(request):
-    return _processCabInfo("bracket", request)
+    processed =  _processCabInfo("bracket", request)
+
+    if request.method == 'POST':
+        try:
+            current_events = Event.objects.filter(is_current=True).order_by('when', 'pk')
+            if len(current_events):
+                current_event = current_events[0]
+                text = request.body.decode('utf-8')
+                current_event.cab_bracket = text
+                current_event.save()
+        except:
+            logger.error("you goofed while processing bracket text")
+
+    return processed
 
 @csrf_exempt
 def goldonleft(request):

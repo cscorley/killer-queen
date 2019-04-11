@@ -33,7 +33,6 @@ class Event(models.Model):
     season = models.ForeignKey(Season, on_delete=models.CASCADE, related_name='events')
 
     is_current = models.BooleanField('Determines whether this is a current event', default=False)
-    is_active = models.BooleanField('Determines whether this is an active event', default=True)
 
     token = models.CharField('Secret token', max_length=50, default='')
     cab_bracket = models.TextField('Cab Bracket', default='{}')

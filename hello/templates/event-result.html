@@ -5,8 +5,93 @@
 
 {% block scripts %}
 <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+<script src="//cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+<script src="//cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+<script src="//unpkg.com/axios/dist/axios.min.js"></script>
 {{ resultForm.media }}
 {{ teamForm.media }}
+
+{{ bracket|json_script:"bracket-data" }}
+
+{% csrf_token %}
+<script>
+var csrfToken = jQuery("[name=csrfmiddlewaretoken]").val();
+
+Vue.http.interceptors.push(function(request) {
+  request.headers.set('X-CSRFToken', csrfToken);
+});
+
+var app = new Vue({
+    el: '#vueApp',
+    delimiters: ['${', '}'],
+    data: {
+        blueStyle: { color: 'rgb(69, 122, 236)' },
+        goldStyle: { color: 'rgb(170, 131, 25)' },
+        blueBackStyle: { backgroundColor: 'rgb(69, 122, 236)' },
+        goldBackStyle: { backgroundColor: 'rgb(170, 131, 25)' },
+        goldOnLeft: false,
+        sets: [],
+        standings: [],
+        storedBracket: JSON.parse(document.getElementById('bracket-data').textContent),
+    },
+    computed:
+    {
+        leftStyle: function()
+        {
+            return this.goldOnLeft
+                 ? this.goldStyle
+                 : this.blueStyle;
+        },
+        rightStyle: function()
+        {
+            return this.goldOnLeft
+                 ? this.blueStyle
+                 : this.goldStyle;
+        },
+    },
+    methods: {
+        processTournament: function()
+        {
+            if (this.storedBracket !== undefined) {
+                var tournament = this.storedBracket;
+                console.log('processing tournament:', tournament)
+                this.sets = []
+
+                for (var bracket of tournament.brackets)
+                {
+                    for (var round of bracket.rounds)
+                    {
+                        for (var set of round.sets)
+                        {
+                            if (set.id > 0)
+                            {
+                                this.sets.push(set)
+                            }
+                        }
+                    }
+                }
+
+                this.sets.sort((a, b) => a.id - b.id);
+
+                this.standings = []
+                for (var standing of tournament.standings)
+                {
+                    this.standings.push(standing);
+                }
+
+                this.standings.sort((a, b) => b.point - a.point);
+            }
+        }
+    },
+    mounted () {
+    },
+    created () {
+            this.processTournament()
+    }
+})
+
+</script>
+
 {% endblock %}
 
 {% block content %}
@@ -96,6 +181,46 @@
                 </table>
                 <button class="btn btn-primary btn-md" type="submit">Add result</button>
             </form>
+            <hr />
+
+            <div id="vueApp">
+                <h3>Bracket from cab</h3>
+                Experimental: this is just for display, it does not mean the scores are attributed to players!
+                You will still need to enter scores manually for that.
+                <br />
+                <ol>
+                    <li v-for="set in sets">
+                        <span :style="blueStyle" v-show="!goldOnLeft">${ set.teams[0].name } </span>
+                        <span :style="goldStyle" v-show="goldOnLeft">${ set.teams[1].name } </span>
+                        vs
+                        <span :style="goldStyle" v-show="!goldOnLeft">${ set.teams[1].name } </span>
+                        <span :style="blueStyle" v-show="goldOnLeft">${ set.teams[0].name } </span>
+                        <span v-show="set.start_time">
+                            &#8226;
+                            <span :style="blueStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ set.teams[0].score }</span> </span>
+                            <span :style="goldStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ set.teams[1].score }</span> </span>
+                            to
+                            <span :style="goldStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ set.teams[1].score }</span> </span>
+                            <span :style="blueStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ set.teams[0].score }</span> </span>
+                            &#8226;
+                            <span v-for="victory in set.victory_types">
+                                <span v-show="victory == 'gold_snail'" :style="goldBackStyle">🐌</span>
+                                <span v-show="victory == 'gold_military'" :style="goldBackStyle">⚔</span>
+                                <span v-show="victory == 'gold_economic'" :style="goldBackStyle">🍇</span>
+                                <span v-show="victory == 'blue_snail'" :style="blueBackStyle">🐌</span>
+                                <span v-show="victory == 'blue_military'" :style="blueBackStyle">⚔</span>
+                                <span v-show="victory == 'blue_economic'" :style="blueBackStyle">🍇</span>
+                            </span>
+                        </span>
+                    </li>
+                </ol>
+                <h3>Standings</h3>
+                <ol>
+                    <li v-for="standing in standings">
+                        ${ standing.name } &#8226; ${ standing.point } points &#8226; ${ standing.win } wins &#8226; ${ standing.loss } losses
+                    </li>
+                </ol>
+            </div>
         {% endif %}
     </div></div>
 </div>

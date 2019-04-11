@@ -29,10 +29,6 @@ def join(request, event_id):
 
     all_players: List[Player] = list(event.players.order_by('eventplayer__created'))
 
-    if not event.is_active and not request.user.is_staff:
-        logger.info("redirecting to result page: %d", event.id)
-        return redirect(reverse('event_result', args=[event.id]))
-
     token = ''
     has_token = (request.session.get('token', token) == event.token)
     if not request.user.is_staff and not has_token:
