@@ -2,7 +2,8 @@
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ObjectDoesNotExist
@@ -14,6 +15,8 @@ from hello.models import *
 
 logger = logging.getLogger('hello')
 
+QUARTER_DAY = timedelta(days=0.25)
+
 @csrf_exempt
 def bracket(request):
     processed =  _processCabInfo("bracket", request)
@@ -21,13 +24,17 @@ def bracket(request):
     if request.method == 'POST':
         try:
             current_events = Event.objects.filter(is_current=True).order_by('when', 'pk')
-            if len(current_events):
-                current_event = current_events[0]
-                text = request.body.decode('utf-8')
-                current_event.cab_bracket = text
-                current_event.save()
-        except:
-            logger.error("you goofed while processing bracket text")
+            for current_event in current_events:
+                logger.info("checking event {0}".format(str(current_event)))
+                timediff = abs(timezone.now() - current_event.when)
+                if timediff <= QUARTER_DAY:
+                    logger.info("saving bracket to event {0}".format(str(current_event)))
+                    text = request.body.decode('utf-8')
+                    current_event.cab_bracket = text
+                    current_event.save()
+                    break
+        except Exception as e:
+            logger.error("you goofed while processing bracket text: {0}".format(str(e)))
 
     return processed
 
