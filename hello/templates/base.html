@@ -73,10 +73,6 @@
                     <a href="/seasons" class="nav-link">
                         <span class="fas fa-calendar-alt"></span> Seasons </a>
                 </li>
-                <li class="nav-item">
-                    <a href="/code-of-conduct" class="nav-link">
-                        <span class="fas fa-handshake"></span> Code of Conduct </a>
-                </li>
                 {% if user.is_superuser %}
                 <li class="nav-item">
                     <a href="/top_players" class="nav-link">
@@ -85,6 +81,10 @@
                 {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
+                <li class="nav-item">
+                    <a href="/code-of-conduct" class="nav-link">
+                        <span class="fas fa-handshake"></span> Code of Conduct </a>
+                </li>
                 {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a href="/account/" class="nav-link">
