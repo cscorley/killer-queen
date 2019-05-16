@@ -154,8 +154,12 @@ var app = new Vue({
     }
 })
 
-
 setInterval(app.reload, 1000 * 15);
+
+$(window).focus(function () {
+    console.log("window got focus, reloading data");
+    app.reload();
+ });
 
 </script>
 {% endblock %}

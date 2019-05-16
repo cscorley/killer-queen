@@ -63,11 +63,11 @@
             <ul class="nav navbar-nav">
                 <li class="nav-item">
                     <a href="/events/current" class="nav-link">
-                        <span class="fas fa-flag"></span> Current Event</a>
+                        <span class="fas fa-flag"></span> Register</a>
                 </li>
                 <li class="nav-item">
                     <a href="/events/current-kiosk" class="nav-link">
-                        <span class="fas fa-stream"></span>Kiosk</a>
+                        <span class="fas fa-stream"></span> Kiosk</a>
                 </li>
                 <li class="nav-item">
                     <a href="/seasons" class="nav-link">
@@ -86,29 +86,25 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <a href="/account/" class="nav-link">
-                        <span class="fas fa-cog"></span> Edit Profile </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/accounts/logout?next=/" class="nav-link">
-                        <span class="fas fa-sign-out-alt"></span> Logout {{ user.username }}</a>
-                </li>
-                {% if user.is_superuser %}
                     <li class="nav-item">
-                        <a href="/admin" class="nav-link">
-                            <span class="fas fa-key"></span> Admin panel</a>
+                        <a href="/account/" class="nav-link">
+                            <span class="fas fa-cog"></span> Edit Profile </a>
                     </li>
-                {% endif %}
+                    <li class="nav-item">
+                        <a href="/accounts/logout?next=/" class="nav-link">
+                            <span class="fas fa-sign-out-alt"></span> Logout {{ user.username }}</a>
+                    </li>
+                    {% if user.is_superuser %}
+                        <li class="nav-item">
+                            <a href="/admin" class="nav-link">
+                                <span class="fas fa-key"></span> Admin panel</a>
+                        </li>
+                    {% endif %}
                 {% else %}
-                <li class="nav-item">
-                    <a href="/accounts/login" class="nav-link">
-                        <span class="fas fa-sign-in-alt"></span> Login</a>
-                </li>
-                <li class="nav-item">
-                    <a href="/accounts/signup" class="nav-link">
-                        <span class="fas fa-user-plus"></span> Create Account</a>
-                </li>
+                    <li class="nav-item">
+                        <a href="/accounts/login" class="nav-link">
+                            <span class="fas fa-sign-in-alt"></span> Login</a>
+                    </li>
                 {% endif %}
             </ul>
         </div>
