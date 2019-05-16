@@ -1,13 +1,15 @@
 from django.conf.urls import include, url
-from django.urls import path
 from django.contrib import admin
-admin.autodiscover()
+from django.urls import path
 
 import baseapp.settings as settings
+import hello.api
 import hello.views
 import hello.views.events
 import hello.views.seasons
-import hello.api
+
+admin.autodiscover()
+
 
 urlpatterns = [
     url(r'^accounts/', include('django.contrib.auth.urls')),
@@ -21,6 +23,7 @@ urlpatterns = [
     url(r'^events/(?P<event_id>\d+)/kiosk$', hello.views.events.kiosk, name='event_kiosk'),
     url(r'^events/(?P<event_id>\d+)/oldkiosk$', hello.views.events.old_kiosk, name='event_old_kiosk'),
     url(r'^events/current/$', hello.views.events.current, name='event_current'),
+    url(r'^events/current-kiosk$', hello.views.events.current_kiosk, name='event_current_kiosk'),
     url(r'^events/$', hello.views.events.EventListView.as_view()),
     url(r'^seasons/$', hello.views.seasons.SeasonListView.as_view()),
     url(r'^seasons/(?P<season_id>\d+)/top_players$', hello.views.seasonal_top_players, name='seasonal_top_players'),
