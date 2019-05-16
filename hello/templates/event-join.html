@@ -12,8 +12,8 @@
 
 <div class="container">
     <h1>Killer Queen: {{ event.season.name }} {{ event.name }}</h1>
-        &#8226; {{ event.when | timezone:event.timezone }} ({{ event.when | utc }} UTC)
-        &#8226; <br/>
+    {{ event.when | timezone:event.timezone }} ({{ event.when | utc }} UTC)
+    <br/>
     <hr />
     <div class="row">
     <div class="col-md-4">
