@@ -27,7 +27,7 @@ def refresh_ratings(request):
     # we need this for the first time processing
     full_reset = False
     try:
-        full_reset = int(request.GET.get("full_reset", False))
+        full_reset = bool(request.GET.get("full_reset", False))
     except ValueError:
         pass # Got bad value
 
