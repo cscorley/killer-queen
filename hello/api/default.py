@@ -45,7 +45,13 @@ def refresh_ratings_internal(full_reset: bool):
 
     if full_reset:
         # reset all players back to default rating
-        for player in Player.objects.all(): # type: Player
+        event: Event
+        for event in Event.objects.all():
+            event.has_been_processed = False
+            event.save()
+
+        player: Player
+        for player in Player.objects.all():
             player.clear_stats()
 
     # player rank confidence should decay 5% if missing
