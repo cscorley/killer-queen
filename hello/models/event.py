@@ -82,7 +82,6 @@ class GameResult(models.Model):
     gold = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='gold_result')
     win_order = models.CharField('Win order', max_length=20, default="", validators=[win_validator])
     contributes_to_season_score = models.BooleanField(default=True)
-    ghost_subs = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         if self.event:
@@ -103,20 +102,19 @@ class GameResult(models.Model):
         blue_ratings: List[trueskill.Rating] = [x.get_rating() for x in blue]
         gold_ratings: List[trueskill.Rating] = [x.get_rating() for x in gold]
 
-        if self.ghost_subs:
-            blue_ghost_count = 5 - len(blue)
-            gold_ghost_count = 5 - len(gold)
+        blue_ghost_count = 5 - len(blue)
+        gold_ghost_count = 5 - len(gold)
 
-            logger.info("Adding %d ghosts to BLUE team of %d", blue_ghost_count, len(blue))
-            logger.info("Adding %d ghosts to GOLD team of %d", gold_ghost_count, len(gold))
+        logger.info("Adding %d ghosts to BLUE team of %d", blue_ghost_count, len(blue))
+        logger.info("Adding %d ghosts to GOLD team of %d", gold_ghost_count, len(gold))
 
-            for n in range(0, blue_ghost_count):
-                logger.info("Added BLUE ghost")
-                blue_ratings.append(skill_env.create_rating())
+        for n in range(0, blue_ghost_count):
+            logger.info("Added BLUE ghost")
+            blue_ratings.append(skill_env.create_rating())
 
-            for n in range(0, gold_ghost_count):
-                logger.info("Added GOLD ghost")
-                gold_ratings.append(skill_env.create_rating())
+        for n in range(0, gold_ghost_count):
+            logger.info("Added GOLD ghost")
+            gold_ratings.append(skill_env.create_rating())
 
         results: List[List[int]]
 

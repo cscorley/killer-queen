@@ -11,5 +11,4 @@ class CreateGameResultForm(forms.ModelForm):
         fields = ('blue',
                   'gold',
                   'win_order',
-                  'contributes_to_season_score',
-                  'ghost_subs')
+                  'contributes_to_season_score')

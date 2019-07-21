@@ -57,7 +57,7 @@ def result(request, event_id):
                                                  })
 
 def get_new_result_form(event: Event):
-    data = {'event':event, 'contributes_to_season_score': True, 'ghost_subs': True}
+    data = {'event':event, 'contributes_to_season_score': True}
     resultForm = CreateGameResultForm(data)
     resultForm.fields['blue'].queryset = event.teams.all().order_by('name')
     resultForm.fields['gold'].queryset = event.teams.all().order_by('name')
