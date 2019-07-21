@@ -36,6 +36,7 @@ class Event(models.Model):
 
     token = models.CharField('Secret token', max_length=50, default='')
     cab_bracket = models.TextField('Cab Bracket', default='{}')
+    has_been_processed = models.BooleanField('Will disable reranking of players for this event', default=False)
 
     def __str__(self) -> str:
         return "%s (%s, %s)" % (self.name, self.season.name, str(self.when))
@@ -164,8 +165,3 @@ class GameResult(models.Model):
 
         for player, rating in zip(gold, gold_ratings):
             player.update_rating(rating, self.gold_win_count(), self.blue_win_count())
-
-@receiver(post_save, sender=GameResult)
-def process_game_result(sender, instance, created, **kwargs):
-    if created:
-        instance.process()

@@ -24,43 +24,35 @@ def refresh_ratings(request):
     if not request.user.is_staff:
         return HttpResponse("You don't have access to this.")
 
-    filter_by_weeks = 0
+    # we need this for the first time processing
+    full_reset = False
     try:
-        filter_by_weeks = int(request.GET.get("weeks", 0))
-    except ValueError:
-        pass # Got bad value
-
-    decay = 0
-    try:
-        decay = int(request.GET.get("decay", 0))
+        full_reset = int(request.GET.get("full_reset", False))
     except ValueError:
         pass # Got bad value
 
     try:
-        result = q.enqueue(refresh_ratings_internal, filter_by_weeks, decay)
+        result = q.enqueue(refresh_ratings_internal, full_reset)
     except ConnectionError:
-        refresh_ratings_internal(filter_by_weeks, decay)
+        refresh_ratings_internal()
 
-    return HttpResponse('OK -- filtered by last %d weeks with decay %d' % (filter_by_weeks, decay))
+    return HttpResponse('OK -- updating ranks')
 
-def refresh_ratings_internal(filter_by_weeks: int, decay: int):
+def refresh_ratings_internal(full_reset: bool):
     """
     Reset and re-rank all players based on all game results
     """
 
-    # reset all players back to default rating
-    for player in Player.objects.all(): # type: Player
-        player.clear_stats()
+    if full_reset:
+        # reset all players back to default rating
+        for player in Player.objects.all(): # type: Player
+            player.clear_stats()
+
+    # player rank confidence should decay 5% if missing
+    decay_rate = 1.05
 
     now = datetime.now(timezone.utc)
-    events: List[Event]
-    if filter_by_weeks:
-        minimum = now - timedelta(weeks=filter_by_weeks)
-        logger.info("Filtering last %d weeks (since %s)", filter_by_weeks, minimum)
-        events = Event.objects.filter(when__gte=minimum, when__lte=now).order_by('when')
-    else:
-        logger.info("Not filtering any game results")
-        events = Event.objects.filter(when__lte=now).order_by('when')
+    events: List[Event] = Event.objects.filter(when__lte=now, has_been_processed=False).order_by('when')
 
     event: Event
     for event in events:
@@ -75,19 +67,20 @@ def refresh_ratings_internal(filter_by_weeks: int, decay: int):
 
         all_players = set(Player.objects.all())
         decay_players = all_players - updated_players
-        if decay:
-            logger.info("Decaying %d of %d players for Event %s", len(decay_players), len(all_players), str(event))
-            decay_rate = 1.0 + (decay / 100)
-            player: Player
-            for player in all_players:
-                rating: trueskill.Rating = player.get_rating()
-                sigma = rating.sigma * decay_rate
-                if sigma > default_sigma:
-                    sigma = default_sigma
 
-                new_rating = skill_env.create_rating(rating.mu, sigma)
-                player.update_rating(new_rating, 0, 0)
+        logger.info("Decaying %d of %d players for Event %s", len(decay_players), len(all_players), str(event))
+        player: Player
+        for player in all_players:
+            rating: trueskill.Rating = player.get_rating()
+            sigma = rating.sigma * decay_rate
+            if sigma > default_sigma:
+                sigma = default_sigma
 
+            new_rating = skill_env.create_rating(rating.mu, sigma)
+            player.update_rating(new_rating, 0, 0)
+
+        event.has_been_processed = True
+        event.save()
 
 class TeamViewItem:
 
