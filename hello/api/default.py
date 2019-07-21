@@ -24,13 +24,6 @@ def refresh_ratings(request):
     if not request.user.is_staff:
         return HttpResponse("You don't have access to this.")
 
-    # we need this for the first time processing
-    full_reset = False
-    try:
-        full_reset = bool(request.GET.get("full_reset", False))
-    except ValueError:
-        pass # Got bad value
-
     try:
         result = q.enqueue(refresh_ratings_internal, full_reset)
     except ConnectionError:
@@ -42,17 +35,6 @@ def refresh_ratings_internal(full_reset: bool):
     """
     Reset and re-rank all players based on all game results
     """
-
-    if full_reset:
-        # reset all players back to default rating
-        event: Event
-        for event in Event.objects.all():
-            event.has_been_processed = False
-            event.save()
-
-        player: Player
-        for player in Player.objects.all():
-            player.clear_stats()
 
     # player rank confidence should decay 5% if missing
     decay_rate = 1.05
