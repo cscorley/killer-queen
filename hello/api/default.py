@@ -25,13 +25,13 @@ def refresh_ratings(request):
         return HttpResponse("You don't have access to this.")
 
     try:
-        result = q.enqueue(refresh_ratings_internal, full_reset)
+        result = q.enqueue(refresh_ratings_internal)
     except ConnectionError:
         refresh_ratings_internal()
 
     return HttpResponse('OK -- updating ranks')
 
-def refresh_ratings_internal(full_reset: bool):
+def refresh_ratings_internal():
     """
     Reset and re-rank all players based on all game results
     """
