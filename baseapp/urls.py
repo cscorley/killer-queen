@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^events/current/$', hello.views.events.current, name='event_current'),
     url(r'^events/current-kiosk$', hello.views.events.current_kiosk, name='event_current_kiosk'),
     url(r'^events/$', hello.views.events.EventListView.as_view()),
+    url(r'^kiosk$', hello.views.kiosk, name='general_kiosk'),
     url(r'^seasons/$', hello.views.seasons.SeasonListView.as_view()),
     url(r'^seasons/(?P<season_id>\d+)/top_players$', hello.views.seasonal_top_players, name='seasonal_top_players'),
     path('admin/', admin.site.urls),

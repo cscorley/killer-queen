@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% load tz %}
+{% load static %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+<script src="//cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+<script src="//cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+<script src="//unpkg.com/axios/dist/axios.min.js"></script>
+
+
+{{ bracket|json_script:"bracket-data" }}
+
+{% csrf_token %}
+<script>
+var csrfToken = jQuery("[name=csrfmiddlewaretoken]").val();
+
+Vue.http.interceptors.push(function(request) {
+  request.headers.set('X-CSRFToken', csrfToken);
+});
+
+var app = new Vue({
+    el: '#vueApp',
+    delimiters: ['${', '}'],
+    data: {
+        blueStyle: { color: 'rgb(69, 122, 236)' },
+        goldStyle: { color: 'rgb(170, 131, 25)' },
+        blueBackStyle: { backgroundColor: 'rgb(69, 122, 236)' },
+        goldBackStyle: { backgroundColor: 'rgb(170, 131, 25)' },
+        goldOnLeft: false,
+        sets: [],
+        standings: [],
+        storedBracket: JSON.parse(document.getElementById('bracket-data').textContent),
+        dumbSet: {
+                    "id":-1,
+                    "best_of":5,
+                    "on_machine_name":"",
+                    "start_time":"",
+                    "teams":[{"name":"Unknown","score":0},{"name":"Unknown","score":0}],
+                    "victory_types":[],
+                    "match_data_id":[]
+                }
+    },
+    computed:
+    {
+        leftStyle: function()
+        {
+            return this.goldOnLeft
+                 ? this.goldStyle
+                 : this.blueStyle;
+        },
+        rightStyle: function()
+        {
+            return this.goldOnLeft
+                 ? this.blueStyle
+                 : this.goldStyle;
+        },
+        onCabSet: function()
+        {
+            const started = this.sets.filter(set => set.start_time);
+            started.sort((a, b) => a.start_time - b.start_time);
+            const set = started[started.length - 1]
+            return set !== undefined ? set : this.dumbSet;
+        },
+        nextUpSet: function()
+        {
+            const queued = this.sets.filter(set => !set.start_time);
+            queued.sort((a, b) => a.id - b.id);
+            const set = queued[0]
+            return set !== undefined ? set : this.dumbSet;
+        },
+        currentMatch: function()
+        {
+            var match = {
+                team1: "Unknown",
+                team2: "Unknown",
+                score1: 0,
+                score2: 0,
+                next1: "Unknown",
+                next2: "Unknown"
+            };
+
+            if (this.onCabSet !== undefined) {
+                match.team1 = this.onCabSet.teams[0].name
+                match.team2 = this.onCabSet.teams[1].name
+                match.score1 = this.onCabSet.teams[0].score
+                match.score2 = this.onCabSet.teams[1].score
+            }
+
+            if (this.nextUpSet !== undefined)  {
+                match.next1 = this.nextUpSet.teams[0].name
+                match.next2 = this.nextUpSet.teams[1].name
+            }
+
+            return match;
+        }
+    },
+    methods: {
+        reload: function()
+        {
+            console.log("reloading cab info");
+            axios.get('/api/cab/bracket')
+                 .then(response => {
+                     this.storedBracket = response.data
+                 })
+                 .catch(console.log);
+
+            this.processTournament();
+
+            axios.get('/api/cab/goldonleft')
+                 .then(response => {
+                    this.goldOnLeft = response.data.json
+                 })
+                 .catch(console.log);
+        },
+        processTournament: function()
+        {
+            if (this.storedBracket !== undefined && this.storedBracket.json !== undefined) {
+                var tournament = this.storedBracket.json;
+                console.log('processing tournament:', tournament)
+                this.sets = []
+
+                for (var bracket of tournament.brackets)
+                {
+                    for (var round of bracket.rounds)
+                    {
+                        for (var set of round.sets)
+                        {
+                            if (set.id > 0)
+                            {
+                                this.sets.push(set)
+                            }
+                        }
+                    }
+                }
+
+                this.sets.sort((a, b) => a.id - b.id);
+
+                this.standings = []
+                for (var standing of tournament.standings)
+                {
+                    this.standings.push(standing);
+                }
+
+                this.standings.sort((a, b) => b.point - a.point);
+            }
+        }
+    },
+    mounted () {
+    },
+    created () {
+            this.processTournament()
+    }
+})
+
+setInterval(app.reload, 1000 * 15);
+
+$(window).focus(function () {
+    console.log("window got focus, reloading data");
+    app.reload();
+ });
+
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h1>Killer Queen Tournament Kiosk</h1>
+    <hr />
+    <div class="row" id="vueApp">
+            <div class="col-md-6">
+                <h3>On cab</h3>
+                    <span :style="blueStyle" v-show="!goldOnLeft">${ currentMatch.team1 } </span>
+                    <span :style="goldStyle" v-show="goldOnLeft">${ currentMatch.team2 } </span>
+                    vs
+                    <span :style="goldStyle" v-show="!goldOnLeft">${ currentMatch.team2 } </span>
+                    <span :style="blueStyle" v-show="goldOnLeft">${ currentMatch.team1 } </span>
+                    &#8226;
+                    <span :style="blueStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score1 }</span> </span>
+                    <span :style="goldStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score2 }</span> </span>
+                    to
+                    <span :style="goldStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score2 }</span> </span>
+                    <span :style="blueStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ currentMatch.score1 }</span> </span>
+                <br />
+                <br />
+                <h3>Up next</h3>
+                    <span :style="blueStyle" v-show="!goldOnLeft">${ currentMatch.next1 }</span>
+                    <span :style="goldStyle" v-show="goldOnLeft">${ currentMatch.next2 }</span>
+                    vs
+                    <span :style="goldStyle" v-show="!goldOnLeft">${ currentMatch.next2 }</span>
+                    <span :style="blueStyle" v-show="goldOnLeft">${ currentMatch.next1 }</span>
+                <br />
+                <br />
+                <h3>Bracket</h3>
+                <ol>
+                    <li v-for="set in sets">
+                        <span :style="blueStyle" v-show="!goldOnLeft">${ set.teams[0].name } </span>
+                        <span :style="goldStyle" v-show="goldOnLeft">${ set.teams[1].name } </span>
+                        vs
+                        <span :style="goldStyle" v-show="!goldOnLeft">${ set.teams[1].name } </span>
+                        <span :style="blueStyle" v-show="goldOnLeft">${ set.teams[0].name } </span>
+                        <span v-show="set.start_time">
+                            &#8226;
+                            <span :style="blueStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ set.teams[0].score }</span> </span>
+                            <span :style="goldStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ set.teams[1].score }</span> </span>
+                            to
+                            <span :style="goldStyle" v-show="!goldOnLeft"> <span style="font-weight: bold">${ set.teams[1].score }</span> </span>
+                            <span :style="blueStyle" v-show="goldOnLeft"> <span style="font-weight: bold">${ set.teams[0].score }</span> </span>
+                            &#8226;
+                            <span v-for="victory in set.victory_types">
+                                <span v-show="victory == 'gold_snail'" :style="goldBackStyle">🐌</span>
+                                <span v-show="victory == 'gold_military'" :style="goldBackStyle">⚔</span>
+                                <span v-show="victory == 'gold_economic'" :style="goldBackStyle">🍇</span>
+                                <span v-show="victory == 'blue_snail'" :style="blueBackStyle">🐌</span>
+                                <span v-show="victory == 'blue_military'" :style="blueBackStyle">⚔</span>
+                                <span v-show="victory == 'blue_economic'" :style="blueBackStyle">🍇</span>
+                            </span>
+                        </span>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-md-3">
+                <h3>Standings</h3>
+                <ol>
+                    <li v-for="standing in standings">
+                        ${ standing.name } &#8226; ${ standing.point } points &#8226; ${ standing.win } wins &#8226; ${ standing.loss } losses
+                    </li>
+                </ol>
+            </div>
+
+            <div class="col-md-3">
+                <iframe frameborder="0"
+                        scrolling="no"
+                        id="thecoinop"
+                        src="https://www.twitch.tv/embed/thecoinop/chat"
+                        height="600px"
+                        width="100%">
+                </iframe>
+            </div>
+    </div>
+</div>
+
+{% endblock %}

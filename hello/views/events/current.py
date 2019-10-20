@@ -14,4 +14,4 @@ def current_kiosk(request):
     if len(current_events):
         return redirect('/events/%d/kiosk' % current_events[0].id)
 
-    return redirect('/')
+    return redirect('/kiosk')
