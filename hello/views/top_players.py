@@ -6,13 +6,13 @@ from hello.models import Player, Season, GameResult, Event
 
 import statistics
 import logging
+from datetime import date
 
 logger = logging.getLogger("hello")
 
 def top_players(request):
     if not request.user.is_superuser:
-        current_events = Event.objects.filter(is_current=True).order_by('when', 'pk')
-        current = current_events[0].season
+        current = Season.objects.filter(when__lte=date.today()).order_by('when', 'pk')
         logger.info("redirecting to current season top page: %d", current.id)
         return redirect(reverse('seasonal_top_players', args=[current.id]))
 

@@ -2,7 +2,7 @@
 
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from django.utils import timezone
 
 from django.contrib.auth.models import Group, User
@@ -23,7 +23,7 @@ def bracket(request):
 
     if request.method == 'POST':
         try:
-            current_events = Event.objects.filter(is_current=True).order_by('when', 'pk')
+            current_events = Event.objects.filter(when__date=date.today()).order_by('when', 'pk')
             for current_event in current_events:
                 logger.info("checking event {0}".format(str(current_event)))
                 timediff = abs(timezone.now() - current_event.when)
