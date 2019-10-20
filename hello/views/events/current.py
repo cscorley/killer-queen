@@ -4,11 +4,10 @@ from hello.models import Event
 from datetime import date
 
 def get_todays_event() -> Event:
-    current_events = Event.objects.filter(is_current=True).order_by('when', 'pk')
+    current_events = Event.objects.filter(is_current=True, when__date=date.today()).order_by('when', 'pk')
 
-    for event in current_events:
-        if event.when.date == date.today():
-            return event
+    if len(current_events):
+        return current_events[0]
 
     return None
 
