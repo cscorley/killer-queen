@@ -1,21 +1,22 @@
 [[source]]
-url = "https://pypi.python.org/simple"
+url = "https://pypi.org/simple"
 verify_ssl = true
+name = "pypi"
 
 [packages]
-django = "*"
-gunicorn = "*"
-django-heroku = "*"
-"psycopg2" = "*"
-requests = "*"
-trueskill = "*"
-parameterized = "*"
-pytz = "*"
-django-autocomplete-light = "*"
-rq = "*"
+"psycopg2" = "==2.8.2"
+django = "==2.2.28"
+django-autocomplete-light = "==3.3.4"
+django-heroku = "==0.3.1"
+gunicorn = "==19.9.0"
+parameterized = "==0.7.0"
+pytz = "==2019.1"
+requests = "==2.21.0"
+rq = "==1.0"
+trueskill = "==0.4.5"
 
 [requires]
-python_version = "3.7"
+python_version = "3.10"
 
 [dev-packages]
-autopep8 = "*"
+autopep8 = "==1.4.4"
